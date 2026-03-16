@@ -1,0 +1,298 @@
+#!/usr/bin/env node
+/**
+ * scripts/generateProperties.js
+ *
+ * Generates 5000 RawProperty entries distributed across 8 cities and writes:
+ *   lib/data/properties.json        — raw property listings
+ *   lib/data/generated-signals.json — processed signals (same logic as lib/signals/generateSignals.ts)
+ *
+ * Signal distribution targets:
+ *   20% price drops (>7% below previous price)
+ *   10% long days on market (>90 days)
+ *    8% relisted properties (price_history.length > 2)
+ *    5% below-market pricing (price/sqft < city avg * 0.85)
+ *    4% hot leads (score ≥ 80) — price drop + relisted + long DOM combined
+ *
+ * Usage: node scripts/generateProperties.js
+ */
+'use strict';
+
+const { writeFileSync } = require('fs');
+const { join }          = require('path');
+
+// ─── City configuration ───────────────────────────────────────────────────────
+const CITIES = [
+  { name: 'Phoenix',   abbr: 'phx', state: 'AZ', zipPrefix: '850', avgPrice: 420000, priceRange: 220000, avgSqft: 2000, sqftRange: 900,  avgPriceSqft: 220 },
+  { name: 'Miami',     abbr: 'mia', state: 'FL', zipPrefix: '331', avgPrice: 680000, priceRange: 420000, avgSqft: 1450, sqftRange: 650,  avgPriceSqft: 380 },
+  { name: 'Dallas',    abbr: 'dal', state: 'TX', zipPrefix: '752', avgPrice: 400000, priceRange: 220000, avgSqft: 2200, sqftRange: 850,  avgPriceSqft: 180 },
+  { name: 'Atlanta',   abbr: 'atl', state: 'GA', zipPrefix: '303', avgPrice: 395000, priceRange: 210000, avgSqft: 2000, sqftRange: 750,  avgPriceSqft: 190 },
+  { name: 'Tampa',     abbr: 'tpa', state: 'FL', zipPrefix: '336', avgPrice: 460000, priceRange: 210000, avgSqft: 1800, sqftRange: 650,  avgPriceSqft: 250 },
+  { name: 'Las Vegas', abbr: 'las', state: 'NV', zipPrefix: '891', avgPrice: 400000, priceRange: 190000, avgSqft: 1900, sqftRange: 700,  avgPriceSqft: 200 },
+  { name: 'Chicago',   abbr: 'chi', state: 'IL', zipPrefix: '606', avgPrice: 375000, priceRange: 210000, avgSqft: 1750, sqftRange: 700,  avgPriceSqft: 220 },
+  { name: 'Cleveland', abbr: 'cle', state: 'OH', zipPrefix: '441', avgPrice: 200000, priceRange: 130000, avgSqft: 1600, sqftRange: 650,  avgPriceSqft: 120 },
+];
+
+const CITY_AVG_SQFT = {};
+CITIES.forEach(c => { CITY_AVG_SQFT[c.name.toLowerCase()] = c.avgPriceSqft; });
+
+// ─── Street name pool ─────────────────────────────────────────────────────────
+const STREET_NAMES = [
+  'Oak', 'Maple', 'Cedar', 'Pine', 'Elm', 'Birch', 'Walnut', 'Spruce', 'Willow', 'Ash',
+  'Washington', 'Lincoln', 'Jefferson', 'Madison', 'Adams', 'Jackson', 'Monroe', 'Harrison',
+  'Main', 'Park', 'Lake', 'Hill', 'Valley', 'Ridge', 'Forest', 'Meadow', 'River', 'Spring',
+  'Sunset', 'Sunrise', 'Highland', 'Woodland', 'Lakewood', 'Greenwood', 'Fairview', 'Hillcrest',
+  'Riverside', 'Brookside', 'Crestview', 'Parkway', 'Orchard', 'Garden', 'Magnolia', 'Palm',
+  'Coral', 'Cactus', 'Desert', 'Prairie', 'Mission', 'Canyon', 'Summit', 'Frontier',
+  'Bristol', 'Canterbury', 'Hampton', 'Windsor', 'Colonial', 'Heritage', 'Liberty', 'Victory',
+  'Peach', 'Bayou', 'Lakeview', 'Clearwater', 'Creekside', 'Stonegate', 'Foxwood', 'Pinecrest',
+];
+const STREET_TYPES = ['St', 'Ave', 'Blvd', 'Dr', 'Rd', 'Ln', 'Way', 'Ct', 'Pl', 'Cir', 'Ter', 'Pkwy'];
+
+const OWNER_NAMES = [
+  'James Wilson', 'Maria Rodriguez', 'Robert Thompson', 'Linda Martinez', 'David Johnson',
+  'Patricia Davis', 'Michael Anderson', 'Barbara Taylor', 'John Jackson', 'Susan White',
+  'William Harris', 'Karen Martin', 'Richard Clark', 'Nancy Lewis', 'Thomas Robinson',
+  'Betty Walker', 'Charles Hall', 'Dorothy Young', 'Daniel Allen', 'Sandra King',
+  'Paul Wright', 'Ashley Scott', 'Mark Green', 'Emily Baker', 'Donald Adams',
+  'Donna Nelson', 'Steven Hill', 'Carol Rivera', 'Kenneth Campbell', 'Ruth Mitchell',
+  'George Carter', 'Sharon Perez', 'Edward Roberts', 'Michelle Turner', 'Brian Phillips',
+  'Amanda Evans', 'Kevin Collins', 'Melissa Stewart', 'Jason Sanchez', 'Deborah Morris',
+  'Jeffrey Rogers', 'Stephanie Reed', 'Ryan Cook', 'Rebecca Bailey', 'Jacob Morgan',
+  'Laura Bell', 'Gary Murphy', 'Sarah Ward', 'Anthony Torres', 'Christine Flores',
+  'Joshua Ramirez', 'Joyce Gonzalez', 'Andrew Diaz', 'Frances Cruz', 'Kenneth Reyes',
+  'Helen Morales', 'Patrick Murphy', 'Phyllis Cook', 'Timothy Rogers', 'Alice Bailey',
+  'Jerry Ward', 'Lori Bell', 'Raymond Foster', 'Evelyn Butler', 'Philip Long',
+  'Cheryl James', 'Harold Simmons', 'Megan Foster', 'Carl Patterson', 'Kathleen Hughes',
+];
+
+// ─── Seeded deterministic PRNG (LCG — no external deps) ──────────────────────
+let seed = 20260315;
+function seededRand() {
+  seed = Math.imul(1664525, seed) + 1013904223 | 0;
+  return (seed >>> 0) / 4294967296;
+}
+function rand(min, max) { return Math.floor(seededRand() * (max - min + 1)) + min; }
+function pick(arr)       { return arr[Math.floor(seededRand() * arr.length)]; }
+
+function daysAgo(n) {
+  const d = new Date('2026-03-15');
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+}
+
+// ─── Signal band layout (per city, 0-indexed within city batch) ──────────────
+//
+//  Band        Count  Signals
+//  0 – 24        25   price drop + relisted + long DOM  → score 80  (Hot Lead)
+//  25 – 49       25   price drop + relisted             → score 55
+//  50 – 124      75   price drop only                   → score 30
+//  125 – 162     38   long DOM only                     → score 25
+//  163 – 193     31   below market only                 → score 20
+//  194 – 624    431   normal                            → score 0
+//
+// Totals per city (625 props):
+//   price drop : 25+25+75 = 125 = 20%  ✓
+//   relisted   : 25+25    =  50 =  8%  ✓
+//   long DOM   : 25+38    =  63 = 10%  ✓
+//   below mkt  : 31       =  31 =  5%  ✓
+//   hot (≥80)  : 25       =  25 =  4%
+
+const TOTAL    = 5000;
+const PER_CITY = TOTAL / CITIES.length; // 625 exactly
+
+// ─── Generate properties ──────────────────────────────────────────────────────
+const properties = [];
+
+for (const city of CITIES) {
+  const usedAddresses = new Set();
+
+  for (let i = 0; i < PER_CITY; i++) {
+    const hasPriceDrop = i <= 124;                    // bands 0-124
+    const hasRelisted  = i <= 49;                     // bands 0-49
+    const hasLongDOM   = i <= 24 || (i >= 125 && i <= 162); // bands 0-24 and 125-162
+    const hasBelowMkt  = i >= 163 && i <= 193;        // band 163-193
+
+    // Unique address within this city
+    let address;
+    do {
+      address = `${rand(101, 9999)} ${pick(STREET_NAMES)} ${pick(STREET_TYPES)}`;
+    } while (usedAddresses.has(address));
+    usedAddresses.add(address);
+
+    const zip  = `${city.zipPrefix}${rand(10, 99)}`;
+    const beds = rand(2, 5);
+    const baths = Math.max(1, beds - rand(0, 1));
+    const sqft  = Math.max(800, rand(
+      city.avgSqft - Math.floor(city.sqftRange / 2),
+      city.avgSqft + Math.floor(city.sqftRange / 2)
+    ));
+    const basePrice = Math.max(80000, rand(
+      city.avgPrice - Math.floor(city.priceRange / 2),
+      city.avgPrice + Math.floor(city.priceRange / 2)
+    ));
+
+    // Days on market
+    const dom = hasLongDOM ? rand(91, 210) : rand(5, 82);
+
+    // Price history
+    let priceHistory;
+    if (hasPriceDrop && hasRelisted) {
+      // Three entries: original → intermediate → current (current is lowest)
+      const orig = Math.round(basePrice * (1 + 0.08 + seededRand() * 0.14));
+      const mid  = Math.round(basePrice * (1 + 0.03 + seededRand() * 0.07));
+      priceHistory = [orig, mid, basePrice];
+    } else if (hasPriceDrop) {
+      const prev = Math.round(basePrice * (1 + 0.08 + seededRand() * 0.14));
+      priceHistory = [prev, basePrice];
+    } else {
+      priceHistory = [basePrice];
+    }
+
+    // Below-market: override price so price/sqft < city avg * 0.85
+    let finalPrice = basePrice;
+    if (hasBelowMkt) {
+      finalPrice = Math.round(sqft * city.avgPriceSqft * (0.65 + seededRand() * 0.18));
+      priceHistory = [finalPrice];
+    }
+
+    const id = `${city.abbr}-${String(i + 1).padStart(4, '0')}`;
+    const listingDate = daysAgo(dom);
+    const lastUpdated = daysAgo(rand(0, Math.min(dom - 1, 21)));
+
+    const prop = {
+      id,
+      address,
+      city: city.name,
+      state: city.state,
+      zip,
+      price: finalPrice,
+      beds,
+      baths,
+      sqft,
+      days_on_market: dom,
+      price_history: priceHistory,
+      listing_date: listingDate,
+      last_updated: lastUpdated,
+    };
+
+    if (seededRand() < 0.65) {
+      prop.loan_balance = Math.round(finalPrice * (0.38 + seededRand() * 0.36));
+    }
+    if (seededRand() < 0.45) {
+      prop.owner_name = pick(OWNER_NAMES);
+    }
+
+    properties.push(prop);
+  }
+}
+
+// ─── Signal engine (mirrors lib/signals/generateSignals.ts exactly) ──────────
+function deterministicFloat(id, min, max) {
+  const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return min + ((hash % 1000) / 1000) * (max - min);
+}
+
+function generateSignals(props) {
+  return props.map(p => {
+    const cityKey    = p.city.toLowerCase();
+    const marketAvg  = CITY_AVG_SQFT[cityKey] || 200;
+    const pricePerSqft = p.sqft > 0 ? Math.round(p.price / p.sqft) : null;
+
+    const hist = p.price_history;
+    let priceDrop = null;
+    if (hist.length >= 2) {
+      const prev = hist[hist.length - 2];
+      const curr = hist[hist.length - 1];
+      if (prev > 0 && prev > curr) {
+        priceDrop = Math.round(((prev - curr) / prev) * 100);
+      }
+    }
+
+    const hasPriceDrop = priceDrop !== null && priceDrop > 7;
+    const hasLongDOM   = p.days_on_market > 90;
+    const belowMarket  = pricePerSqft !== null && pricePerSqft < marketAvg * 0.85;
+    const hasRelisted  = hist.length > 2;
+
+    let score = 0;
+    if (hasPriceDrop) score += 30;
+    if (hasLongDOM)   score += 25;
+    if (belowMarket)  score += 20;
+    if (hasRelisted)  score += 25;
+    score = Math.min(100, score);
+
+    const loanBalance = (p.loan_balance != null)
+      ? p.loan_balance
+      : Math.round(p.price * deterministicFloat(p.id, 0.40, 0.72));
+
+    const rentEstimate = Math.round(
+      p.price * deterministicFloat(p.id + '-rent', 0.006, 0.011)
+    );
+
+    let lead_type = 'Investor Opportunity';
+    if (hasPriceDrop && hasLongDOM) lead_type = 'Pre-Foreclosure';
+    else if (hasRelisted)           lead_type = 'Expired Listing';
+
+    const daysInDefault = p.days_on_market > 120
+      ? Math.floor(p.days_on_market * deterministicFloat(p.id + '-def', 0.4, 0.6))
+      : null;
+
+    return {
+      address:                   p.address,
+      city:                      p.city,
+      zip:                       p.zip,
+      owner_name:                p.owner_name || null,
+      estimated_value:           p.price,
+      loan_balance_estimate:     loanBalance,
+      days_in_default:           daysInDefault,
+      previous_listing_price:    hist.length >= 2 ? hist[hist.length - 2] : null,
+      days_on_market:            p.days_on_market,
+      agent_name:                null,
+      lead_type,
+      price_per_sqft:            pricePerSqft,
+      market_avg_price_per_sqft: marketAvg,
+      price_drop_percent:        priceDrop,
+      rent_estimate:             rentEstimate,
+      opportunity_score:         score,
+    };
+  });
+}
+
+// ─── Write files ──────────────────────────────────────────────────────────────
+const root           = join(__dirname, '..');
+const propertiesPath = join(root, 'lib', 'data', 'properties.json');
+const signalsPath    = join(root, 'lib', 'data', 'generated-signals.json');
+
+writeFileSync(propertiesPath, JSON.stringify(properties, null, 2), 'utf-8');
+console.log(`✓ Wrote ${properties.length} properties → ${propertiesPath}`);
+
+const signals = generateSignals(properties);
+writeFileSync(signalsPath, JSON.stringify(signals, null, 2), 'utf-8');
+console.log(`✓ Wrote ${signals.length} signals    → ${signalsPath}`);
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+const pct = (n) => ((n / signals.length) * 100).toFixed(1) + '%';
+
+const hot        = signals.filter(s => (s.opportunity_score || 0) >= 80).length;
+const dropCount  = signals.filter(s => (s.price_drop_percent || 0) > 7).length;
+const domCount   = signals.filter(s => (s.days_on_market || 0) > 90).length;
+const relist     = properties.filter(p => p.price_history.length > 2).length;
+const belowMkt   = signals.filter(s =>
+  s.price_per_sqft !== null &&
+  s.market_avg_price_per_sqft !== null &&
+  s.price_per_sqft < s.market_avg_price_per_sqft * 0.85
+).length;
+
+const byCity = {};
+for (const s of signals) byCity[s.city] = (byCity[s.city] || 0) + 1;
+
+console.log('\nSignal distribution:');
+console.log(`  Total signals  : ${signals.length}`);
+console.log(`  Hot leads ≥80  : ${hot}  (${pct(hot)})`);
+console.log(`  Price drops    : ${dropCount}  (${pct(dropCount)})`);
+console.log(`  Long DOM >90d  : ${domCount}  (${pct(domCount)})`);
+console.log(`  Relisted       : ${relist}  (${pct(relist)})`);
+console.log(`  Below market   : ${belowMkt}  (${pct(belowMkt)})`);
+console.log('\nBy city:');
+for (const [city, n] of Object.entries(byCity)) {
+  console.log(`  ${city.padEnd(12)} ${n}`);
+}

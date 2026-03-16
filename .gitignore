@@ -1,0 +1,24 @@
+# dependencies
+node_modules
+
+# Next.js build output
+.next
+dist
+build
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+
+# test coverage
+coverage
+
+# Vercel
+.vercel
+
+# logs
+*.log

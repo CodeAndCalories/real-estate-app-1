@@ -1,0 +1,331 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { Property } from '@/app/finder/page'
+import { explainSignal } from '@/lib/utils/explainSignal'
+import { getScoreLabel } from '@/lib/utils/scoreProperty'
+import { useThemeMode } from '@/lib/hooks/useThemeMode'
+
+type Props = {
+  property: Property | null
+  onClose: () => void
+  isSaved: boolean
+  onToggleSave: (p: Property) => void
+}
+
+function getFreshnessDays(address: string): number {
+  const hash = address.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  return (hash % 7) + 1
+}
+
+function FreshnessBadge({ address }: { address: string }) {
+  const days = getFreshnessDays(address)
+  if (days <= 2)
+    return (
+      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+        New
+      </span>
+    )
+  if (days <= 5)
+    return (
+      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-600 border border-blue-200">
+        Updated
+      </span>
+    )
+  return (
+    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+      Recent
+    </span>
+  )
+}
+
+function fmt(value: number | null | undefined, prefix = ''): string {
+  if (value === null || value === undefined) return '—'
+  return prefix + value.toLocaleString()
+}
+
+function Row({
+  label,
+  value,
+  isDark,
+  highlight,
+}: {
+  label: string
+  value: string
+  isDark: boolean
+  highlight?: 'green' | 'red'
+}) {
+  const valueClass =
+    highlight === 'green'
+      ? 'text-green-500 font-semibold'
+      : highlight === 'red'
+      ? 'text-red-500 font-semibold'
+      : isDark
+      ? 'text-gray-200'
+      : 'text-gray-800'
+
+  return (
+    <div
+      className={`flex items-center justify-between px-3 py-2.5 ${
+        isDark ? 'odd:bg-gray-800/40' : 'odd:bg-gray-50/60'
+      }`}
+    >
+      <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{label}</span>
+      <span className={`text-xs font-medium text-right ${valueClass}`}>{value}</span>
+    </div>
+  )
+}
+
+export default function SignalDetailDrawer({ property, onClose, isSaved, onToggleSave }: Props) {
+  const { isDark } = useThemeMode()
+
+  // localP keeps content visible during the close animation
+  const [localP, setLocalP] = useState<Property | null>(null)
+  const [isSlideIn, setIsSlideIn] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (property) {
+      if (timerRef.current) clearTimeout(timerRef.current)
+      setLocalP(property)
+      // Double rAF: ensure element is in DOM before applying translate class
+      const id = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setIsSlideIn(true))
+      )
+      return () => cancelAnimationFrame(id)
+    }
+  }, [property])
+
+  function close() {
+    setIsSlideIn(false)
+    timerRef.current = setTimeout(() => {
+      setLocalP(null)
+      onClose()
+    }, 300)
+  }
+
+  if (!localP) return null
+
+  const p = localP
+  const score = p.opportunity_score ?? 0
+  const equity =
+    p.estimated_value && p.loan_balance_estimate !== null
+      ? p.estimated_value - p.loan_balance_estimate
+      : null
+  const rentRatio =
+    p.rent_estimate && p.estimated_value
+      ? ((p.rent_estimate / p.estimated_value) * 100).toFixed(2) + '%'
+      : null
+  const explanations = explainSignal(p)
+  const scoreLabel = getScoreLabel(score)
+
+  const scoreBg =
+    score >= 80
+      ? isDark
+        ? 'bg-green-900/30 border-green-700 text-green-400'
+        : 'bg-green-50 border-green-200 text-green-700'
+      : score >= 60
+      ? isDark
+        ? 'bg-yellow-900/30 border-yellow-700 text-yellow-400'
+        : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+      : isDark
+      ? 'bg-red-900/30 border-red-800 text-red-400'
+      : 'bg-red-50 border-red-200 text-red-600'
+
+  const leadTypeBg =
+    p.lead_type === 'Pre-Foreclosure'
+      ? 'bg-red-100 text-red-700'
+      : p.lead_type === 'Expired Listing'
+      ? 'bg-yellow-100 text-yellow-700'
+      : 'bg-green-100 text-green-700'
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
+          isDark ? 'bg-black/60' : 'bg-black/30'
+        } ${isSlideIn ? 'opacity-100' : 'opacity-0'}`}
+        onClick={close}
+      />
+
+      {/* Drawer — slides in from the right */}
+      <div
+        className={`fixed top-0 right-0 h-full z-50 flex flex-col shadow-2xl
+          transition-transform duration-300 ease-in-out
+          ${isSlideIn ? 'translate-x-0' : 'translate-x-full'}
+          ${isDark ? 'bg-gray-900 border-l border-gray-700' : 'bg-white border-l border-gray-200'}
+        `}
+        style={{ width: 'min(420px, 100vw)' }}
+      >
+        {/* Header */}
+        <div
+          className={`flex items-start justify-between px-5 py-4 border-b flex-shrink-0 ${
+            isDark ? 'border-gray-700' : 'border-gray-100'
+          }`}
+        >
+          <div className="flex-1 min-w-0">
+            <h2 className={`font-bold text-sm leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              {p.address}
+            </h2>
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              {p.city}, {p.zip}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+            <button
+              onClick={() => onToggleSave(p)}
+              className={`text-xl leading-none transition-colors ${
+                isSaved
+                  ? 'text-yellow-400 hover:text-yellow-500'
+                  : isDark
+                  ? 'text-gray-600 hover:text-yellow-400'
+                  : 'text-gray-300 hover:text-yellow-400'
+              }`}
+              aria-label={isSaved ? 'Unsave signal' : 'Save signal'}
+            >
+              {isSaved ? '★' : '☆'}
+            </button>
+            <button
+              onClick={close}
+              className={`p-1.5 rounded-md transition-colors ${
+                isDark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-400 hover:bg-gray-100'
+              }`}
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+          {/* Score / Freshness / Lead Type row */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className={`rounded-lg border p-3 text-center ${scoreBg}`}>
+              <div className="text-2xl font-bold">{score}</div>
+              <div className="text-[11px] font-medium mt-0.5 opacity-80">{scoreLabel}</div>
+            </div>
+            <div
+              className={`rounded-lg border p-3 text-center ${
+                isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}
+            >
+              <div className="flex justify-center mb-1">
+                <FreshnessBadge address={p.address} />
+              </div>
+              <div className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Data Age</div>
+            </div>
+            <div
+              className={`rounded-lg border p-3 text-center flex flex-col items-center justify-center gap-1 ${
+                isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+              }`}
+            >
+              <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${leadTypeBg}`}>
+                {p.lead_type}
+              </span>
+              <span className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Lead Type</span>
+            </div>
+          </div>
+
+          {/* Why This Is an Opportunity */}
+          <div
+            className={`rounded-lg border p-3.5 ${
+              isDark ? 'bg-blue-950/40 border-blue-800' : 'bg-blue-50 border-blue-200'
+            }`}
+          >
+            <p
+              className={`text-[11px] font-semibold uppercase tracking-wide mb-2 ${
+                isDark ? 'text-blue-400' : 'text-blue-600'
+              }`}
+            >
+              Why This Is an Opportunity
+            </p>
+            <ul className="space-y-1.5">
+              {explanations.map((line, i) => (
+                <li
+                  key={i}
+                  className={`text-xs flex gap-2 ${isDark ? 'text-blue-300' : 'text-blue-800'}`}
+                >
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Property details */}
+          <div>
+            <p
+              className={`text-[11px] font-semibold uppercase tracking-wide mb-2 ${
+                isDark ? 'text-gray-500' : 'text-gray-400'
+              }`}
+            >
+              Property Details
+            </p>
+            <div
+              className={`rounded-lg border divide-y text-sm overflow-hidden ${
+                isDark ? 'border-gray-700 divide-gray-700' : 'border-gray-100 divide-gray-100'
+              }`}
+            >
+              <Row label="Est. Value" value={fmt(p.estimated_value, '$')} isDark={isDark} />
+              <Row
+                label="Est. Equity"
+                value={equity !== null ? fmt(equity, '$') : '—'}
+                isDark={isDark}
+                highlight={equity !== null ? (equity > 0 ? 'green' : 'red') : undefined}
+              />
+              <Row label="Loan Balance" value={fmt(p.loan_balance_estimate, '$')} isDark={isDark} />
+              <Row
+                label="Days on Market"
+                value={p.days_on_market !== null ? `${p.days_on_market} days` : '—'}
+                isDark={isDark}
+              />
+              <Row
+                label="Days in Default"
+                value={p.days_in_default !== null ? `${p.days_in_default} days` : '—'}
+                isDark={isDark}
+              />
+              <Row
+                label="Price Drop"
+                value={p.price_drop_percent !== null ? `${p.price_drop_percent}%` : '—'}
+                isDark={isDark}
+              />
+              <Row
+                label="Rent Estimate"
+                value={p.rent_estimate !== null ? `${fmt(p.rent_estimate, '$')}/mo` : '—'}
+                isDark={isDark}
+              />
+              {rentRatio && (
+                <Row label="Rent Yield" value={rentRatio} isDark={isDark} highlight="green" />
+              )}
+              <Row label="Owner" value={p.owner_name ?? '—'} isDark={isDark} />
+              <Row label="Agent" value={p.agent_name ?? '—'} isDark={isDark} />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          className={`px-5 py-4 border-t flex-shrink-0 ${
+            isDark ? 'border-gray-700' : 'border-gray-100'
+          }`}
+        >
+          <button
+            onClick={close}
+            className={`w-full py-2 rounded-lg text-sm font-semibold border transition-colors ${
+              isDark
+                ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
+                : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
