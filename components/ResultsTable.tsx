@@ -5,6 +5,8 @@ import { getScoreLabel, getLeadTags, LeadTag } from '@/lib/utils/scoreProperty'
 import { explainSignal } from '@/lib/utils/explainSignal'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 import { useThemeMode } from '@/lib/hooks/useThemeMode'
+import { isInvestorPick, INVESTOR_PICK_LABEL } from '@/lib/utils/investorPick'
+import { getDealVelocity, VELOCITY_STYLES } from '@/lib/utils/dealVelocity'
 
 type Props = {
   data: Property[]
@@ -13,6 +15,8 @@ type Props = {
   savedKeys: Set<string>
   onToggleFavorite?: (p: Property) => void
   favoriteKeys?: Set<string>
+  onCompare?: (p: Property) => void
+  compareKeys?: Set<string>
 }
 
 function fmt(value: number | null | undefined, prefix = ''): string {
@@ -89,7 +93,7 @@ function ScoreBadge({ score, lines }: { score: number; lines: string[] }) {
   )
 }
 
-export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys, onToggleFavorite, favoriteKeys }: Props) {
+export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys, onToggleFavorite, favoriteKeys, onCompare, compareKeys }: Props) {
   const { isDark } = useThemeMode()
 
   if (data.length === 0) {
@@ -117,6 +121,7 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
             {onToggleFavorite && <th className="px-2 py-3 w-8" />}
             <th className="px-4 py-3 whitespace-nowrap">Address</th>
             <th className="px-4 py-3 whitespace-nowrap">Freshness</th>
+            <th className="px-4 py-3 whitespace-nowrap">Velocity</th>
             <th className="px-4 py-3 whitespace-nowrap">City</th>
             <th className="px-4 py-3 whitespace-nowrap">Lead Type</th>
             <th className="px-4 py-3 whitespace-nowrap">Score</th>
@@ -124,6 +129,7 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
             <th className="px-4 py-3 whitespace-nowrap">Est. Equity</th>
             <th className="px-4 py-3 whitespace-nowrap">Rent %</th>
             <th className="px-4 py-3 whitespace-nowrap">Est. Value</th>
+            {onCompare && <th className="px-3 py-3 w-16 whitespace-nowrap">Compare</th>}
           </tr>
         </thead>
         <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-100'}`}>
@@ -132,6 +138,9 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
             const tags      = getLeadTags(p)
             const saved     = savedKeys.has(propertyKey(p))
             const favorited = favoriteKeys?.has(propertyKey(p)) ?? false
+            const pick      = isInvestorPick(p)
+            const velocity  = getDealVelocity(p)
+            const inCompare = compareKeys?.has(propertyKey(p)) ?? false
 
             const equity =
               p.estimated_value && p.loan_balance_estimate !== null
@@ -188,12 +197,30 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
 
                 {/* Address */}
                 <td className={`px-4 py-3 whitespace-nowrap font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {p.address}
+                  <div className="flex flex-col gap-0.5">
+                    <span>{p.address}</span>
+                    {pick && (
+                      <span className={`inline-block w-fit text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        isDark ? 'bg-red-900/40 text-red-400' : 'bg-red-50 text-red-600'
+                      }`}>
+                        {INVESTOR_PICK_LABEL}
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 {/* Freshness */}
                 <td className="px-4 py-3 whitespace-nowrap">
                   <FreshnessBadge address={p.address} />
+                </td>
+
+                {/* Velocity */}
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    isDark ? VELOCITY_STYLES[velocity].dark : VELOCITY_STYLES[velocity].light
+                  }`}>
+                    {velocity}
+                  </span>
                 </td>
 
                 {/* City */}
@@ -259,6 +286,29 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
                 <td className={`px-4 py-3 whitespace-nowrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   {fmt(p.estimated_value, '$')}
                 </td>
+
+                {/* Compare */}
+                {onCompare && (
+                  <td
+                    className="px-3 py-3 text-center"
+                    onClick={(e) => { e.stopPropagation(); onCompare(p) }}
+                  >
+                    <button
+                      title={inCompare ? 'Remove from comparison' : 'Add to comparison'}
+                      className={`text-xs font-semibold px-2 py-1 rounded border transition-colors ${
+                        inCompare
+                          ? isDark
+                            ? 'bg-blue-900/40 border-blue-600 text-blue-400'
+                            : 'bg-blue-100 border-blue-400 text-blue-700'
+                          : isDark
+                          ? 'bg-gray-700 border-gray-600 text-gray-400 hover:border-blue-600 hover:text-blue-400'
+                          : 'bg-white border-gray-300 text-gray-500 hover:border-blue-300 hover:text-blue-600'
+                      }`}
+                    >
+                      {inCompare ? '✓' : '⚖'}
+                    </button>
+                  </td>
+                )}
               </tr>
             )
           })}

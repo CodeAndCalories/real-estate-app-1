@@ -7,6 +7,9 @@ import type { RawProperty } from '@/lib/types/property'
 import InvestorNotes from '@/components/InvestorNotes'
 import DealReportButton from '@/components/DealReportButton'
 import DealStatusSelect from '@/components/DealStatusSelect'
+import OwnerContactCard from '@/components/OwnerContactCard'
+import DealScoreBreakdown from '@/components/DealScoreBreakdown'
+import InvestorQuickActions from '@/components/InvestorQuickActions'
 
 // [id] = encodeURIComponent(signal.address)
 
@@ -263,7 +266,7 @@ export default async function PropertyPage({
           <h2 className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-3">
             Why This Is an Opportunity
           </h2>
-          <ul className="space-y-2">
+          <ul className="space-y-2 mb-4">
             {explanations.map((line, i) => (
               <li key={i} className="flex gap-2 text-sm text-blue-800">
                 <span className="flex-shrink-0 text-blue-400 mt-0.5">•</span>
@@ -271,6 +274,11 @@ export default async function PropertyPage({
               </li>
             ))}
           </ul>
+          {/* Score breakdown tags */}
+          <div className="pt-3 border-t border-blue-200">
+            <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">Score Drivers</p>
+            <DealScoreBreakdown signal={s} />
+          </div>
         </section>
 
         {/* Price History Chart */}
@@ -309,45 +317,11 @@ export default async function PropertyPage({
           </div>
         </section>
 
-        {/* Owner Information */}
-        <section className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Owner Information</h2>
-          </div>
-          <div className="px-4 py-4 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Owner Name</p>
-                <p className="text-sm font-semibold text-gray-800">{s.owner_name ?? '—'}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Mailing Address</p>
-                <p className="text-sm font-semibold text-gray-400 italic">Not available</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Ownership Length</p>
-                <p className="text-sm font-semibold text-gray-400 italic">Not available</p>
-              </div>
-            </div>
+        {/* Owner Contact Card */}
+        <OwnerContactCard ownerName={s.owner_name} />
 
-            {/* Reveal Phone Numbers */}
-            <div className="pt-3 border-t border-gray-100">
-              <button
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors cursor-not-allowed opacity-70"
-                disabled
-                title="Coming soon"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Reveal Phone Numbers
-              </button>
-              <p className="mt-2 text-xs text-gray-400 italic">
-                Owner contact data coming soon.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Investor Quick Actions */}
+        <InvestorQuickActions signal={s} priceHistory={priceHistory} />
 
         {/* Deal Status */}
         <DealStatusSelect

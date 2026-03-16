@@ -28,6 +28,13 @@ import DashboardSummary from '@/components/DashboardSummary'
 import OpportunityAlerts from '@/components/OpportunityAlerts'
 import PipelineSummary from '@/components/PipelineSummary'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
+import DealAlertsPanel from '@/components/DealAlertsPanel'
+import MarketTrendCards from '@/components/MarketTrendCards'
+import DealComparison from '@/components/DealComparison'
+import InvestorSignupBanner from '@/components/InvestorSignupBanner'
+import BestDealBanner from '@/components/BestDealBanner'
+import InvestorTrustBanner from '@/components/InvestorTrustBanner'
+import { propertyKey } from '@/lib/hooks/useSavedLeads'
 
 export type Property = {
   address: string
@@ -124,6 +131,20 @@ export default function FinderPage() {
   const { savedLeads, savedKeys, toggleSave, isSaved } = useSavedLeads()
   const { favorites, favoriteKeys, toggleFavorite } = useFavorites()
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+
+  // Deal comparison
+  const [compareList, setCompareList] = useState<Property[]>([])
+  const compareKeys = new Set(compareList.map((p) => propertyKey(p)))
+  const handleCompare = (p: Property) => {
+    setCompareList((prev) => {
+      const key = propertyKey(p)
+      if (prev.some((x) => propertyKey(x) === key)) {
+        return prev.filter((x) => propertyKey(x) !== key)
+      }
+      if (prev.length >= 3) return prev // max 3
+      return [...prev, p]
+    })
+  }
 
   // Advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
@@ -516,6 +537,15 @@ export default function FinderPage() {
           onDelete={handleDeleteSearch}
         />
 
+        {/* Best Deal Today Banner */}
+        <BestDealBanner isDark={isDark} />
+
+        {/* Investor Signup Banner */}
+        <InvestorSignupBanner isDark={isDark} />
+
+        {/* Investor Trust Banner */}
+        <InvestorTrustBanner isDark={isDark} />
+
         {/* Dashboard Summary */}
         <DashboardSummary isDark={isDark} />
 
@@ -525,8 +555,17 @@ export default function FinderPage() {
         {/* Opportunity Alerts */}
         <OpportunityAlerts isDark={isDark} />
 
+        {/* Deal Alerts */}
+        <DealAlertsPanel
+          isDark={isDark}
+          currentCity={searchCity}
+          currentMinScore={advMinScore}
+          currentMinEquity={advMinEquity}
+        />
+
         {/* ── Section: Market Overview ──────────────────────────── */}
         <SectionDivider label="Market Overview" isDark={isDark} />
+        <MarketTrendCards isDark={isDark} />
         <SignalHeatmap isDark={isDark} onCityClick={handlePopularCity} />
 
         {/* ── Section: Today's Opportunities ───────────────────── */}
@@ -772,6 +811,8 @@ export default function FinderPage() {
                 savedKeys={savedKeys}
                 onToggleFavorite={(p) => toggleFavorite(p as unknown as Signal)}
                 favoriteKeys={favoriteKeys}
+                onCompare={handleCompare}
+                compareKeys={compareKeys}
               />
             ) : !showFavoritesOnly ? (
               <MapView
@@ -807,6 +848,15 @@ export default function FinderPage() {
                   Next →
                 </button>
               </div>
+            )}
+
+            {/* Deal Comparison */}
+            {compareList.length > 0 && (
+              <DealComparison
+                properties={compareList}
+                onRemove={handleCompare}
+                onClear={() => setCompareList([])}
+              />
             )}
 
             {/* Deal Calculator */}

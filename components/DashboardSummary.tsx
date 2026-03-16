@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { Signal } from '@/lib/data/getSignals'
 import { useFavorites } from '@/lib/hooks/useFavorites'
+import { useDealPipeline } from '@/lib/hooks/useDealPipeline'
 
 type Props = {
   isDark: boolean
@@ -17,6 +18,7 @@ export default function DashboardSummary({ isDark }: Props) {
   const [signals, setSignals] = useState<Signal[]>([])
   const [loading, setLoading] = useState(true)
   const { favorites } = useFavorites()
+  const { counts: pipelineCounts } = useDealPipeline()
 
   useEffect(() => {
     fetch('/api/signals?limit=500', { cache: 'no-store' })
@@ -26,10 +28,23 @@ export default function DashboardSummary({ isDark }: Props) {
       .finally(() => setLoading(false))
   }, [])
 
-  const signalsToday = signals.filter((s) => getFreshnessDays(s.address) <= 2).length
-  const hotDeals = signals.filter((s) => (s.opportunity_score ?? 0) >= 80).length
-  const marketsActive = new Set(signals.map((s) => s.city)).size
+  const signalsToday   = signals.filter((s) => getFreshnessDays(s.address) <= 2).length
+  const hotDeals       = signals.filter((s) => (s.opportunity_score ?? 0) >= 80).length
+  const marketsActive  = new Set(signals.map((s) => s.city)).size
   const favoritesCount = favorites.length
+  const dealsInPipeline = Object.values(pipelineCounts).reduce((a, b) => a + b, 0)
+
+  // Read alerts count from localStorage
+  const [alertsActive, setAlertsActive] = useState(0)
+  useEffect(() => {
+    try {
+      const rawSignalAlerts   = localStorage.getItem('signal-alerts')
+      const rawPropertyAlerts = localStorage.getItem('property-alerts')
+      const n1 = rawSignalAlerts   ? (JSON.parse(rawSignalAlerts)   as unknown[]).length : 0
+      const n2 = rawPropertyAlerts ? (JSON.parse(rawPropertyAlerts) as unknown[]).length : 0
+      setAlertsActive(n1 + n2)
+    } catch { /* ignore */ }
+  }, [])
 
   const stats = [
     {
@@ -68,10 +83,28 @@ export default function DashboardSummary({ isDark }: Props) {
         : 'bg-yellow-50 border-yellow-200 text-yellow-600',
       valueColor: isDark ? 'text-yellow-300' : 'text-yellow-700',
     },
+    {
+      label: 'Deals in Pipeline',
+      value: dealsInPipeline.toString(),
+      icon: '📋',
+      color: isDark
+        ? 'bg-purple-900/30 border-purple-700 text-purple-400'
+        : 'bg-purple-50 border-purple-200 text-purple-600',
+      valueColor: isDark ? 'text-purple-300' : 'text-purple-700',
+    },
+    {
+      label: 'Alerts Active',
+      value: alertsActive.toString(),
+      icon: '🔔',
+      color: isDark
+        ? 'bg-pink-900/30 border-pink-700 text-pink-400'
+        : 'bg-pink-50 border-pink-200 text-pink-600',
+      valueColor: isDark ? 'text-pink-300' : 'text-pink-700',
+    },
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       {stats.map((stat) => (
         <div
           key={stat.label}

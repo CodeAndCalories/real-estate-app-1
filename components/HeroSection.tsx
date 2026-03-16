@@ -80,12 +80,28 @@ export default function HeroSection({ isDark }: Props) {
             </a>
           </div>
 
-          {/* Trust bar */}
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-9 text-xs font-medium text-white/55">
-            <span>✓ 960+ property signals</span>
-            <span>✓ 8 major markets</span>
+          {/* Trust credibility bar — under CTA */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {[
+              { icon: '🏙️', text: '8 real estate markets tracked' },
+              { icon: '📊', text: '900+ property signals analyzed' },
+              { icon: '💼', text: 'Built for real estate investors' },
+            ].map((item) => (
+              <div key={item.text} className="flex items-center gap-1.5">
+                <span className="text-sm leading-none">{item.icon}</span>
+                <span className="text-xs font-semibold text-white/70">
+                  <span className="text-green-400 font-bold mr-1">✓</span>
+                  {item.text}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Secondary micro-trust line */}
+          <div className="flex flex-wrap items-center justify-center gap-5 mt-4 text-[11px] font-medium text-white/40">
             <span>✓ Opportunity scoring</span>
             <span>✓ CSV export ready</span>
+            <span>✓ No signup required</span>
           </div>
         </div>
       </div>
