@@ -3,106 +3,53 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-// ── localStorage helpers ──────────────────────────────────────────────────────
-
-type StoredUser = {
-  email: string
-  password: string
-  createdAt: number
-}
-
-function readUsers(): StoredUser[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const raw = localStorage.getItem('pshq-users')
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    if (Array.isArray(parsed)) return parsed as StoredUser[]
-    // Legacy Record<email, StoredUser> → convert to array
-    return Object.values(parsed) as StoredUser[]
-  } catch {
-    return []
-  }
-}
-
-function createSession(email: string) {
-  try {
-    localStorage.setItem(
-      'pshq-session',
-      JSON.stringify({ email, createdAt: new Date().toISOString() }),
-    )
-  } catch { /* ignore */ }
-}
-
-function getSession(): { email: string } | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = localStorage.getItem('pshq-session')
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
+import { useAuth } from '@/lib/hooks/useAuth'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { loaded, isLoggedIn, login } = useAuth()
 
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [showPw, setShowPw]     = useState(false)
-  const [authChecked, setAuthChecked] = useState(false)
 
   const emailRef = useRef<HTMLInputElement>(null)
 
   // Redirect already-authenticated users
   useEffect(() => {
-    if (getSession()) {
+    if (loaded && isLoggedIn) {
       router.replace('/finder')
-    } else {
-      setAuthChecked(true)
+    } else if (loaded) {
       emailRef.current?.focus()
     }
-  }, [router])
+  }, [loaded, isLoggedIn, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     const trimmedEmail = email.trim().toLowerCase()
-
     if (!trimmedEmail || !password) {
       setError('Email and password are required.')
       return
     }
 
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 300))
+    const result = await login(trimmedEmail, password)
+    setLoading(false)
 
-    const users = readUsers()
-    const match = users.find((u) => u.email === trimmedEmail)
-
-    if (!match) {
-      setLoading(false)
-      setError('No account found with this email.')
-      return
-    }
-    if (match.password !== password) {
-      setLoading(false)
-      setError('Incorrect password. Please try again.')
+    if (!result.ok) {
+      setError(result.error)
       return
     }
 
-    createSession(trimmedEmail)
     router.push('/finder')
   }
 
   // Spinner while checking existing session
-  if (!authChecked) {
+  if (!loaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#020617]">
         <div className="w-8 h-8 rounded-full border-4 border-blue-900 border-t-blue-500 animate-spin" />

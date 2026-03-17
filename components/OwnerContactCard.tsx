@@ -1,42 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { supabaseBrowser } from '@/lib/supabase-browser'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Props = {
   ownerName: string | null
-}
-
-type Plan = 'pro' | 'free'
-
-// ── localStorage helpers ──────────────────────────────────────────────────────
-
-type Session = { email: string; plan?: string }
-type StoredUser = { email: string; password: string; createdAt: number; plan?: string }
-
-function getPlan(): Plan {
-  try {
-    // 1. Read session to get email
-    const rawSession = localStorage.getItem('pshq-session')
-    if (!rawSession) return 'free'
-    const session = JSON.parse(rawSession) as Session
-
-    // 2. Fast-path: plan stamped directly on session
-    if (session.plan === 'pro') return 'pro'
-
-    // 3. Fallback: look up plan in pshq-users array
-    const rawUsers = localStorage.getItem('pshq-users')
-    if (!rawUsers) return 'free'
-    const users = JSON.parse(rawUsers) as StoredUser[]
-    const userList = Array.isArray(users) ? users : Object.values(users)
-    const match = userList.find(
-      (u: any) => u?.email?.toLowerCase?.() === session?.email?.toLowerCase?.().trim()
-    ) as { email: string; plan: string } | undefined
-    return match?.plan === 'pro' ? 'pro' : 'free'
-  } catch {
-    return 'free'
-  }
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -166,15 +137,18 @@ function UpgradeBanner() {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function OwnerContactCard({ ownerName }: Props) {
-  const [plan, setPlan] = useState<Plan>('free')
-  const [mounted, setMounted] = useState(false)
+  const [email, setEmail] = useState<string | null | undefined>(undefined)
 
+  // Resolve Supabase session email once on mount
   useEffect(() => {
-    setPlan(getPlan())
-    setMounted(true)
+    supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
+      setEmail(session?.user?.email ?? null)
+    })
   }, [])
 
-  const isPro = plan === 'pro'
+  const { isPro, loading } = useProStatus(email)
+
+  const mounted = email !== undefined
 
   return (
     <section className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
@@ -205,8 +179,8 @@ export default function OwnerContactCard({ ownerName }: Props) {
         </div>
 
         {/* Contact fields — gated on plan */}
-        {!mounted ? (
-          // Skeleton while localStorage loads (prevents hydration flash)
+        {!mounted || loading ? (
+          // Skeleton while session + pro status resolves
           <div className="space-y-2">
             <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />
             <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />

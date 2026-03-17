@@ -2,13 +2,14 @@
 
 /**
  * ProLockedSection — blurs its children for free users and shows an upgrade prompt.
- * Plan is read from localStorage (pshq-session / pshq-users) on mount.
- * Renders a skeleton placeholder until the plan check completes to prevent
- * layout shift and hydration mismatches.
+ * Plan is checked via Supabase Auth + /api/pro-status on mount.
+ * Renders a skeleton placeholder until the check completes.
  */
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { supabaseBrowser } from '@/lib/supabase-browser'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 type Props = {
   children: React.ReactNode
@@ -18,37 +19,24 @@ type Props = {
   minHeight?: number
 }
 
-function getPlan(): 'pro' | 'free' {
-  try {
-    const sessionRaw = localStorage.getItem('pshq-session')
-    if (!sessionRaw) return 'free'
-    const session = JSON.parse(sessionRaw) as { email?: string; plan?: string }
-    if (session.plan === 'pro') return 'pro'
-    const usersRaw = localStorage.getItem('pshq-users')
-    if (!usersRaw || !session.email) return 'free'
-    const users = JSON.parse(usersRaw) as Array<{ email?: string; plan?: string }>
-    const match = users.find(
-      (u) => u?.email?.toLowerCase() === session.email?.toLowerCase?.()
-    )
-    return match?.plan === 'pro' ? 'pro' : 'free'
-  } catch {
-    return 'free'
-  }
-}
-
 export default function ProLockedSection({
   children,
   label = 'Unlock with Pro',
   minHeight = 120,
 }: Props) {
-  const [plan, setPlan] = useState<'pro' | 'free' | null>(null)
+  const [email, setEmail] = useState<string | null | undefined>(undefined)
 
+  // Resolve the Supabase session email once on mount
   useEffect(() => {
-    setPlan(getPlan())
+    supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
+      setEmail(session?.user?.email ?? null)
+    })
   }, [])
 
-  // Skeleton while plan is being read from localStorage
-  if (plan === null) {
+  const { isPro, loading } = useProStatus(email)
+
+  // Skeleton while resolving session + pro status
+  if (email === undefined || loading) {
     return (
       <div
         className="rounded-xl bg-gray-100 border border-gray-200 animate-pulse"
@@ -58,7 +46,7 @@ export default function ProLockedSection({
   }
 
   // Pro user — render children normally
-  if (plan === 'pro') return <>{children}</>
+  if (isPro) return <>{children}</>
 
   // Free user — blur children and show upgrade overlay
   return (

@@ -3,54 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-// ── localStorage helpers ──────────────────────────────────────────────────────
-
-type StoredUser = {
-  email: string
-  password: string
-  createdAt: number
-}
-
-function readUsers(): StoredUser[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const raw = localStorage.getItem('pshq-users')
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    // Support both array and legacy object format
-    if (Array.isArray(parsed)) return parsed as StoredUser[]
-    // Legacy Record<email, StoredUser> → convert to array
-    return Object.values(parsed) as StoredUser[]
-  } catch {
-    return []
-  }
-}
-
-function writeUsers(users: StoredUser[]) {
-  try {
-    localStorage.setItem('pshq-users', JSON.stringify(users))
-  } catch { /* ignore */ }
-}
-
-function createSession(email: string) {
-  try {
-    localStorage.setItem(
-      'pshq-session',
-      JSON.stringify({ email, createdAt: new Date().toISOString() }),
-    )
-  } catch { /* ignore */ }
-}
-
-function getSession(): { email: string } | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = localStorage.getItem('pshq-session')
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
+import { useAuth } from '@/lib/hooks/useAuth'
 
 // ── Password strength meter ───────────────────────────────────────────────────
 
@@ -97,6 +50,7 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function SignupPage() {
   const router = useRouter()
+  const { loaded, isLoggedIn, signup } = useAuth()
 
   const [email, setEmail]         = useState('')
   const [password, setPassword]   = useState('')
@@ -105,19 +59,17 @@ export default function SignupPage() {
   const [loading, setLoading]     = useState(false)
   const [showPw, setShowPw]       = useState(false)
   const [showCfm, setShowCfm]     = useState(false)
-  const [authChecked, setAuthChecked] = useState(false)
 
   const emailRef = useRef<HTMLInputElement>(null)
 
   // Redirect already-authenticated users
   useEffect(() => {
-    if (getSession()) {
+    if (loaded && isLoggedIn) {
       router.replace('/finder')
-    } else {
-      setAuthChecked(true)
+    } else if (loaded) {
       emailRef.current?.focus()
     }
-  }, [router])
+  }, [loaded, isLoggedIn, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,31 +96,19 @@ export default function SignupPage() {
     }
 
     setLoading(true)
-    // Small delay for button feedback
-    await new Promise((r) => setTimeout(r, 300))
+    const result = await signup(trimmedEmail, password)
+    setLoading(false)
 
-    const users = readUsers()
-    const exists = users.some((u) => u.email === trimmedEmail)
-    if (exists) {
-      setLoading(false)
-      setError('An account with this email already exists.')
+    if (!result.ok) {
+      setError(result.error)
       return
     }
-
-    // Store new user
-    const newUser: StoredUser = {
-      email: trimmedEmail,
-      password,
-      createdAt: Date.now(),
-    }
-    writeUsers([...users, newUser])
-    createSession(trimmedEmail)
 
     router.push('/finder')
   }
 
   // Spinner while checking existing session
-  if (!authChecked) {
+  if (!loaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#020617]">
         <div className="w-8 h-8 rounded-full border-4 border-blue-900 border-t-blue-500 animate-spin" />
