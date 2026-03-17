@@ -37,6 +37,15 @@ export type Signal = {
   price_drop_percent: number | null
   rent_estimate: number | null
   opportunity_score: number | null
+  // Enriched contact + ownership fields (populated by scripts/enrichProperties.ts)
+  owner_phone: string | null
+  owner_mailing_address: string | null
+  owner_state: string | null
+  years_owned: number | null
+  tax_delinquent: boolean | null
+  vacancy_signal: boolean | null
+  inherited: boolean | null
+  absentee_owner: boolean | null
 }
 
 export type SignalFilters = {

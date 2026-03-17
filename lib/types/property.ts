@@ -14,8 +14,15 @@ export type RawProperty = {
   listing_date: string   // ISO date string
   last_updated: string   // ISO date string
 
-  // Optional enriched fields
+  // Optional enriched fields (populated by scripts/enrichProperties.ts)
   estimated_equity?: number
   loan_balance?: number
   owner_name?: string
+  owner_phone?: string
+  owner_mailing_address?: string
+  owner_state?: string
+  years_owned?: number
+  tax_delinquent?: boolean
+  vacancy_signal?: boolean
+  inherited?: boolean
 }

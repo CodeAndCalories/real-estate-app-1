@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node C:/Users/Owner/Desktop/real-estate-lead-finder/lib/data/gen_properties.js)",
       "Bash(node C:/Users/Owner/Desktop/real-estate-lead-finder/lib/data/validate.js)",
-      "Bash(del \"C:\\\\Users\\\\Owner\\\\Desktop\\\\real-estate-lead-finder\\\\lib\\\\data\\\\gen_properties.js\")"
+      "Bash(del \"C:\\\\Users\\\\Owner\\\\Desktop\\\\real-estate-lead-finder\\\\lib\\\\data\\\\gen_properties.js\")",
+      "Bash(npx ts-node:*)"
     ]
   }
 }
