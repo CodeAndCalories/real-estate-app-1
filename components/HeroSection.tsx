@@ -65,7 +65,7 @@ export default function HeroSection({ isDark }: Props) {
             Discover distressed owners, price drops, and high-equity opportunities across major markets.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
               href="/finder"
               className="w-full sm:w-auto text-center font-bold px-9 py-3.5 rounded-xl text-base transition-all shadow-lg bg-blue-500 hover:bg-blue-400 text-white shadow-blue-900/60"
@@ -81,7 +81,7 @@ export default function HeroSection({ isDark }: Props) {
           </div>
 
           {/* Trust credibility bar — under CTA */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
               { icon: '🏙️', text: '8 real estate markets tracked' },
               { icon: '📊', text: '900+ property signals analyzed' },
@@ -98,7 +98,7 @@ export default function HeroSection({ isDark }: Props) {
           </div>
 
           {/* Secondary micro-trust line */}
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-4 text-[11px] font-medium text-white/40">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium text-white/40">
             <span>✓ Opportunity scoring</span>
             <span>✓ CSV export ready</span>
             <span>✓ No signup required</span>

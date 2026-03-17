@@ -4,10 +4,15 @@ import Navbar from '@/components/Navbar'
 import CookieBanner from '@/components/CookieBanner'
 
 export const metadata: Metadata = {
-  title: 'PropertySignalHQ – Real Estate Opportunity Signals',
+  title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
   description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    other: [{ rel: 'icon', url: '/favicon.svg', type: 'image/svg+xml' }],
+  },
   openGraph: {
-    title: 'PropertySignalHQ – Real Estate Opportunity Signals',
+    title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
     description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
     url: 'https://propertysignalhq.com',
     siteName: 'PropertySignalHQ',
@@ -15,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PropertySignalHQ – Real Estate Opportunity Signals',
+    title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
     description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
   },
 }

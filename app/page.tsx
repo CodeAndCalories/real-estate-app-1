@@ -2,7 +2,6 @@
 
 import { useThemeMode } from '@/lib/hooks/useThemeMode'
 import HeroSection from '@/components/HeroSection'
-import TrustBar from '@/components/TrustBar'
 import DailyDeals from '@/components/DailyDeals'
 import HowItWorks from '@/components/HowItWorks'
 import ProductPreview from '@/components/ProductPreview'
@@ -26,12 +25,9 @@ export default function HomePage() {
       {/* 1. Hero */}
       <HeroSection isDark={isDark} />
 
-      {/* 2. Trust Bar — below hero CTA */}
-      <TrustBar isDark={isDark} />
-
-      {/* 3. Product Preview — floating overlap */}
-      <div className="relative z-10 md:-mt-8 mt-0 px-6">
-        <div className={`max-w-6xl mx-auto rounded-xl shadow-2xl border overflow-hidden ${
+      {/* 2. Product Preview — floating overlap */}
+      <div className="relative z-10 md:-mt-8 mt-0 px-4 sm:px-6 lg:px-8">
+        <div className={`max-w-[1100px] mx-auto rounded-xl shadow-2xl border overflow-hidden ${
           isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           {/* Browser chrome */}
@@ -46,37 +42,37 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 4. Investor Trust — below product preview */}
+      {/* 3. Investor Trust — below product preview */}
       <InvestorTrust isDark={isDark} />
 
-      {/* 5. Daily Deals */}
+      {/* 4. Daily Deals */}
       <DailyDeals isDark={isDark} />
 
-      {/* 6. How It Works */}
+      {/* 5. How It Works */}
       <HowItWorks isDark={isDark} />
 
-      {/* 7. Deal Example — concrete proof of concept */}
+      {/* 6. Deal Example — concrete proof of concept */}
       <DealExample isDark={isDark} />
 
-      {/* 8. Markets Covered */}
+      {/* 7. Markets Covered */}
       <MarketsCovered isDark={isDark} />
 
-      {/* 9. Investor Use Cases — flip / hold / wholesale */}
+      {/* 8. Investor Use Cases — flip / hold / wholesale */}
       <InvestorUseCases isDark={isDark} />
 
-      {/* 10. Who It's For */}
+      {/* 9. Who It's For */}
       <UserTypes isDark={isDark} />
 
-      {/* 11. Social Proof / Testimonials */}
+      {/* 10. Social Proof / Testimonials */}
       <InvestorTestimonials isDark={isDark} />
 
-      {/* 12. Pricing */}
+      {/* 11. Pricing */}
       <PricingSection isDark={isDark} />
 
-      {/* 13. FAQ */}
+      {/* 12. FAQ */}
       <FAQSection isDark={isDark} />
 
-      {/* 14. Final CTA */}
+      {/* 13. Final CTA */}
       <section className={`py-24 px-6 text-center ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-600 to-indigo-700'}`}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight text-white">
@@ -101,10 +97,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 15. Footer */}
+      {/* 14. Footer */}
       <SiteFooter isDark={isDark} />
 
-      {/* 16. Sticky mobile CTA — appears after scrolling 400px */}
+      {/* 15. Sticky mobile CTA — appears after scrolling 400px */}
       <StickyCTA isDark={isDark} />
 
     </div>
