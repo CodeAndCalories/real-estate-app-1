@@ -48,7 +48,7 @@ export default function ContactPage() {
     'w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#020617] relative overflow-hidden px-4 py-16">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[#020617] relative overflow-hidden px-4 py-16">
 
       {/* Background glow */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
