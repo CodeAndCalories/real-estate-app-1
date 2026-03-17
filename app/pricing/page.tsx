@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { CHECKOUT_URL } from '@/lib/constants/checkout'
 
 const PRO_FEATURES = [
   { icon: '📞', text: 'Owner contact lookup' },
@@ -119,14 +118,14 @@ export default function PricingPage() {
             </ul>
 
             <button
-              onClick={() => { window.location.href = CHECKOUT_URL }}
+              onClick={() => { window.location.href = '/upgrade' }}
               className="w-full bg-white hover:bg-blue-50 text-blue-600 font-bold text-sm py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg"
             >
               Upgrade to Pro →
             </button>
 
             <p className="text-center text-xs text-blue-300 mt-3">
-              No credit card required · Cancel anytime
+              Cancel anytime
             </p>
           </div>
         </div>
