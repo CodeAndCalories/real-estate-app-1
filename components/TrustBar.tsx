@@ -6,7 +6,7 @@ type Props = {
 
 const ITEMS = [
   { icon: '🏙️', text: '10 real estate markets tracked' },
-  { icon: '📊', text: '5,400+ property signals analyzed' },
+  { icon: '📊', text: '6,600+ property signals analyzed' },
   { icon: '🔍', text: 'Opportunity scoring on every lead' },
   { icon: '💼', text: 'Built for real estate investors' },
   { icon: '📥', text: 'CSV export ready' },

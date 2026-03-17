@@ -34,6 +34,11 @@ const CITY_AVG_SQFT: Record<string, number> = {
   cleveland:     120,
   'los angeles': 550,
   'new york':    750,
+  nashville:     230,
+  jacksonville:  185,
+  denver:        310,
+  houston:       165,
+  'san antonio': 155,
 }
 
 /**

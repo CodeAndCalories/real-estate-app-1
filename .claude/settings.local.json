@@ -4,7 +4,10 @@
       "Bash(node C:/Users/Owner/Desktop/real-estate-lead-finder/lib/data/gen_properties.js)",
       "Bash(node C:/Users/Owner/Desktop/real-estate-lead-finder/lib/data/validate.js)",
       "Bash(del \"C:\\\\Users\\\\Owner\\\\Desktop\\\\real-estate-lead-finder\\\\lib\\\\data\\\\gen_properties.js\")",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(node -e \"const d=require\\(''./lib/data/properties.json''\\); console.log\\(''Total records:'', d.length\\); console.log\\(''Last record:'', JSON.stringify\\(d[d.length-1], null, 2\\)\\); console.log\\(''First record:'', JSON.stringify\\(d[0], null, 2\\)\\);\")",
+      "Bash(node -e \"const d=require\\(''./lib/data/properties.json''\\); const withEquity = d.filter\\(r => ''estimated_equity'' in r\\); const withOwnerName = d.filter\\(r => ''owner_name'' in r\\); console.log\\(''With estimated_equity:'', withEquity.length\\); console.log\\(''With owner_name:'', withOwnerName.length\\); console.log\\(''Sample with equity:'', JSON.stringify\\(withEquity[0], null, 2\\)\\);\")",
+      "Bash(node -e \":*)"
     ]
   }
 }

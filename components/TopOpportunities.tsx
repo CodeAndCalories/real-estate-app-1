@@ -197,7 +197,7 @@ export default function TopOpportunities({ isDark }: Props) {
                 : 'border-blue-300 text-blue-600 hover:bg-blue-50'
             }`}
           >
-            Browse All 5,400+ Signals →
+            Browse All 6,600+ Signals →
           </Link>
         </div>
 

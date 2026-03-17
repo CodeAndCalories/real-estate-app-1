@@ -102,7 +102,7 @@ export default function InvestorTrust({ isDark }: Props) {
           isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
         }`}>
           {[
-            { value: '5,400+', label: 'Signals analyzed', icon: '📊' },
+            { value: '6,600+', label: 'Signals analyzed', icon: '📊' },
             { value: '10',     label: 'Markets covered',  icon: '🏙️' },
             { value: '3',    label: 'Lead types tracked', icon: '🎯' },
             { value: '100%', label: 'Free to explore',  icon: '🆓' },

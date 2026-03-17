@@ -16,9 +16,18 @@ const CITY_META: Record<string, { emoji: string; state: string }> = {
   'Cleveland':     { emoji: '🏙️', state: 'OH' },
   'Los Angeles':   { emoji: '🎬', state: 'CA' },
   'New York':      { emoji: '🗽', state: 'NY' },
+  'Tampa':         { emoji: '🌊', state: 'FL' },
+  'Nashville':     { emoji: '🎸', state: 'TN' },
+  'Jacksonville':  { emoji: '🏖️', state: 'FL' },
+  'Denver':        { emoji: '🏔️', state: 'CO' },
+  'Houston':       { emoji: '🚀', state: 'TX' },
+  'San Antonio':   { emoji: '🌵', state: 'TX' },
 }
 
-const CITY_ORDER = ['Miami', 'Dallas', 'Phoenix', 'Atlanta', 'Chicago', 'Cleveland', 'Los Angeles', 'New York']
+const CITY_ORDER = [
+  'Miami', 'Dallas', 'Phoenix', 'Atlanta', 'Chicago', 'Cleveland', 'Los Angeles', 'New York',
+  'Tampa', 'Nashville', 'Jacksonville', 'Denver', 'Houston', 'San Antonio',
+]
 
 export default function MarketsCovered({ isDark }: Props) {
   const data = propertiesData as unknown as RawProperty[]
@@ -44,7 +53,7 @@ export default function MarketsCovered({ isDark }: Props) {
             Markets Covered
           </span>
           <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Active Leads Across 10 Major US Markets
+            Active Leads Across 14 Major US Markets
           </h2>
           <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             Fresh leads updated regularly across every major region.
@@ -57,7 +66,7 @@ export default function MarketsCovered({ isDark }: Props) {
             {totalLeads.toLocaleString()}+
           </span>
           <span className={`ml-2 text-base font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            active leads across 10 major US markets
+            active leads across 14 major US markets
           </span>
         </div>
 
