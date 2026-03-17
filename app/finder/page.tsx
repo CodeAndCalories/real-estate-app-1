@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { CHECKOUT_URL } from '@/lib/constants/checkout'
 import ResultsTable from '@/components/ResultsTable'
 import SignalDetailDrawer from '@/components/SignalDetailDrawer'
 import MapView from '@/components/MapView'
@@ -952,8 +953,11 @@ export default function FinderPage() {
                 <p className={`text-xs mb-3 ${textSecondary}`}>
                   Unlock the full database with verified contacts, skip-tracing, and real-time updates.
                 </p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors">
-                  Unlock Full Signal List
+                <button
+                  onClick={() => { window.location.href = CHECKOUT_URL }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Upgrade to Pro →
                 </button>
               </div>
             )}

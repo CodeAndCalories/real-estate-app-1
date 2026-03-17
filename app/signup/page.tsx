@@ -3,7 +3,56 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/hooks/useAuth'
+
+// ── localStorage helpers ──────────────────────────────────────────────────────
+
+type StoredUser = {
+  email: string
+  password: string
+  createdAt: number
+}
+
+function readUsers(): StoredUser[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem('pshq-users')
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    // Support both array and legacy object format
+    if (Array.isArray(parsed)) return parsed as StoredUser[]
+    // Legacy Record<email, StoredUser> → convert to array
+    return Object.values(parsed) as StoredUser[]
+  } catch {
+    return []
+  }
+}
+
+function writeUsers(users: StoredUser[]) {
+  try {
+    localStorage.setItem('pshq-users', JSON.stringify(users))
+  } catch { /* ignore */ }
+}
+
+function createSession(email: string) {
+  try {
+    localStorage.setItem(
+      'pshq-session',
+      JSON.stringify({ email, createdAt: new Date().toISOString() }),
+    )
+  } catch { /* ignore */ }
+}
+
+function getSession(): { email: string } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem('pshq-session')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+// ── Password strength meter ───────────────────────────────────────────────────
 
 function PasswordStrength({ password }: { password: string }) {
   if (!password) return null
@@ -16,12 +65,13 @@ function PasswordStrength({ password }: { password: string }) {
   ]
   const strength = checks.filter(Boolean).length
 
-  const bars = [
-    strength >= 1 ? (strength <= 1 ? 'bg-red-400' : strength <= 2 ? 'bg-orange-400' : strength <= 3 ? 'bg-yellow-400' : 'bg-green-500') : 'bg-gray-200',
-    strength >= 2 ? (strength <= 2 ? 'bg-orange-400' : strength <= 3 ? 'bg-yellow-400' : 'bg-green-500') : 'bg-gray-200',
-    strength >= 3 ? (strength <= 3 ? 'bg-yellow-400' : 'bg-green-500') : 'bg-gray-200',
-    strength >= 4 ? 'bg-green-500' : 'bg-gray-200',
-  ]
+  const barColor = (idx: number) => {
+    if (strength < idx + 1) return 'bg-gray-200'
+    if (strength <= 1) return 'bg-red-400'
+    if (strength === 2) return 'bg-orange-400'
+    if (strength === 3) return 'bg-yellow-400'
+    return 'bg-green-500'
+  }
 
   const label =
     strength <= 1 ? 'Weak'
@@ -32,8 +82,8 @@ function PasswordStrength({ password }: { password: string }) {
   return (
     <div className="mt-1.5">
       <div className="flex gap-1 mb-1">
-        {bars.map((cls, i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${cls}`} />
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${barColor(i)}`} />
         ))}
       </div>
       <p className="text-xs text-gray-400">
@@ -43,41 +93,82 @@ function PasswordStrength({ password }: { password: string }) {
   )
 }
 
-export default function SignupPage() {
-  const router                        = useRouter()
-  const { signup, loaded, isLoggedIn } = useAuth()
+// ── Page ──────────────────────────────────────────────────────────────────────
 
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [showPw, setShowPw]     = useState(false)
+export default function SignupPage() {
+  const router = useRouter()
+
+  const [email, setEmail]         = useState('')
+  const [password, setPassword]   = useState('')
+  const [confirm, setConfirm]     = useState('')
+  const [error, setError]         = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [showPw, setShowPw]       = useState(false)
+  const [showCfm, setShowCfm]     = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
+
   const emailRef = useRef<HTMLInputElement>(null)
 
   // Redirect already-authenticated users
   useEffect(() => {
-    if (loaded && isLoggedIn) router.replace('/finder')
-  }, [loaded, isLoggedIn, router])
-
-  useEffect(() => {
-    emailRef.current?.focus()
-  }, [])
+    if (getSession()) {
+      router.replace('/finder')
+    } else {
+      setAuthChecked(true)
+      emailRef.current?.focus()
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
-    await new Promise((r) => setTimeout(r, 300))
-    const result = signup(email.trim(), password)
-    setLoading(false)
-    if (result.ok) {
-      router.push('/finder')
-    } else {
-      setError(result.error)
+
+    const trimmedEmail = email.trim().toLowerCase()
+
+    // Client-side validation
+    if (!trimmedEmail || !password) {
+      setError('Email and password are required.')
+      return
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
+    if (password !== confirm) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    setLoading(true)
+    // Small delay for button feedback
+    await new Promise((r) => setTimeout(r, 300))
+
+    const users = readUsers()
+    const exists = users.some((u) => u.email === trimmedEmail)
+    if (exists) {
+      setLoading(false)
+      setError('An account with this email already exists.')
+      return
+    }
+
+    // Store new user
+    const newUser: StoredUser = {
+      email: trimmedEmail,
+      password,
+      createdAt: Date.now(),
+    }
+    writeUsers([...users, newUser])
+    createSession(trimmedEmail)
+
+    router.push('/finder')
   }
 
-  if (!loaded) {
+  // Spinner while checking existing session
+  if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50">
         <div className="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
@@ -89,7 +180,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
 
-        {/* Logo mark */}
+        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <span className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-200 group-hover:bg-blue-700 transition-colors">
@@ -117,13 +208,16 @@ export default function SignupPage() {
           {error && (
             <div className="mb-5 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
+
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -177,6 +271,55 @@ export default function SignupPage() {
               <PasswordStrength password={password} />
             </div>
 
+            {/* Confirm password */}
+            <div>
+              <label htmlFor="confirm" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Confirm password
+              </label>
+              <div className="relative">
+                <input
+                  id="confirm"
+                  type={showCfm ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirm}
+                  onChange={(e) => { setConfirm(e.target.value); setError('') }}
+                  placeholder="Re-enter your password"
+                  className={`w-full border rounded-xl px-4 py-3 pr-11 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-shadow ${
+                    confirm && confirm !== password
+                      ? 'border-red-300 focus:ring-red-400'
+                      : confirm && confirm === password
+                      ? 'border-green-400 focus:ring-green-400'
+                      : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCfm((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  aria-label={showCfm ? 'Hide password' : 'Show password'}
+                >
+                  {showCfm ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+                {/* Inline match indicator */}
+                {confirm && (
+                  <span className={`absolute right-10 top-1/2 -translate-y-1/2 text-xs font-medium ${
+                    confirm === password ? 'text-green-500' : 'text-red-400'
+                  }`}>
+                    {confirm === password ? '✓' : '✗'}
+                  </span>
+                )}
+              </div>
+            </div>
+
             {/* Submit */}
             <button
               type="submit"
@@ -189,17 +332,21 @@ export default function SignupPage() {
                   Creating account…
                 </>
               ) : (
-                'Create Account →'
+                'Create Account'
               )}
             </button>
           </form>
 
-          {/* Divider + disclaimer */}
+          {/* Terms */}
           <p className="text-center text-xs text-gray-400 mt-5 leading-relaxed">
             By creating an account you agree to our{' '}
-            <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600">Terms</Link>
+            <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 transition-colors">
+              Terms
+            </Link>
             {' '}and{' '}
-            <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600">Privacy Policy</Link>.
+            <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 transition-colors">
+              Privacy Policy
+            </Link>.
           </p>
         </div>
 

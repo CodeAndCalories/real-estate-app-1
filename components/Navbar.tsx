@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/ThemeToggle'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { CHECKOUT_URL } from '@/lib/constants/checkout'
 
 /** First letter of email, uppercased — used as avatar initials. */
 function initials(email: string): string {
@@ -122,12 +123,12 @@ export default function Navbar() {
               >
                 Login
               </Link>
-              <Link
-                href="/signup"
+              <a
+                href={CHECKOUT_URL}
                 className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-200"
               >
                 Get Started
-              </Link>
+              </a>
             </>
           )}
         </div>
@@ -201,13 +202,13 @@ export default function Navbar() {
                 >
                   Login
                 </Link>
-                <Link
-                  href="/signup"
+                <a
+                  href={CHECKOUT_URL}
                   onClick={() => setMobileOpen(false)}
                   className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Get Started
-                </Link>
+                </a>
               </>
             )}
           </div>

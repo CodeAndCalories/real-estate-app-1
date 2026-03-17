@@ -1,3 +1,5 @@
+import { CHECKOUT_URL } from '@/lib/constants/checkout'
+
 type Props = {
   isDark: boolean
 }
@@ -54,7 +56,7 @@ export default function PricingSection({ isDark }: Props) {
             <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${
               isDark ? 'text-blue-400' : 'text-blue-200'
             }`}>
-              Premium
+              PropertySignalHQ Pro
             </p>
 
             {/* Price */}
@@ -79,16 +81,16 @@ export default function PricingSection({ isDark }: Props) {
             </ul>
 
             {/* CTA */}
-            <a
-              href="/signup"
-              className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
+            <button
+              onClick={() => { window.location.href = CHECKOUT_URL }}
+              className={`w-full font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
                 isDark
                   ? 'bg-blue-500 hover:bg-blue-400 text-white'
                   : 'bg-white hover:bg-blue-50 text-blue-600'
               }`}
             >
-              Start Premium Trial
-            </a>
+              Upgrade to Pro →
+            </button>
 
             <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
               No credit card required · Cancel anytime.

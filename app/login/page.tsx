@@ -3,45 +3,106 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/hooks/useAuth'
+
+// ── localStorage helpers ──────────────────────────────────────────────────────
+
+type StoredUser = {
+  email: string
+  password: string
+  createdAt: number
+}
+
+function readUsers(): StoredUser[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem('pshq-users')
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed as StoredUser[]
+    // Legacy Record<email, StoredUser> → convert to array
+    return Object.values(parsed) as StoredUser[]
+  } catch {
+    return []
+  }
+}
+
+function createSession(email: string) {
+  try {
+    localStorage.setItem(
+      'pshq-session',
+      JSON.stringify({ email, createdAt: new Date().toISOString() }),
+    )
+  } catch { /* ignore */ }
+}
+
+function getSession(): { email: string } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem('pshq-session')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LoginPage() {
-  const router            = useRouter()
-  const { login, loaded, isLoggedIn } = useAuth()
+  const router = useRouter()
 
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [showPw, setShowPw]     = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
+
   const emailRef = useRef<HTMLInputElement>(null)
 
-  // Redirect already-authenticated users away from the login page
+  // Redirect already-authenticated users
   useEffect(() => {
-    if (loaded && isLoggedIn) router.replace('/finder')
-  }, [loaded, isLoggedIn, router])
-
-  useEffect(() => {
-    emailRef.current?.focus()
-  }, [])
+    if (getSession()) {
+      router.replace('/finder')
+    } else {
+      setAuthChecked(true)
+      emailRef.current?.focus()
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
-    // Small artificial delay so the button feedback is visible
-    await new Promise((r) => setTimeout(r, 300))
-    const result = login(email.trim(), password)
-    setLoading(false)
-    if (result.ok) {
-      router.push('/finder')
-    } else {
-      setError(result.error)
+
+    const trimmedEmail = email.trim().toLowerCase()
+
+    if (!trimmedEmail || !password) {
+      setError('Email and password are required.')
+      return
     }
+
+    setLoading(true)
+    await new Promise((r) => setTimeout(r, 300))
+
+    const users = readUsers()
+    const match = users.find((u) => u.email === trimmedEmail)
+
+    if (!match) {
+      setLoading(false)
+      setError('No account found with this email.')
+      return
+    }
+    if (match.password !== password) {
+      setLoading(false)
+      setError('Incorrect password. Please try again.')
+      return
+    }
+
+    createSession(trimmedEmail)
+    router.push('/finder')
   }
 
-  // Avoid flash of login form while checking auth
-  if (!loaded) {
+  // Spinner while checking existing session
+  if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50">
         <div className="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
@@ -53,7 +114,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
 
-        {/* Logo mark */}
+        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <span className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-200 group-hover:bg-blue-700 transition-colors">
@@ -72,13 +133,16 @@ export default function LoginPage() {
           {error && (
             <div className="mb-5 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
+
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -98,11 +162,9 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                  Password
-                </label>
-              </div>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <input
                   id="password"
