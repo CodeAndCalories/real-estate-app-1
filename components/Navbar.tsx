@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/ThemeToggle'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 /** First letter of email, uppercased — used as avatar initials. */
 function initials(email: string): string {
@@ -22,7 +23,26 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { user, loaded, isLoggedIn, logout } = useAuth()
+  const { isPro } = useProStatus(user?.email)
   const router = useRouter()
+
+  const handleManageSubscription = async () => {
+    if (!user?.email) return
+    setUserMenuOpen(false)
+    try {
+      const res = await fetch('/api/stripe/portal', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: user.email }),
+      })
+      const data = (await res.json()) as { url?: string; error?: string }
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch {
+      // Silent fail — portal redirect is non-critical
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -102,6 +122,14 @@ export default function Navbar() {
                   >
                     <span>📊</span> Dashboard
                   </Link>
+                  {isPro && (
+                    <button
+                      onClick={handleManageSubscription}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <span>⚙️</span> Manage Subscription
+                    </button>
+                  )}
                   <div className="border-t border-gray-100" />
                   <button
                     onClick={handleLogout}
