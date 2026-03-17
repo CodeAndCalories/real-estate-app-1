@@ -32,7 +32,7 @@ function getPlan(): Plan {
     const users = JSON.parse(rawUsers) as StoredUser[]
     const userList = Array.isArray(users) ? users : Object.values(users)
     const match = userList.find(
-      (u) => u.email === session.email?.toLowerCase().trim(),
+      (u: any) => u?.email?.toLowerCase?.() === session?.email?.toLowerCase?.().trim()
     )
     return match?.plan === 'pro' ? 'pro' : 'free'
   } catch {
