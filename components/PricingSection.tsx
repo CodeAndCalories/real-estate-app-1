@@ -65,7 +65,7 @@ export default function PricingSection({ isDark }: Props) {
 
             {/* Comparison note */}
             <p className="text-sm text-gray-400 italic mb-3">
-              Industry standard tools cost $99–$149/mo — save up to $60/month
+              Other tools cost $99–$149/mo — you&apos;re saving $60+/month
             </p>
 
             {/* Tagline */}
@@ -102,7 +102,7 @@ export default function PricingSection({ isDark }: Props) {
                 download
                 className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
               >
-                ⬇ Download Sample CSV
+                ⬇ Download Sample Leads (CSV)
               </a>
             </div>
 

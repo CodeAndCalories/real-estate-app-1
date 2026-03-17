@@ -83,6 +83,8 @@ export default function TopOpportunities({ isDark }: Props) {
   if (!loading && signals.length === 0) return null
 
   return (
+    <div className="relative">
+      <div className="absolute inset-0 bg-blue-500/5 rounded-3xl blur-3xl pointer-events-none" />
     <section className={`py-20 px-6 ${isDark ? 'bg-gray-900' : 'bg-slate-50'}`}>
       <div className="max-w-6xl mx-auto">
 
@@ -201,5 +203,6 @@ export default function TopOpportunities({ isDark }: Props) {
 
       </div>
     </section>
+    </div>
   )
 }

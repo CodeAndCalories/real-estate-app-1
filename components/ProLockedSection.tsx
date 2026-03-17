@@ -82,6 +82,7 @@ export default function ProLockedSection({
           >
             Upgrade to Pro →
           </Link>
+          <p className="text-xs text-gray-400 text-center mt-1">New high-score deals added daily</p>
         </div>
       </div>
     </div>

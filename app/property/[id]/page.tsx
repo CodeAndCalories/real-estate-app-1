@@ -212,6 +212,16 @@ export default async function PropertyPage({
   const explanations = explainProperty(s)
   const score = s.opportunity_score ?? 0
 
+  // Signal tags — first 2 shown free, remainder locked behind Pro
+  const allSignalTags: string[] = []
+  if (s.absentee_owner)                  allSignalTags.push('Absentee Owner')
+  if (s.tax_delinquent)                  allSignalTags.push('Tax Delinquent')
+  if (s.vacancy_signal)                  allSignalTags.push('Vacant')
+  if ((s.price_drop_percent ?? 0) > 5)   allSignalTags.push('Price Drop')
+  if (s.inherited)                       allSignalTags.push('Inherited')
+  const visibleTags = allSignalTags.slice(0, 2)
+  const lockedTags  = allSignalTags.slice(2)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-3xl mx-auto px-4 py-10">
@@ -236,6 +246,39 @@ export default async function PropertyPage({
             <LeadBadge type={s.lead_type} />
           </div>
         </div>
+
+        {/* Signal Tags — first 2 free, rest locked */}
+        {allSignalTags.length > 0 && (
+          <div className="mb-5">
+            <div className="flex flex-wrap gap-2 mb-2">
+              {visibleTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            {lockedTags.length > 0 && (
+              <ProLockedSection
+                label={`+${lockedTags.length} more signal${lockedTags.length !== 1 ? 's' : ''} — Unlock with Pro`}
+                minHeight={36}
+              >
+                <div className="flex flex-wrap gap-2">
+                  {lockedTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </ProLockedSection>
+            )}
+          </div>
+        )}
 
         {/* Deal Score Explanation — why this scored high (Pro only) */}
         <ProLockedSection label="Unlock score breakdown with Pro" minHeight={180}>
