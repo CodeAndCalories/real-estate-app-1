@@ -151,7 +151,7 @@ export default function PricingPage() {
           <h2 className="text-lg font-black text-gray-900 text-center mb-6">Common questions</h2>
           {[
             { q: 'Can I cancel anytime?', a: 'Yes. Cancel from your Lemon Squeezy dashboard at any time — no penalties or lock-in.' },
-            { q: 'What payment methods are accepted?', a: 'All major credit and debit cards via Lemon Squeezy's secure checkout.' },
+            { q: "What payment methods are accepted?", a: "All major credit and debit cards via Lemon Squeezy's secure checkout." },
             { q: 'Is there a free trial?', a: 'The free tier lets you browse the full signal database before you commit to Pro.' },
           ].map((item) => (
             <div key={item.q} className="border border-gray-200 rounded-xl p-5">
