@@ -13,10 +13,11 @@ function initials(email: string): string {
 }
 
 const NAV_LINKS = [
-  { href: '/#how-it-works', label: 'How It Works' },
-  { href: '/#pricing',      label: 'Pricing'      },
-  { href: '/#faq',          label: 'FAQ'          },
-  { href: '/contact',       label: 'Contact'      },
+  { href: '/#how-it-works', label: 'How It Works'  },
+  { href: '/#pricing',      label: 'Pricing'       },
+  { href: '/analyze',       label: 'Analyze Deal'  },
+  { href: '/#faq',          label: 'FAQ'           },
+  { href: '/contact',       label: 'Contact'       },
 ]
 
 export default function Navbar() {
