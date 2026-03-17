@@ -172,9 +172,15 @@ export default function AnalyzePage() {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <span className="inline-block mb-3 rounded-full border border-blue-600/20 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-400">
-            Pro Feature
-          </span>
+          {isPro ? (
+            <span className="inline-block mb-3 rounded-full border border-blue-600/20 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-400">
+              Pro Plan • Unlimited Analyses
+            </span>
+          ) : (
+            <span className="inline-block mb-3 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">
+              3 free analyses per day • Pro: Unlimited
+            </span>
+          )}
           <h1 className="text-3xl font-bold text-white">Analyze Any Deal</h1>
           <p className="mt-2 text-gray-400">
             Enter any property details and get an instant Signal Score based on market data.
