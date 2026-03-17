@@ -278,7 +278,7 @@ export default function SupportWidget() {
   const goBack = useCallback(() => setScreen('menu'), [])
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 sm:bottom-6">
+    <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
 
       {/* ── Panel ──────────────────────────────────────────────────────────── */}
       {open && (
