@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,6 +16,13 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false)
   const [showPw, setShowPw]     = useState(false)
 
+  // Forgot-password state
+  const [forgotOpen, setForgotOpen]         = useState(false)
+  const [resetEmail, setResetEmail]         = useState('')
+  const [resetLoading, setResetLoading]     = useState(false)
+  const [resetSuccess, setResetSuccess]     = useState(false)
+  const [resetError, setResetError]         = useState('')
+
   const emailRef = useRef<HTMLInputElement>(null)
 
   // Redirect already-authenticated users
@@ -25,6 +33,20 @@ export default function LoginPage() {
       emailRef.current?.focus()
     }
   }, [loaded, isLoggedIn, router])
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setResetError('')
+    const trimmed = resetEmail.trim().toLowerCase()
+    if (!trimmed) { setResetError('Please enter your email address.'); return }
+    setResetLoading(true)
+    const { error: err } = await supabaseBrowser.auth.resetPasswordForEmail(trimmed, {
+      redirectTo: 'https://www.propertysignalhq.com/auth/reset-password',
+    })
+    setResetLoading(false)
+    if (err) { setResetError(err.message); return }
+    setResetSuccess(true)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,6 +168,62 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {/* Forgot password */}
+            <div className="flex justify-end -mt-2">
+              <button
+                type="button"
+                onClick={() => { setForgotOpen((v) => !v); setResetError(''); setResetSuccess(false) }}
+                className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {forgotOpen && (
+              <div className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-3">
+                {resetSuccess ? (
+                  <p className="text-sm text-green-400 text-center">Check your email for a reset link</p>
+                ) : (
+                  <>
+                    {resetError && (
+                      <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                        <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        {resetError}
+                      </div>
+                    )}
+                    <form onSubmit={handleResetPassword} noValidate className="flex flex-col gap-2.5">
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        value={resetEmail}
+                        onChange={(e) => { setResetEmail(e.target.value); setResetError('') }}
+                        placeholder="your@email.com"
+                        className="w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                      />
+                      <button
+                        type="submit"
+                        disabled={resetLoading}
+                        className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2"
+                      >
+                        {resetLoading ? (
+                          <>
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                            Sending…
+                          </>
+                        ) : (
+                          'Send Reset Link'
+                        )}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Submit */}
             <button
