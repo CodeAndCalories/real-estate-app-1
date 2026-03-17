@@ -17,6 +17,7 @@ interface AnalyzeResult {
 }
 
 type PageState = 'form' | 'loading' | 'result' | 'limit' | 'error'
+type SaveState = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
 
 // ── Loading copy ──────────────────────────────────────────────────────────────
 
@@ -62,6 +63,7 @@ export default function AnalyzePage() {
   const [result,    setResult]    = useState<AnalyzeResult | null>(null)
   const [errorMsg,  setErrorMsg]  = useState('')
   const [loadStep,  setLoadStep]  = useState(0)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
 
   const loadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -157,6 +159,44 @@ export default function AnalyzePage() {
     setPageState('form')
     setResult(null)
     setErrorMsg('')
+    setSaveState('idle')
+  }
+
+  const handleSave = async () => {
+    if (!result || saveState === 'saving') return
+    setSaveState('saving')
+
+    try {
+      const { data: { session } } = await supabaseBrowser.auth.getSession()
+      if (!session?.access_token) { setSaveState('error'); return }
+
+      const res = await fetch('/api/analyze/save', {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          address,
+          price:      price     ? Number(price)     : null,
+          beds:       beds      ? Number(beds)      : null,
+          baths:      baths     ? Number(baths)     : null,
+          sqft:       sqft      ? Number(sqft)      : null,
+          year_built: yearBuilt ? Number(yearBuilt) : null,
+          score:      result.score,
+          confidence: result.confidence,
+          bullets:    result.bullets,
+        }),
+      })
+
+      const data = (await res.json()) as { saved?: boolean; already_saved?: boolean; error?: string }
+
+      if (data.already_saved) { setSaveState('already_saved'); return }
+      if (data.saved)         { setSaveState('saved');         return }
+      setSaveState('error')
+    } catch {
+      setSaveState('error')
+    }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -339,6 +379,28 @@ export default function AnalyzePage() {
                 </li>
               ))}
             </ul>
+
+            {/* Save button — pro users only */}
+            {isPro && (
+              <div>
+                <button
+                  onClick={handleSave}
+                  disabled={saveState === 'saving' || saveState === 'saved' || saveState === 'already_saved'}
+                  className="rounded-lg border border-emerald-600/20 bg-emerald-600/10 px-4 py-2 text-sm text-emerald-400 transition-all hover:bg-emerald-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saveState === 'saving'       ? 'Saving…'          :
+                   saveState === 'saved'        ? '✓ Saved'          :
+                   saveState === 'already_saved'? '✓ Already Saved'  :
+                   'Save Analysis'}
+                </button>
+                {saveState === 'saved' && (
+                  <p className="mt-1 text-xs text-emerald-400">Saved to your deal tracker</p>
+                )}
+                {saveState === 'error' && (
+                  <p className="mt-1 text-xs text-red-400">Failed to save</p>
+                )}
+              </div>
+            )}
 
             {/* Usage counter — free users only */}
             {result.analyses_used !== null && result.analyses_limit !== null && (
