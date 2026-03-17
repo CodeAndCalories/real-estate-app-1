@@ -33,7 +33,7 @@ function getPlan(): Plan {
     const userList = Array.isArray(users) ? users : Object.values(users)
     const match = userList.find(
       (u: any) => u?.email?.toLowerCase?.() === session?.email?.toLowerCase?.().trim()
-    )
+    ) as { email: string; plan: string } | undefined
     return match?.plan === 'pro' ? 'pro' : 'free'
   } catch {
     return 'free'
