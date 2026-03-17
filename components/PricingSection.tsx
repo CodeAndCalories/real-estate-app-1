@@ -80,7 +80,7 @@ export default function PricingSection({ isDark }: Props) {
 
             {/* CTA */}
             <a
-              href="/finder"
+              href="/signup"
               className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
                 isDark
                   ? 'bg-blue-500 hover:bg-blue-400 text-white'
@@ -91,7 +91,7 @@ export default function PricingSection({ isDark }: Props) {
             </a>
 
             <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
-              Cancel anytime.
+              No credit card required · Cancel anytime.
             </p>
           </div>
         </div>

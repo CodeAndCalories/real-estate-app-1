@@ -41,6 +41,8 @@ import { QuickFilters } from '@/components/SearchFilters'
 import type { QuickFilterId } from '@/components/SearchFilters'
 import PortfolioSummary from '@/components/PortfolioSummary'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 export type Property = {
   address: string
@@ -116,6 +118,15 @@ const MAX_RESULTS = [50, 100, 250, 500]
 
 export default function FinderPage() {
   const { isDark } = useThemeMode()
+  const { loaded, isLoggedIn } = useAuth()
+  const router = useRouter()
+
+  // Auth guard — redirect to login if not authenticated
+  useEffect(() => {
+    if (loaded && !isLoggedIn) {
+      router.replace('/login')
+    }
+  }, [loaded, isLoggedIn, router])
 
   const [results, setResults] = useState<Property[]>([])
   const [totalMatched, setTotalMatched] = useState(0)
@@ -341,6 +352,20 @@ export default function FinderPage() {
   const paginationBtnDisabled = isDark
     ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
     : 'bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed'
+
+  // Show loading/redirect screen while auth state is being resolved
+  if (!loaded || !isLoggedIn) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+          <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            {loaded && !isLoggedIn ? 'Redirecting to login…' : 'Loading…'}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={pageBg}>
