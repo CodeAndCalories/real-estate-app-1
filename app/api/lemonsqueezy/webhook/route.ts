@@ -10,24 +10,19 @@
  *                  subscription_cancelled, subscription_expired,
  *                  subscription_payment_failed
  *
- * ⚠️  localStorage is a browser API and is NOT accessible from server-side
- *     API routes. Pro status is stored in data/pro-users.json (server-side).
- *     The client reads /api/pro-status to sync plan into localStorage on load.
+ * Pro status is persisted in the Supabase `pro_users` table.
+ * Columns: email (text, primary key), plan (text, default: 'free')
  *
- * NOTE: In serverless/Vercel deployments the local filesystem is ephemeral.
- * Replace the JSON-file store with a database (Postgres, Redis, etc.) for
- * production use.
+ * TypeScript strict mode — no unknown-type errors.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
-import path from 'path'
 import crypto from 'crypto'
+import { supabase } from '@/lib/supabase'
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const WEBHOOK_SECRET  = process.env.LEMONSQUEEZY_WEBHOOK_SECRET ?? ''
-const PRO_USERS_FILE  = path.join(process.cwd(), 'data', 'pro-users.json')
+const WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET ?? ''
 
 /** Events that grant Pro access */
 const PRO_EVENTS = new Set([
@@ -46,30 +41,6 @@ const DOWNGRADE_EVENTS = new Set([
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Plan = 'pro' | 'free'
-
-type ProUserRecord = {
-  email:     string
-  plan:      Plan
-  updatedAt: string
-  event:     string
-}
-
-// ── File helpers ──────────────────────────────────────────────────────────────
-
-async function readProUsers(): Promise<Record<string, ProUserRecord>> {
-  try {
-    const raw = await fs.readFile(PRO_USERS_FILE, 'utf-8')
-    if (!raw.trim()) return {}
-    return JSON.parse(raw) as Record<string, ProUserRecord>
-  } catch {
-    return {}
-  }
-}
-
-async function writeProUsers(users: Record<string, ProUserRecord>): Promise<void> {
-  await fs.mkdir(path.dirname(PRO_USERS_FILE), { recursive: true })
-  await fs.writeFile(PRO_USERS_FILE, JSON.stringify(users, null, 2), 'utf-8')
-}
 
 // ── Signature verification ────────────────────────────────────────────────────
 
@@ -159,19 +130,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true })
   }
 
-  // ── Update pro-users store ────────────────────────────────────────────────
-  const proUsers  = await readProUsers()
+  // ── Upsert into Supabase pro_users ────────────────────────────────────────
   const newPlan: Plan = isUpgrade ? 'pro' : 'free'
 
-  // Upsert: create if missing, update plan if existing
-  proUsers[email] = {
-    email,
-    plan:      newPlan,
-    updatedAt: new Date().toISOString(),
-    event:     eventName,
-  }
+  const { error } = await supabase
+    .from('pro_users')
+    .upsert({ email, plan: newPlan }, { onConflict: 'email' })
 
-  await writeProUsers(proUsers)
+  if (error) {
+    console.error('[LemonSqueezy] Supabase upsert failed:', error.message)
+    return NextResponse.json({ error: 'Database error' }, { status: 500 })
+  }
 
   console.log(
     `[LemonSqueezy] ${isUpgrade ? 'Upgraded' : 'Downgraded'} user:`,
