@@ -72,10 +72,9 @@ export default function TopOpportunities({ isDark }: Props) {
     fetch('/api/signals?limit=6&sort=score')
       .then((r) => r.json())
       .then((data: { signals: Signal[] }) => {
-        const top = (data.signals ?? []).filter(
-          (s) => (s.opportunity_score ?? 0) >= 80
-        )
-        setSignals(top.slice(0, 6))
+        // Take up to 6 highest-scored signals regardless of score threshold.
+        // The API already returns them sorted descending by score.
+        setSignals((data.signals ?? []).slice(0, 6))
         setLoading(false)
       })
       .catch(() => setLoading(false))

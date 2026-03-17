@@ -64,8 +64,8 @@ export default function PricingSection({ isDark }: Props) {
             </div>
 
             {/* Comparison note */}
-            <p className={`text-xs mb-3 ${isDark ? 'text-blue-500' : 'text-blue-200/80'}`}>
-              PropStream starts at $99/mo — you&apos;re saving $60/month
+            <p className="text-sm text-gray-400 italic mb-3">
+              Industry standard tools cost $99–$149/mo — save up to $60/month
             </p>
 
             {/* Tagline */}
@@ -100,11 +100,9 @@ export default function PricingSection({ isDark }: Props) {
               <a
                 href="/sample-leads.csv"
                 download
-                className={`text-xs font-medium underline underline-offset-2 transition-colors ${
-                  isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-200 hover:text-white'
-                }`}
+                className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
               >
-                Download Sample CSV →
+                ⬇ Download Sample CSV
               </a>
             </div>
 

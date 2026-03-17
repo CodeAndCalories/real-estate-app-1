@@ -70,7 +70,7 @@ export default function HeroSection({ isDark }: Props) {
               href="/finder"
               className="w-full sm:w-auto text-center font-bold px-9 py-3.5 rounded-xl text-base transition-all shadow-lg bg-blue-500 hover:bg-blue-400 text-white shadow-blue-900/60"
             >
-              Find Leads Now
+              Browse Deals →
             </a>
             <a
               href="#how-it-works"

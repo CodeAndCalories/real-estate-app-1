@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CHECKOUT_URL } from '@/lib/constants/checkout'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -152,7 +151,7 @@ function UpgradeBanner() {
         </div>
       </div>
       <button
-        onClick={() => { window.location.href = CHECKOUT_URL }}
+        onClick={() => { window.location.href = '/upgrade' }}
         className="flex-shrink-0 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-colors shadow-sm shadow-blue-200 whitespace-nowrap"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

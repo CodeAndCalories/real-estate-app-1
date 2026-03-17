@@ -6,6 +6,9 @@
  * 1. If no pshq-session in localStorage → redirect to /login
  * 2. If session exists → redirect to Lemon checkout with email pre-filled:
  *    CHECKOUT_URL?checkout[email]=USER_EMAIL
+ *
+ * All other CTAs in the app link to /upgrade (this page).
+ * Only this file imports CHECKOUT_URL from lib/constants/checkout.
  */
 
 import { useEffect } from 'react'

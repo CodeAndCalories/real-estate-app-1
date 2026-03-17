@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { CHECKOUT_URL } from '@/lib/constants/checkout'
 import ResultsTable from '@/components/ResultsTable'
 import SignalDetailDrawer from '@/components/SignalDetailDrawer'
 import MapView from '@/components/MapView'
@@ -43,7 +42,6 @@ import type { QuickFilterId } from '@/components/SearchFilters'
 import PortfolioSummary from '@/components/PortfolioSummary'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { useRouter } from 'next/navigation'
 
 export type Property = {
   address: string
@@ -119,15 +117,7 @@ const MAX_RESULTS = [50, 100, 250, 500]
 
 export default function FinderPage() {
   const { isDark } = useThemeMode()
-  const { loaded, isLoggedIn } = useAuth()
-  const router = useRouter()
-
-  // Auth guard — redirect to login if not authenticated
-  useEffect(() => {
-    if (loaded && !isLoggedIn) {
-      router.replace('/login')
-    }
-  }, [loaded, isLoggedIn, router])
+  const { isLoggedIn } = useAuth()
 
   const [results, setResults] = useState<Property[]>([])
   const [totalMatched, setTotalMatched] = useState(0)
@@ -353,20 +343,6 @@ export default function FinderPage() {
   const paginationBtnDisabled = isDark
     ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
     : 'bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed'
-
-  // Show loading/redirect screen while auth state is being resolved
-  if (!loaded || !isLoggedIn) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-          <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            {loaded && !isLoggedIn ? 'Redirecting to login…' : 'Loading…'}
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className={pageBg}>
@@ -827,23 +803,34 @@ export default function FinderPage() {
               {displayedResults.length > 0 && !showSavedOnly && (
                 <div className="flex flex-col items-end gap-1">
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => exportToCSV(displayedResults, 'signals-page.csv')}
-                      className={`text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors ${
-                        isDark
-                          ? 'bg-gray-700 border-green-700 text-green-400 hover:bg-gray-600'
-                          : 'bg-white border-green-600 text-green-700 hover:bg-green-50'
-                      }`}
-                    >
-                      Export Page
-                    </button>
-                    <button
-                      onClick={exportAll}
-                      disabled={isExportingAll}
-                      className="bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
-                    >
-                      {isExportingAll ? 'Exporting…' : 'Export All'}
-                    </button>
+                    {isLoggedIn ? (
+                      <>
+                        <button
+                          onClick={() => exportToCSV(displayedResults, 'signals-page.csv')}
+                          className={`text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors ${
+                            isDark
+                              ? 'bg-gray-700 border-green-700 text-green-400 hover:bg-gray-600'
+                              : 'bg-white border-green-600 text-green-700 hover:bg-green-50'
+                          }`}
+                        >
+                          Export Page
+                        </button>
+                        <button
+                          onClick={exportAll}
+                          disabled={isExportingAll}
+                          className="bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
+                        >
+                          {isExportingAll ? 'Exporting…' : 'Export All'}
+                        </button>
+                      </>
+                    ) : (
+                      <a
+                        href="/login"
+                        className="flex items-center gap-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
+                      >
+                        🔒 Login to Export
+                      </a>
+                    )}
                   </div>
                   <p className={`text-xs ${textMuted}`}>CSV ready for dialers and CRM systems</p>
                 </div>
@@ -954,7 +941,7 @@ export default function FinderPage() {
                   Unlock the full database with verified contacts, skip-tracing, and real-time updates.
                 </p>
                 <button
-                  onClick={() => { window.location.href = CHECKOUT_URL }}
+                  onClick={() => { window.location.href = '/upgrade' }}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors"
                 >
                   Upgrade to Pro →
