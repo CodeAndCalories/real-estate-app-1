@@ -46,12 +46,6 @@ export default function HeroSection({ isDark }: Props) {
         <div className="inline-block w-full max-w-3xl mx-auto rounded-3xl px-8 py-12 sm:px-14 sm:py-14"
           style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
-          {/* Badge */}
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full mb-6 border bg-white/10 border-white/20 text-white/90">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-            Live Demo Dataset — 10 Markets
-          </span>
-
           <h1
             className="text-4xl sm:text-6xl font-black leading-tight mb-5 text-white"
             style={{ textShadow: '0 2px 24px rgba(0,0,0,0.5)' }}
@@ -83,7 +77,7 @@ export default function HeroSection({ isDark }: Props) {
           {/* Trust credibility bar — under CTA */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
-              { icon: '🏙️', text: '10 real estate markets tracked' },
+              { icon: '🏙️', text: '14 real estate markets tracked' },
               { icon: '📊', text: '6,600+ property signals analyzed' },
               { icon: '💼', text: 'Built for real estate investors' },
             ].map((item) => (

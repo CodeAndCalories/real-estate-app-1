@@ -31,7 +31,7 @@ const INVESTOR_TYPES = [
     emoji: '🤝',
     title: 'Wholesalers',
     description:
-      'Surface distressed owners and expired listings across 10 markets in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
+      'Surface distressed owners and expired listings across 14 markets in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
     highlights: ['Distressed owner signals', 'Expired listing filter', 'One-click CSV export'],
     light: 'border-green-200 bg-green-50',
     dark:  'border-green-800 bg-green-900/20',
