@@ -41,7 +41,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 // ── Keyword matcher ───────────────────────────────────────────────────────────
 
-function getReply(input: string): string | null {
+function getReply(input: string, isPro: boolean): string | null {
   const text = input.toLowerCase()
 
   if (text.includes('price') || text.includes('cost') || text.includes('$') || text.includes('39')) {
@@ -61,6 +61,11 @@ function getReply(input: string): string | null {
   }
   if (text.includes('how') && (text.includes('work') || text.includes('signal'))) {
     return 'We analyze property data across 14 US cities and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
+  }
+  if (text.includes('worth') || text.includes('should i') || text.includes('good') || text.includes('better')) {
+    return isPro
+      ? 'You already have full access. Head to the dashboard to explore signals.'
+      : 'Most users start finding opportunities within their first session. Full access is $39/month, cancel anytime.'
   }
   return null
 }
@@ -337,14 +342,13 @@ export default function SupportWidget() {
     if (!trimmed) return
 
     const userMsg: ChatMessage = { role: 'user', text: trimmed }
-    const reply = getReply(trimmed)
+    const reply = getReply(trimmed, isPro)
+    const fallbackText = isPro
+      ? "I'm not sure about that. Contact support and we'll help."
+      : "I'm not sure about that yet. If you're ready, you can unlock full access anytime — or contact support."
     const botMsg: ChatMessage = reply
       ? { role: 'bot', text: reply }
-      : {
-          role: 'bot',
-          text: "I'm not sure about that yet. I can help with pricing, markets, cancellation, or your account — or contact support directly.",
-          showMenu: true,
-        }
+      : { role: 'bot', text: fallbackText, showMenu: true }
 
     setMessages((prev) => [...prev, userMsg, botMsg])
     setInput('')
