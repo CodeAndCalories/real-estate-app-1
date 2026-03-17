@@ -49,7 +49,7 @@ export default function HeroSection({ isDark }: Props) {
           {/* Badge */}
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full mb-6 border bg-white/10 border-white/20 text-white/90">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-            Live Demo Dataset — 8 Markets
+            Live Demo Dataset — 10 Markets
           </span>
 
           <h1
@@ -83,8 +83,8 @@ export default function HeroSection({ isDark }: Props) {
           {/* Trust credibility bar — under CTA */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
-              { icon: '🏙️', text: '8 real estate markets tracked' },
-              { icon: '📊', text: '900+ property signals analyzed' },
+              { icon: '🏙️', text: '10 real estate markets tracked' },
+              { icon: '📊', text: '5,400+ property signals analyzed' },
               { icon: '💼', text: 'Built for real estate investors' },
             ].map((item) => (
               <div key={item.text} className="flex items-center gap-1.5">
@@ -101,7 +101,6 @@ export default function HeroSection({ isDark }: Props) {
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium text-white/40">
             <span>✓ Opportunity scoring</span>
             <span>✓ CSV export ready</span>
-            <span>✓ No signup required</span>
           </div>
         </div>
       </div>

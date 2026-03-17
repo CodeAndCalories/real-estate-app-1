@@ -194,7 +194,7 @@ export default function SignupPage() {
 
         {/* Trust pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-6">
-          {['No credit card needed', 'Free to explore', 'Cancel anytime'].map((t) => (
+          {['Free to explore', 'Cancel anytime'].map((t) => (
             <span key={t} className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full font-medium">
               <span className="text-green-500">✓</span> {t}
             </span>

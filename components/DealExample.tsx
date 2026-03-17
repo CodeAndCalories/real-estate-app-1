@@ -127,7 +127,7 @@ export default function DealExample({ isDark }: Props) {
             isDark ? 'border-gray-700 bg-gray-800/60' : 'border-gray-100 bg-gray-50'
           }`}>
             <p className={`text-sm ${textSecondary}`}>
-              Signals like this are updated daily across 8 markets.
+              Signals like this are updated daily across 10 markets.
             </p>
             <a
               href="/finder"

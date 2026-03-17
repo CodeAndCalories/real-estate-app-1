@@ -12,7 +12,7 @@ const USE_CASES = [
     description:
       'Spot price drops, distressed listings, and high-equity opportunities the moment they hit the market. PropertySignalHQ scores every lead so you can focus on deals with the highest flip potential — not endless scrolling.',
     highlights: [
-      'Price drop alerts across 8 markets',
+      'Price drop alerts across 10 markets',
       'Equity estimates on every property',
       'Opportunity score ranks the best deals first',
     ],

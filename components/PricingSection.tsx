@@ -93,7 +93,7 @@ export default function PricingSection({ isDark }: Props) {
             </button>
 
             <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
-              No credit card required · Cancel anytime.
+              Cancel anytime.
             </p>
           </div>
         </div>

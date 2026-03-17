@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: 'What cities are supported?',
-    a: 'Currently the demo covers 8 major US markets: Miami, Dallas, Phoenix, Atlanta, Chicago, Cleveland, Los Angeles, and New York — with approximately 120 leads per city. Additional cities will be added in future updates.',
+    a: 'Currently the demo covers 10 major US markets — including Miami, Dallas, Phoenix, Atlanta, Chicago, Cleveland, Los Angeles, and New York — with hundreds of leads per city. Additional cities will be added in future updates.',
   },
   {
     q: 'Can I cancel anytime?',

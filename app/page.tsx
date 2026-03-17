@@ -83,7 +83,7 @@ export default function HomePage() {
             Start Finding Property Leads Today
           </h2>
           <p className={`text-lg mb-8 ${isDark ? 'text-gray-400' : 'text-blue-100'}`}>
-            Browse 1,000+ pre-scored leads across 8 major US markets. No signup required.
+            Browse 5,400+ pre-scored leads across 10 major US markets.
           </p>
           <a
             href="/finder"
