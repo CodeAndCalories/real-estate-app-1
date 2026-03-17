@@ -53,6 +53,8 @@ export type SignalFilters = {
   lead_type?: string
   limit?: number
   page?: number
+  /** Sort results before pagination. 'score' = descending by opportunity_score */
+  sort?: 'score'
 }
 
 /** Load the full signal dataset, preferring the pre-generated file. */
@@ -90,6 +92,13 @@ export function getSignals(filters: SignalFilters = {}): {
   if (filters.lead_type) {
     data = data.filter(
       (s) => s.lead_type?.toLowerCase() === filters.lead_type!.toLowerCase()
+    )
+  }
+
+  // Sort before paginating so limit/page applies to the sorted result
+  if (filters.sort === 'score') {
+    data = [...data].sort(
+      (a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0)
     )
   }
 

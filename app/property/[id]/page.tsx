@@ -10,6 +10,7 @@ import DealStatusSelect from '@/components/DealStatusSelect'
 import OwnerContactCard from '@/components/OwnerContactCard'
 import DealScoreBreakdown from '@/components/DealScoreBreakdown'
 import DealScoreExplanation from '@/components/DealScoreExplanation'
+import ProLockedSection from '@/components/ProLockedSection'
 import InvestorQuickActions from '@/components/InvestorQuickActions'
 import SaveDealButton from '@/components/SaveDealButton'
 import DealWorkspace from '@/components/DealWorkspace'
@@ -236,8 +237,10 @@ export default async function PropertyPage({
           </div>
         </div>
 
-        {/* Deal Score Explanation — why this scored high */}
-        <DealScoreExplanation signal={s} />
+        {/* Deal Score Explanation — why this scored high (Pro only) */}
+        <ProLockedSection label="Unlock score breakdown with Pro" minHeight={180}>
+          <DealScoreExplanation signal={s} />
+        </ProLockedSection>
 
         {/* ── Deal Workspace: Tags → Notes → Contact Tracker → Timeline ──────── */}
         <DealWorkspace propertyId={s.id} />
@@ -259,11 +262,13 @@ export default async function PropertyPage({
             <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Property Details</h2>
           </div>
           <Row label="Estimated Value"    value={fmt(s.estimated_value, '$')} />
-          <Row
-            label="Estimated Equity"
-            value={equity != null ? fmt(equity, '$') : '—'}
-            accent={equity != null ? (equity > 0 ? 'green' : 'red') : undefined}
-          />
+          <ProLockedSection label="Unlock equity data with Pro" minHeight={44}>
+            <Row
+              label="Estimated Equity"
+              value={equity != null ? fmt(equity, '$') : '—'}
+              accent={equity != null ? (equity > 0 ? 'green' : 'red') : undefined}
+            />
+          </ProLockedSection>
           <Row label="Loan Balance"       value={fmt(s.loan_balance_estimate, '$')} />
           <Row label="Rent Estimate"      value={s.rent_estimate != null ? `${fmt(s.rent_estimate, '$')}/mo` : '—'} />
           <Row
@@ -281,25 +286,27 @@ export default async function PropertyPage({
           <Row label="Lead Type"          value={s.lead_type} />
         </section>
 
-        {/* Why This Is an Opportunity */}
-        <section className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-3">
-            Why This Is an Opportunity
-          </h2>
-          <ul className="space-y-2 mb-4">
-            {explanations.map((line, i) => (
-              <li key={i} className="flex gap-2 text-sm text-blue-800">
-                <span className="flex-shrink-0 text-blue-400 mt-0.5">•</span>
-                {line}
-              </li>
-            ))}
-          </ul>
-          {/* Score breakdown tags */}
-          <div className="pt-3 border-t border-blue-200">
-            <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">Score Drivers</p>
-            <DealScoreBreakdown signal={s} />
-          </div>
-        </section>
+        {/* Why This Is an Opportunity (Pro only) */}
+        <ProLockedSection label="Unlock investor insights with Pro" minHeight={180}>
+          <section className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
+            <h2 className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-3">
+              Why This Is an Opportunity
+            </h2>
+            <ul className="space-y-2 mb-4">
+              {explanations.map((line, i) => (
+                <li key={i} className="flex gap-2 text-sm text-blue-800">
+                  <span className="flex-shrink-0 text-blue-400 mt-0.5">•</span>
+                  {line}
+                </li>
+              ))}
+            </ul>
+            {/* Score breakdown tags */}
+            <div className="pt-3 border-t border-blue-200">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">Score Drivers</p>
+              <DealScoreBreakdown signal={s} />
+            </div>
+          </section>
+        </ProLockedSection>
 
         {/* Price History Chart */}
         <section className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">

@@ -1,5 +1,3 @@
-import { CHECKOUT_URL } from '@/lib/constants/checkout'
-
 type Props = {
   isDark: boolean
 }
@@ -60,10 +58,15 @@ export default function PricingSection({ isDark }: Props) {
             </p>
 
             {/* Price */}
-            <div className="flex items-end gap-1.5 mb-2">
+            <div className="flex items-end gap-1.5 mb-1">
               <span className="text-5xl font-black text-white leading-none">$39</span>
               <span className={`text-sm mb-2 ${isDark ? 'text-blue-300' : 'text-blue-100'}`}>/ month</span>
             </div>
+
+            {/* Comparison note */}
+            <p className={`text-xs mb-3 ${isDark ? 'text-blue-500' : 'text-blue-200/80'}`}>
+              PropStream starts at $99/mo — you&apos;re saving $60/month
+            </p>
 
             {/* Tagline */}
             <p className={`text-sm mb-7 ${isDark ? 'text-blue-300' : 'text-blue-100'}`}>
@@ -81,16 +84,29 @@ export default function PricingSection({ isDark }: Props) {
             </ul>
 
             {/* CTA */}
-            <button
-              onClick={() => { window.location.href = CHECKOUT_URL }}
-              className={`w-full font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
+            <a
+              href="/upgrade"
+              className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
                 isDark
                   ? 'bg-blue-500 hover:bg-blue-400 text-white'
                   : 'bg-white hover:bg-blue-50 text-blue-600'
               }`}
             >
-              Upgrade to Pro →
-            </button>
+              Unlock Owner Contacts →
+            </a>
+
+            {/* Sample CSV download */}
+            <div className="text-center mt-2">
+              <a
+                href="/sample-leads.csv"
+                download
+                className={`text-xs font-medium underline underline-offset-2 transition-colors ${
+                  isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-200 hover:text-white'
+                }`}
+              >
+                Download Sample CSV →
+              </a>
+            </div>
 
             <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
               Cancel anytime.

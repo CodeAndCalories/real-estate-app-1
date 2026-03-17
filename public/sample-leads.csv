@@ -1,0 +1,6 @@
+Address,City,State,ZIP,Owner Name,Owner Phone,Mailing Address,Estimated Equity %,Lead Type,Opportunity Score,Signals
+4821 W Melrose Ave,Phoenix,AZ,85031,James Hargrove,(602) 887-4431,4821 W Melrose Ave Phoenix AZ 85031,67%,Pre-Foreclosure,91,"Absentee Owner, Tax Delinquent, Price Drop"
+1204 Brickell Key Dr,Miami,FL,33131,Patricia Okafor,(305) 721-8843,9017 NW 12th St Miami FL 33142,54%,Investor Opportunity,85,"High Equity, Absentee Owner"
+7731 Lakeview Blvd,Dallas,TX,75231,Robert Feinstein,(214) 554-9027,7731 Lakeview Blvd Dallas TX 75231,72%,Expired Listing,88,"Price Drop, High Equity, Long DOM"
+3390 W Devon Ave,Chicago,IL,60659,Mei-Lin Tsang,(773) 206-4488,201 E Ontario St Chicago IL 60611,45%,Pre-Foreclosure,82,"Vacant, Tax Delinquent"
+8805 Euclid Ave,Cleveland,OH,44106,Darnell Hopkins,(216) 338-7752,8805 Euclid Ave Cleveland OH 44106,78%,Investor Opportunity,94,"Inherited, Absentee Owner, High Equity"

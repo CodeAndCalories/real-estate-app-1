@@ -15,6 +15,7 @@ import DealExample from '@/components/DealExample'
 import InvestorTestimonials from '@/components/InvestorTestimonials'
 import InvestorTrust from '@/components/InvestorTrust'
 import BestDealHighlight from '@/components/BestDealHighlight'
+import TopOpportunities from '@/components/TopOpportunities'
 import StickyCTA from '@/components/StickyCTA'
 
 export default function HomePage() {
@@ -70,13 +71,16 @@ export default function HomePage() {
       {/* 11. Social Proof / Testimonials */}
       <InvestorTestimonials isDark={isDark} />
 
-      {/* 12. Pricing */}
+      {/* 12. Top Opportunities — live high-score signals */}
+      <TopOpportunities isDark={isDark} />
+
+      {/* 13. Pricing */}
       <PricingSection isDark={isDark} />
 
-      {/* 13. FAQ */}
+      {/* 14. FAQ */}
       <FAQSection isDark={isDark} />
 
-      {/* 14. Final CTA */}
+      {/* 15. Final CTA */}
       <section className={`py-24 px-6 text-center ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-600 to-indigo-700'}`}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight text-white">
@@ -101,10 +105,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 15. Footer */}
+      {/* 16. Footer */}
       <SiteFooter isDark={isDark} />
 
-      {/* 16. Sticky mobile CTA — appears after scrolling 400px */}
+      {/* 17. Sticky mobile CTA — appears after scrolling 400px */}
       <StickyCTA isDark={isDark} />
 
     </div>

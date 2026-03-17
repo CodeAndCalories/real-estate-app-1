@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
   const lead_type = searchParams.get('lead_type') ?? undefined
   const pageParam = searchParams.get('page')
   const limitParam = searchParams.get('limit')
+  const sortParam = searchParams.get('sort')
+  const sort: 'score' | undefined = sortParam === 'score' ? 'score' : undefined
 
   const page = pageParam ? parseInt(pageParam, 10) : 1
 
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
     ? 100
     : undefined
 
-  const { total, signals } = getSignals({ city, lead_type, limit, page })
+  const { total, signals } = getSignals({ city, lead_type, limit, page, sort })
 
   return NextResponse.json(
     { total, page, limit: limit ?? null, signals },
