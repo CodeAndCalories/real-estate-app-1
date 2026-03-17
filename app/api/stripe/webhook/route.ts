@@ -45,13 +45,44 @@ async function getEmailFromEvent(event: Stripe.Event): Promise<string | null> {
   ) {
     const sub = obj as Stripe.Subscription
     const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id
+
+    // 1. Try retrieving the customer with the invoice expanded for extra email fallback
     try {
-      const customer = await stripe.customers.retrieve(customerId)
-      if (customer.deleted) return null
-      return (customer as Stripe.Customer).email?.toLowerCase().trim() ?? null
+      const customer = await stripe.customers.retrieve(customerId, {
+        expand: ['latest_invoice'],
+      })
+
+      if (!customer.deleted) {
+        const email = (customer as Stripe.Customer).email?.toLowerCase().trim() ?? null
+        if (email) return email
+      }
     } catch {
-      return null
+      // Customer API call failed — continue to fallbacks
     }
+
+    // 2. Customer is deleted or email missing — check subscription metadata
+    const metaEmail = (sub.metadata?.email as string | undefined)?.toLowerCase().trim()
+    if (metaEmail) return metaEmail
+
+    // 3. Last resort: check latest_invoice customer_email via API
+    if (typeof sub.latest_invoice === 'string' && sub.latest_invoice) {
+      try {
+        const invoice = await stripe.invoices.retrieve(sub.latest_invoice)
+        const invoiceEmail = invoice.customer_email?.toLowerCase().trim()
+        if (invoiceEmail) return invoiceEmail
+      } catch {
+        // Invoice retrieval failed — fall through to warning
+      }
+    }
+
+    // 4. All fallbacks exhausted
+    if (event.type === 'customer.subscription.deleted') {
+      console.warn(
+        `[Stripe] WARNING: Could not downgrade user - customer deleted before webhook fired. Customer ID: ${customerId}`
+      )
+    }
+
+    return null
   }
 
   // Invoice events — email is on the invoice object directly
