@@ -14,11 +14,24 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHECKOUT_URL } from '@/lib/constants/checkout'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 export default function UpgradePage() {
   const router = useRouter()
+  const { user, loaded } = useAuth()
+  const { isPro, loading: proLoading } = useProStatus(user?.email)
 
   useEffect(() => {
+    // Wait until both auth and pro status have resolved
+    if (!loaded || proLoading) return
+
+    // Pro users have nothing to upgrade — send them to the app
+    if (user && isPro) {
+      router.replace('/finder')
+      return
+    }
+
     supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user?.email) {
         router.replace('/login')
@@ -28,7 +41,7 @@ export default function UpgradePage() {
       const url = `${CHECKOUT_URL}?prefilled_email=${encodeURIComponent(session.user.email)}`
       window.location.href = url
     })
-  }, [router])
+  }, [router, loaded, proLoading, user, isPro])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4">

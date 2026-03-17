@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ function CtaButton({
 
 // ── Screen content ────────────────────────────────────────────────────────────
 
-function PricingScreen({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
+function PricingScreen({ onBack, onClose, isPro }: { onBack: () => void; onClose: () => void; isPro: boolean }) {
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
@@ -96,7 +97,9 @@ function PricingScreen({ onBack, onClose }: { onBack: () => void; onClose: () =>
         Most users start finding opportunities within their first session.
       </p>
       <div className="mt-4 flex flex-col gap-2">
-        <CtaButton href="/upgrade" onClose={onClose} variant="primary">Upgrade Now</CtaButton>
+        <CtaButton href={isPro ? '/finder' : '/upgrade'} onClose={onClose} variant="primary">
+          {isPro ? 'View Signals' : 'Upgrade Now'}
+        </CtaButton>
         <BackButton onBack={onBack} />
       </div>
       <p className="mt-3 text-center text-xs text-gray-500">
@@ -109,7 +112,7 @@ function PricingScreen({ onBack, onClose }: { onBack: () => void; onClose: () =>
   )
 }
 
-function WhatDoIGetScreen({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
+function WhatDoIGetScreen({ onBack, onClose, isPro }: { onBack: () => void; onClose: () => void; isPro: boolean }) {
   return (
     <div>
       <p className="text-sm font-semibold text-white mb-2">With PropertySignalHQ Pro you unlock:</p>
@@ -131,8 +134,10 @@ function WhatDoIGetScreen({ onBack, onClose }: { onBack: () => void; onClose: ()
         Everything built for investors who want to move fast.
       </p>
       <div className="mt-4 flex flex-col gap-2">
-        <CtaButton href="/finder"  onClose={onClose} variant="secondary">View Signals</CtaButton>
-        <CtaButton href="/upgrade" onClose={onClose} variant="primary">Upgrade Now</CtaButton>
+        <CtaButton href="/finder" onClose={onClose} variant="secondary">View Signals</CtaButton>
+        {!isPro && (
+          <CtaButton href="/upgrade" onClose={onClose} variant="primary">Upgrade Now</CtaButton>
+        )}
         <BackButton onBack={onBack} />
       </div>
       <StillNeedHelp onClose={onClose} />
@@ -265,6 +270,7 @@ export default function SupportWidget() {
   const [open, setOpen]       = useState(false)
   const [screen, setScreen]   = useState<Screen>('menu')
   const { user } = useAuth()
+  const { isPro } = useProStatus(user?.email)
 
   const handleOpen = useCallback(() => {
     setScreen('menu')
@@ -341,8 +347,8 @@ export default function SupportWidget() {
             )}
 
             {/* Answer screens */}
-            {screen === 'pricing'         && <PricingScreen        onBack={goBack} onClose={handleClose} />}
-            {screen === 'what-do-i-get'   && <WhatDoIGetScreen     onBack={goBack} onClose={handleClose} />}
+            {screen === 'pricing'         && <PricingScreen        onBack={goBack} onClose={handleClose} isPro={isPro} />}
+            {screen === 'what-do-i-get'   && <WhatDoIGetScreen     onBack={goBack} onClose={handleClose} isPro={isPro} />}
             {screen === 'how-it-works'    && <HowItWorksScreen     onBack={goBack} onClose={handleClose} />}
             {screen === 'market-coverage' && <MarketCoverageScreen onBack={goBack} onClose={handleClose} />}
             {screen === 'login-recovery'  && <LoginRecoveryScreen  onBack={goBack} onClose={handleClose} />}
