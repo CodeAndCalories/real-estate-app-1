@@ -17,6 +17,7 @@ type Props = {
   favoriteKeys?: Set<string>
   onCompare?: (p: Property) => void
   compareKeys?: Set<string>
+  isPro?: boolean
 }
 
 function fmt(value: number | null | undefined, prefix = ''): string {
@@ -93,15 +94,28 @@ function ScoreBadge({ score, lines }: { score: number; lines: string[] }) {
   )
 }
 
-export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys, onToggleFavorite, favoriteKeys, onCompare, compareKeys }: Props) {
+export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys, onToggleFavorite, favoriteKeys, onCompare, compareKeys, isPro = false }: Props) {
   const { isDark } = useThemeMode()
 
   if (data.length === 0) {
     return (
       <div className={`text-center py-12 rounded-xl border ${
-        isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-200 text-gray-500'
+        isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       }`}>
-        No results found. Try adjusting your filters.
+        <p className={`text-base font-semibold mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+          No signals found
+        </p>
+        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          Try adjusting your filters or explore another market.
+        </p>
+        {!isPro && (
+          <p className={`text-sm mt-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            Pro users unlock signals across all 14 markets.{' '}
+            <a href="/upgrade" className="text-blue-400 hover:underline">
+              Upgrade →
+            </a>
+          </p>
+        )}
       </div>
     )
   }

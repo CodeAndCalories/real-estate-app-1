@@ -880,6 +880,7 @@ export default function FinderPage() {
                 favoriteKeys={favoriteKeys}
                 onCompare={handleCompare}
                 compareKeys={compareKeys}
+                isPro={isPro}
               />
             ) : !showFavoritesOnly ? (
               <MapView

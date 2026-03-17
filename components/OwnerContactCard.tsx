@@ -51,18 +51,23 @@ function maskPhone(phone: string): string {
 
 function LockedPhoneField({ fullPhone }: { fullPhone: string }) {
   return (
-    <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 gap-3">
-      <div className="flex items-center gap-2 min-w-0">
-        <PhoneIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-        <div className="min-w-0">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-0.5">Owner Phone</p>
-          <p className="text-sm font-mono text-gray-500 tracking-wide">{maskPhone(fullPhone)}</p>
+    <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <PhoneIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-0.5">Owner Phone</p>
+            <p className="text-sm font-mono text-gray-500 tracking-wide">{maskPhone(fullPhone)}</p>
+          </div>
         </div>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md select-none flex-shrink-0">
+          <LockIcon className="w-3 h-3" />
+          Unlock full number
+        </span>
       </div>
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md select-none flex-shrink-0">
-        <LockIcon className="w-3 h-3" />
-        Unlock full number
-      </span>
+      <a href="/upgrade" className="mt-1.5 block text-xs text-blue-400 hover:underline">
+        Unlock full data
+      </a>
     </div>
   )
 }
@@ -71,12 +76,17 @@ function LockedPhoneField({ fullPhone }: { fullPhone: string }) {
 
 function LockedField({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 gap-3">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md select-none">
-        <LockIcon className="w-3 h-3" />
-        Upgrade to Pro
-      </span>
+    <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-gray-500">{label}</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md select-none">
+          <LockIcon className="w-3 h-3" />
+          Upgrade to Pro
+        </span>
+      </div>
+      <a href="/upgrade" className="mt-1.5 block text-xs text-blue-400 hover:underline">
+        Unlock full data
+      </a>
     </div>
   )
 }
