@@ -67,7 +67,37 @@ function MailIcon({ className = 'w-4 h-4' }: { className?: string }) {
   )
 }
 
-// ── Locked field ──────────────────────────────────────────────────────────────
+// ── Phone masking helper ──────────────────────────────────────────────────────
+
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length < 10) return '•••-•••-••••'
+  const area = digits.slice(0, 3)
+  const last = digits.slice(-2)
+  return `(${area}) •••-••${last}`
+}
+
+// ── Locked phone field (shows masked preview) ─────────────────────────────────
+
+function LockedPhoneField({ fullPhone }: { fullPhone: string }) {
+  return (
+    <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 gap-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <PhoneIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+        <div className="min-w-0">
+          <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-0.5">Owner Phone</p>
+          <p className="text-sm font-mono text-gray-500 tracking-wide">{maskPhone(fullPhone)}</p>
+        </div>
+      </div>
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md select-none flex-shrink-0">
+        <LockIcon className="w-3 h-3" />
+        Unlock full number
+      </span>
+    </div>
+  )
+}
+
+// ── Locked field (generic — used for mailing address) ─────────────────────────
 
 function LockedField({ label }: { label: string }) {
   return (
@@ -203,9 +233,9 @@ export default function OwnerContactCard({ ownerName }: Props) {
             </div>
           </div>
         ) : (
-          // ── Free: locked fields + upgrade banner ────────────────────────
+          // ── Free: masked phone preview + locked address + upgrade banner ──
           <div className="space-y-2">
-            <LockedField label="Owner Phone" />
+            <LockedPhoneField fullPhone="(555) 555-1234" />
             <LockedField label="Mailing Address" />
             <UpgradeBanner />
           </div>
