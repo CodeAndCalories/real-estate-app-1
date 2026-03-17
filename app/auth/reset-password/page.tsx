@@ -129,10 +129,22 @@ export default function ResetPasswordPage() {
 
           {/* Success state */}
           {sessionReady && success ? (
-            <div className="flex flex-col items-center gap-4 py-4 text-center">
-              <span className="text-5xl text-green-400">✓</span>
-              <p className="text-white font-bold text-lg">Password updated!</p>
-              <p className="text-sm text-gray-400">Redirecting you to login…</p>
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <svg className="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xl font-bold text-white">Password Updated!</p>
+                <p className="mt-1.5 text-sm text-gray-400">Your password has been changed successfully.</p>
+              </div>
+              <Link
+                href="/login"
+                className="mt-1 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-500 text-center"
+              >
+                Go to Login
+              </Link>
             </div>
           ) : sessionReady ? (
             <>

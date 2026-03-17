@@ -99,7 +99,10 @@ export default function Navbar() {
                 <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {initials(user.email)}
                 </span>
-                <span className="text-sm text-gray-700 max-w-[140px] truncate">{user.email}</span>
+                <span className="text-sm text-gray-700 max-w-[120px] truncate">{user.email}</span>
+                {isPro && (
+                  <span className="text-xs font-semibold text-emerald-500 whitespace-nowrap">● Pro</span>
+                )}
                 <svg
                   className={`w-3.5 h-3.5 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
