@@ -16,10 +16,11 @@ import path from 'path'
 const PRO_USERS_FILE = path.join(process.cwd(), 'data', 'pro-users.json')
 
 type ProUserRecord = {
-  email: string
-  plan: 'pro'
-  grantedAt: string
-  event: string
+  email:     string
+  plan:      'pro' | 'free'
+  updatedAt?: string
+  grantedAt?: string   // kept for backwards-compat with old records
+  event:     string
 }
 
 async function readProUsers(): Promise<Record<string, ProUserRecord>> {
@@ -41,8 +42,8 @@ export async function GET(req: NextRequest) {
   const proUsers = await readProUsers()
   const record = proUsers[email]
 
-  if (record) {
-    return NextResponse.json({ isPro: true, grantedAt: record.grantedAt })
+  if (record?.plan === 'pro') {
+    return NextResponse.json({ isPro: true, updatedAt: record.updatedAt ?? record.grantedAt })
   }
 
   return NextResponse.json({ isPro: false })

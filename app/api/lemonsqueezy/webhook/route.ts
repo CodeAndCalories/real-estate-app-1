@@ -6,7 +6,9 @@
  * Configure in Lemon Squeezy dashboard:
  *   Webhook URL  → https://<your-domain>/api/lemonsqueezy/webhook
  *   Secret       → set LEMONSQUEEZY_WEBHOOK_SECRET in .env.local
- *   Events       → order_created, subscription_created, subscription_payment_success
+ *   Events       → subscription_created, subscription_payment_success,
+ *                  subscription_cancelled, subscription_expired,
+ *                  subscription_payment_failed
  *
  * ⚠️  localStorage is a browser API and is NOT accessible from server-side
  *     API routes. Pro status is stored in data/pro-users.json (server-side).
@@ -24,8 +26,8 @@ import crypto from 'crypto'
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET ?? ''
-const PRO_USERS_FILE = path.join(process.cwd(), 'data', 'pro-users.json')
+const WEBHOOK_SECRET  = process.env.LEMONSQUEEZY_WEBHOOK_SECRET ?? ''
+const PRO_USERS_FILE  = path.join(process.cwd(), 'data', 'pro-users.json')
 
 /** Events that grant Pro access */
 const PRO_EVENTS = new Set([
@@ -34,18 +36,30 @@ const PRO_EVENTS = new Set([
   'subscription_payment_success',
 ])
 
-// ── File helpers ──────────────────────────────────────────────────────────────
+/** Events that revoke Pro access */
+const DOWNGRADE_EVENTS = new Set([
+  'subscription_cancelled',
+  'subscription_expired',
+  'subscription_payment_failed',
+])
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type Plan = 'pro' | 'free'
 
 type ProUserRecord = {
-  email: string
-  plan: 'pro'
-  grantedAt: string
-  event: string
+  email:     string
+  plan:      Plan
+  updatedAt: string
+  event:     string
 }
+
+// ── File helpers ──────────────────────────────────────────────────────────────
 
 async function readProUsers(): Promise<Record<string, ProUserRecord>> {
   try {
     const raw = await fs.readFile(PRO_USERS_FILE, 'utf-8')
+    if (!raw.trim()) return {}
     return JSON.parse(raw) as Record<string, ProUserRecord>
   } catch {
     return {}
@@ -62,7 +76,6 @@ async function writeProUsers(users: Record<string, ProUserRecord>): Promise<void
 function verifySignature(rawBody: string, signature: string, secret: string): boolean {
   const hmac = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
   try {
-    // Use timingSafeEqual to prevent timing attacks
     return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(signature))
   } catch {
     return false
@@ -74,22 +87,21 @@ function verifySignature(rawBody: string, signature: string, secret: string): bo
 /**
  * Lemon Squeezy webhook payload shape (simplified):
  * {
- *   meta: { event_name: string, custom_data?: Record<string, string> }
+ *   meta: { event_name: string }
  *   data: {
- *     type: 'orders' | 'subscriptions'
- *     attributes: { user_email: string, status: string }
+ *     attributes: { user_email: string }
  *   }
  * }
  */
 function extractFields(payload: unknown): { eventName: string; email: string } {
-  const p = payload as Record<string, unknown>
-  const meta = (p?.meta ?? {}) as Record<string, unknown>
-  const data = (p?.data ?? {}) as Record<string, unknown>
+  const p     = payload as Record<string, unknown>
+  const meta  = (p?.meta  ?? {}) as Record<string, unknown>
+  const data  = (p?.data  ?? {}) as Record<string, unknown>
   const attrs = (data?.attributes ?? {}) as Record<string, unknown>
 
   const eventName = String(meta?.event_name ?? '')
 
-  // user_email is the canonical field; fall back to email for some event types
+  // user_email is the canonical field per Lemon Squeezy docs
   const rawEmail =
     String(attrs?.user_email ?? attrs?.email ?? '').toLowerCase().trim()
 
@@ -99,7 +111,7 @@ function extractFields(payload: unknown): { eventName: string; email: string } {
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // Read raw body text (required for signature verification before JSON.parse)
+  // Read raw body text (must happen before JSON.parse for signature verification)
   const rawBody = await req.text()
 
   // ── Signature check ──────────────────────────────────────────────────────
@@ -107,11 +119,11 @@ export async function POST(req: NextRequest) {
     const signature = req.headers.get('x-signature') ?? ''
     if (!signature) {
       console.warn('[LemonSqueezy] Missing X-Signature header')
-      return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
+      return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
     }
     if (!verifySignature(rawBody, signature, WEBHOOK_SECRET)) {
       console.warn('[LemonSqueezy] Invalid webhook signature')
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
   } else {
     console.warn('[LemonSqueezy] LEMONSQUEEZY_WEBHOOK_SECRET is not set — skipping signature check')
@@ -131,33 +143,42 @@ export async function POST(req: NextRequest) {
 
   console.log('[LemonSqueezy] Webhook received', eventName, email)
 
-  // ── Ignore non-pro events ─────────────────────────────────────────────────
-  if (!PRO_EVENTS.has(eventName)) {
-    console.log('[LemonSqueezy] Ignoring event (not a pro-grant event):', eventName)
+  // ── Determine action ─────────────────────────────────────────────────────
+  const isUpgrade   = PRO_EVENTS.has(eventName)
+  const isDowngrade = DOWNGRADE_EVENTS.has(eventName)
+
+  if (!isUpgrade && !isDowngrade) {
+    console.log('[LemonSqueezy] Ignoring unhandled event:', eventName)
     return NextResponse.json({ received: true })
   }
 
   // ── Require email ─────────────────────────────────────────────────────────
   if (!email) {
     console.warn('[LemonSqueezy] No email found in payload for event:', eventName)
-    // Still return 200 so Lemon Squeezy does not retry indefinitely
+    // Return 200 so Lemon Squeezy does not retry indefinitely
     return NextResponse.json({ received: true })
   }
 
-  // ── Write to pro-users store ──────────────────────────────────────────────
-  // NOTE: localStorage is not accessible from server-side code.
-  // We write to data/pro-users.json instead. The client calls /api/pro-status
-  // to sync this into localStorage under the "plan" field.
-  const proUsers = await readProUsers()
+  // ── Update pro-users store ────────────────────────────────────────────────
+  const proUsers  = await readProUsers()
+  const newPlan: Plan = isUpgrade ? 'pro' : 'free'
+
+  // Upsert: create if missing, update plan if existing
   proUsers[email] = {
     email,
-    plan: 'pro',
-    grantedAt: new Date().toISOString(),
-    event: eventName,
+    plan:      newPlan,
+    updatedAt: new Date().toISOString(),
+    event:     eventName,
   }
+
   await writeProUsers(proUsers)
 
-  console.log('[LemonSqueezy] Marked as pro:', email, '(event:', eventName + ')')
+  console.log(
+    `[LemonSqueezy] ${isUpgrade ? 'Upgraded' : 'Downgraded'} user:`,
+    email,
+    `→ plan: ${newPlan}`,
+    `(event: ${eventName})`,
+  )
 
   return NextResponse.json({ received: true })
 }
