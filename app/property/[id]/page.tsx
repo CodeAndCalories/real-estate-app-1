@@ -12,6 +12,7 @@ import DealScoreBreakdown from '@/components/DealScoreBreakdown'
 import DealScoreExplanation from '@/components/DealScoreExplanation'
 import InvestorQuickActions from '@/components/InvestorQuickActions'
 import SaveDealButton from '@/components/SaveDealButton'
+import DealWorkspace from '@/components/DealWorkspace'
 
 // [id] = encodeURIComponent(signal.address)
 
@@ -237,6 +238,9 @@ export default async function PropertyPage({
 
         {/* Deal Score Explanation — why this scored high */}
         <DealScoreExplanation signal={s} />
+
+        {/* ── Deal Workspace: Tags → Notes → Contact Tracker → Timeline ──────── */}
+        <DealWorkspace propertyId={s.id} />
 
         {/* Save Deal button */}
         <div className="mb-6">

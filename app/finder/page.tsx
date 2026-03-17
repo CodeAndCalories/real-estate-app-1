@@ -39,6 +39,7 @@ import MarketLeaderboard from '@/components/MarketLeaderboard'
 import InvestorStats from '@/components/InvestorStats'
 import { QuickFilters } from '@/components/SearchFilters'
 import type { QuickFilterId } from '@/components/SearchFilters'
+import PortfolioSummary from '@/components/PortfolioSummary'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 
 export type Property = {
@@ -578,6 +579,9 @@ export default function FinderPage() {
 
         {/* Investor Trust Banner */}
         <InvestorTrustBanner isDark={isDark} />
+
+        {/* Portfolio Summary — user's saved + pipeline deal counts */}
+        <PortfolioSummary isDark={isDark} />
 
         {/* Dashboard Summary */}
         <DashboardSummary isDark={isDark} />
