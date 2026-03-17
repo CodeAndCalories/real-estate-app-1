@@ -45,7 +45,7 @@ function getReply(input: string): string | null {
   const text = input.toLowerCase()
 
   if (text.includes('price') || text.includes('cost') || text.includes('$') || text.includes('39')) {
-    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to all 14 markets, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session.'
+    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to all 14 markets, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session. Cancel anytime. No contracts.'
   }
   if (text.includes('market') || text.includes('city') || text.includes('where') || text.includes('cover')) {
     return 'We track 14 major US markets including Miami, Dallas, Phoenix, Atlanta, Chicago, Nashville, and more. Data is updated daily.'
@@ -121,7 +121,7 @@ function PricingScreen({ onBack, onClose, isPro }: { onBack: () => void; onClose
         fees. You get full access to all 14 markets, unlimited searches, and complete property
         signal data.
         <br /><br />
-        Most users start finding opportunities within their first session.
+        Most users start finding opportunities within their first session. Cancel anytime. No contracts.
       </p>
       <div className="mt-4 flex flex-col gap-2">
         <CtaButton href={isPro ? '/finder' : '/upgrade'} onClose={onClose} variant="primary">
@@ -410,7 +410,9 @@ export default function SupportWidget() {
                     Hi 👋 Need help or curious how PropertySignalHQ works?
                   </p>
                   <p className="mt-1 text-xs text-gray-400">
-                    Free users can also upgrade anytime from here.
+                    {isPro
+                      ? 'Your Pro plan is active. You have full access to all signals.'
+                      : 'Upgrade anytime to unlock full property data.'}
                   </p>
                 </div>
                 <MenuButtons onSelect={(id) => setScreen(id)} onClose={handleClose} />
