@@ -129,7 +129,7 @@ export default function SavedDealsPage() {
             <span className="mb-2 inline-block rounded-full border border-blue-600/20 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-400">
               Pro Plan • Unlimited Saves
             </span>
-            <h1 className="text-3xl font-bold text-white">Saved Deals</h1>
+            <h1 className="text-3xl font-bold text-white">Saved Deals ({deals.length})</h1>
             <p className="mt-1 text-gray-400">Your analyzed properties</p>
           </div>
 

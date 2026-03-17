@@ -43,6 +43,8 @@ import PortfolioSummary from '@/components/PortfolioSummary'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
+import Link from 'next/link'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export type Property = {
   address: string
@@ -182,6 +184,29 @@ export default function FinderPage() {
       if (raw) setSavedSearches(JSON.parse(raw) as SavedSearch[])
     } catch { /* ignore */ }
   }, [])
+
+  // Recent analyzed deals (pro only)
+  interface RecentDeal {
+    id: string
+    address: string
+    score: number
+    confidence: string
+    saved_at: string
+  }
+  const [recentDeals, setRecentDeals] = useState<RecentDeal[]>([])
+  useEffect(() => {
+    if (!isPro || !user?.email) return
+    const email = user.email.toLowerCase().trim()
+    supabaseBrowser
+      .from('saved_analyses')
+      .select('id, address, score, confidence, saved_at')
+      .eq('email', email)
+      .order('saved_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        if (data) setRecentDeals(data as RecentDeal[])
+      })
+  }, [isPro, user?.email])
 
   const handleSaveSearch = () => {
     const next = {
@@ -586,6 +611,89 @@ export default function FinderPage() {
 
         {/* Portfolio Summary — user's saved + pipeline deal counts */}
         <PortfolioSummary isDark={isDark} />
+
+        {/* Recent Deals You Saved — pro only */}
+        {isPro && (
+          <div className={`rounded-xl border mb-5 overflow-hidden ${
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+          }`}>
+            {/* Header */}
+            <div className={`flex items-center justify-between px-4 py-3 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-100'
+            }`}>
+              <div className="flex items-center gap-2">
+                <span className="text-base">🔖</span>
+                <div>
+                  <h2 className={`text-sm font-bold uppercase tracking-wide ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                    Recent Deals You Saved
+                  </h2>
+                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Your latest analyzed opportunities
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/saved-deals"
+                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                View all saved deals →
+              </Link>
+            </div>
+
+            <div className="p-4">
+              {recentDeals.length === 0 ? (
+                /* Empty state */
+                <div className="text-center py-6">
+                  <p className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    No saved deals yet
+                  </p>
+                  <p className={`text-xs mb-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Analyze a property to start tracking opportunities.
+                  </p>
+                  <Link
+                    href="/analyze"
+                    className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                  >
+                    + Analyze Your First Deal
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {recentDeals.map((deal) => (
+                    <div
+                      key={deal.id}
+                      className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 ${
+                        isDark ? 'border-gray-700 bg-gray-700/40' : 'border-gray-100 bg-gray-50'
+                      }`}
+                    >
+                      <p className={`text-sm font-medium truncate capitalize ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                        {deal.address}
+                      </p>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-sm font-bold ${
+                          deal.score >= 70 ? 'text-emerald-400' :
+                          deal.score >= 40 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {deal.score}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
+                          deal.confidence === 'High'
+                            ? 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20'
+                            : deal.confidence === 'Medium'
+                            ? 'bg-yellow-600/10 text-yellow-400 border-yellow-600/20'
+                            : 'bg-gray-600/10 text-gray-400 border-gray-600/20'
+                        }`}>
+                          {deal.confidence}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Summary */}
         <DashboardSummary isDark={isDark} />

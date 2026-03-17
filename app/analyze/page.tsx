@@ -382,7 +382,12 @@ export default function AnalyzePage() {
                        'Save Deal'}
                     </button>
                     {saveState === 'saved' && (
-                      <p className="mt-1 text-xs text-emerald-400">Saved to your deal tracker</p>
+                      <>
+                        <p className="mt-1 text-xs text-emerald-400">Saved to your deal tracker</p>
+                        <Link href="/saved-deals" className="mt-1 block text-xs text-blue-400 hover:underline">
+                          View Saved Deals →
+                        </Link>
+                      </>
                     )}
                     {saveState === 'error' && (
                       <p className="mt-1 text-xs text-red-400">Failed to save</p>
