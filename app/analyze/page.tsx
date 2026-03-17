@@ -168,7 +168,11 @@ export default function AnalyzePage() {
 
     try {
       const { data: { session } } = await supabaseBrowser.auth.getSession()
-      if (!session?.access_token) { setSaveState('error'); return }
+      if (!session?.access_token) {
+        setErrorMsg('Please log in to save deals')
+        setSaveState('error')
+        return
+      }
 
       const res = await fetch('/api/analyze/save', {
         method:  'POST',
@@ -350,21 +354,48 @@ export default function AnalyzePage() {
         {pageState === 'result' && result && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl shadow-2xl space-y-6">
 
-            {/* Score + confidence */}
-            <div className="flex items-center gap-6">
-              <div className="text-center">
+            {/* Score + confidence + save button */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
                 <p className={`text-6xl font-bold leading-none ${scoreColor(result.score)}`}>
                   {result.score}
                 </p>
                 <p className="mt-1 text-sm text-gray-400">Signal Score</p>
-              </div>
-              <div>
-                <span className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${confidenceStyle(result.confidence)}`}>
+                <span className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold ${confidenceStyle(result.confidence)}`}>
                   {result.confidence} Confidence
                 </span>
-                <p className="mt-2 text-sm text-gray-400">
-                  Based on {address}
-                </p>
+                <p className="mt-2 text-sm text-gray-400">Based on {address}</p>
+              </div>
+
+              {/* Save button — pro solid, non-pro locked */}
+              <div className="flex-shrink-0 text-right">
+                {isPro ? (
+                  <>
+                    <button
+                      onClick={handleSave}
+                      disabled={saveState === 'saving' || saveState === 'saved' || saveState === 'already_saved'}
+                      className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 text-sm font-medium transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {saveState === 'saving'        ? 'Saving…'         :
+                       saveState === 'saved'         ? '✓ Saved'         :
+                       saveState === 'already_saved' ? '✓ Already Saved' :
+                       'Save Deal'}
+                    </button>
+                    {saveState === 'saved' && (
+                      <p className="mt-1 text-xs text-emerald-400">Saved to your deal tracker</p>
+                    )}
+                    {saveState === 'error' && (
+                      <p className="mt-1 text-xs text-red-400">Failed to save</p>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => { window.location.href = '/upgrade' }}
+                    className="rounded-lg bg-emerald-600/10 border border-emerald-600/20 text-emerald-400 px-5 py-2.5 text-sm font-medium transition-all hover:bg-emerald-600/20"
+                  >
+                    🔒 Save Deal
+                  </button>
+                )}
               </div>
             </div>
 
@@ -379,28 +410,6 @@ export default function AnalyzePage() {
                 </li>
               ))}
             </ul>
-
-            {/* Save button — pro users only */}
-            {isPro && (
-              <div>
-                <button
-                  onClick={handleSave}
-                  disabled={saveState === 'saving' || saveState === 'saved' || saveState === 'already_saved'}
-                  className="rounded-lg border border-emerald-600/20 bg-emerald-600/10 px-4 py-2 text-sm text-emerald-400 transition-all hover:bg-emerald-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {saveState === 'saving'       ? 'Saving…'          :
-                   saveState === 'saved'        ? '✓ Saved'          :
-                   saveState === 'already_saved'? '✓ Already Saved'  :
-                   'Save Analysis'}
-                </button>
-                {saveState === 'saved' && (
-                  <p className="mt-1 text-xs text-emerald-400">Saved to your deal tracker</p>
-                )}
-                {saveState === 'error' && (
-                  <p className="mt-1 text-xs text-red-400">Failed to save</p>
-                )}
-              </div>
-            )}
 
             {/* Usage counter — free users only */}
             {result.analyses_used !== null && result.analyses_limit !== null && (
