@@ -42,6 +42,7 @@ import type { QuickFilterId } from '@/components/SearchFilters'
 import PortfolioSummary from '@/components/PortfolioSummary'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 export type Property = {
   address: string
@@ -117,7 +118,8 @@ const MAX_RESULTS = [50, 100, 250, 500]
 
 export default function FinderPage() {
   const { isDark } = useThemeMode()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
+  const { isPro } = useProStatus(user?.email)
 
   const [results, setResults] = useState<Property[]>([])
   const [totalMatched, setTotalMatched] = useState(0)
@@ -348,8 +350,8 @@ export default function FinderPage() {
     <div className={pageBg}>
       <div className="max-w-[1200px] mx-auto px-4 py-8">
 
-        {/* Demo Dataset Badge */}
-        <div className="flex items-center gap-2 mb-4">
+        {/* Demo Dataset Badge — hidden for pro users */}
+        {!isPro && <div className="flex items-center gap-2 mb-4">
           <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
             isDark
               ? 'bg-amber-900/30 border-amber-700 text-amber-400'
@@ -359,7 +361,7 @@ export default function FinderPage() {
             Demo Dataset
           </span>
           <span className={`text-xs ${textMuted}`}>Showing simulated property signals</span>
-        </div>
+        </div>}
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
