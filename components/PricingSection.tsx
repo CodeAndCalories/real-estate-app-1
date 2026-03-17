@@ -1,3 +1,8 @@
+'use client'
+
+import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
+
 type Props = {
   isDark: boolean
 }
@@ -16,6 +21,12 @@ const FEATURES = [
 ]
 
 export default function PricingSection({ isDark }: Props) {
+  const { user } = useAuth()
+  const { isPro, loading: proLoading } = useProStatus(user?.email)
+
+  // User is confirmed pro (and session has loaded)
+  const isConfirmedPro = !!user && !proLoading && isPro
+
   return (
     <section
       id="pricing"
@@ -83,28 +94,41 @@ export default function PricingSection({ isDark }: Props) {
               ))}
             </ul>
 
-            {/* CTA */}
-            <a
-              href="/upgrade"
-              className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
-                isDark
-                  ? 'bg-blue-500 hover:bg-blue-400 text-white'
-                  : 'bg-white hover:bg-blue-50 text-blue-600'
-              }`}
-            >
-              Unlock Owner Contacts →
-            </a>
+            {/* CTA — swapped for pro members */}
+            {isConfirmedPro ? (
+              <>
+                <div className="block w-full text-center font-semibold text-base py-3 rounded-xl bg-green-600 text-white cursor-default">
+                  ✓ You&apos;re a Pro Member
+                </div>
+                <p className="text-sm text-gray-400 text-center mt-2">
+                  Manage your subscription via your email receipt
+                </p>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/upgrade"
+                  className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
+                    isDark
+                      ? 'bg-blue-500 hover:bg-blue-400 text-white'
+                      : 'bg-white hover:bg-blue-50 text-blue-600'
+                  }`}
+                >
+                  Unlock Owner Contacts →
+                </a>
 
-            {/* Sample CSV download */}
-            <div className="text-center mt-2">
-              <a
-                href="/sample-leads.csv"
-                download
-                className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
-              >
-                ⬇ Download Sample Leads (CSV)
-              </a>
-            </div>
+                {/* Sample CSV download */}
+                <div className="text-center mt-2">
+                  <a
+                    href="/sample-leads.csv"
+                    download
+                    className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
+                  >
+                    ⬇ Download Sample Leads (CSV)
+                  </a>
+                </div>
+              </>
+            )}
 
             <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
               Cancel anytime.
