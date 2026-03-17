@@ -8,6 +8,8 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 export default function ResetPasswordPage() {
   const router = useRouter()
 
+  const [sessionReady, setSessionReady] = useState(false)
+  const [timedOut, setTimedOut]         = useState(false)
   const [password, setPassword]         = useState('')
   const [confirm, setConfirm]           = useState('')
   const [showPw, setShowPw]             = useState(false)
@@ -18,9 +20,29 @@ export default function ResetPasswordPage() {
 
   const passwordRef = useRef<HTMLInputElement>(null)
 
+  // Listen for PASSWORD_RECOVERY event from Supabase (token in URL hash)
   useEffect(() => {
-    passwordRef.current?.focus()
+    const { data: { subscription } } = supabaseBrowser.auth.onAuthStateChange(
+      (event, _session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setSessionReady(true)
+        }
+      }
+    )
+    return () => subscription.unsubscribe()
   }, [])
+
+  // 5-second timeout if session never becomes ready
+  useEffect(() => {
+    if (sessionReady) return
+    const timer = setTimeout(() => setTimedOut(true), 5000)
+    return () => clearTimeout(timer)
+  }, [sessionReady])
+
+  // Focus password field once session is ready
+  useEffect(() => {
+    if (sessionReady) passwordRef.current?.focus()
+  }, [sessionReady])
 
   // Auto-redirect after success
   useEffect(() => {
@@ -82,14 +104,37 @@ export default function ResetPasswordPage() {
         {/* Card */}
         <div className="w-full p-8 bg-white/[0.03] border border-white/10 backdrop-blur-xl rounded-2xl shadow-2xl">
 
+          {/* Waiting for session */}
+          {!sessionReady && !timedOut && (
+            <div className="flex flex-col items-center gap-4 py-6">
+              <div className="w-8 h-8 rounded-full border-4 border-blue-900 border-t-blue-500 animate-spin" />
+              <p className="text-sm text-gray-400">Verifying reset link…</p>
+            </div>
+          )}
+
+          {/* Link expired */}
+          {!sessionReady && timedOut && (
+            <div className="flex flex-col items-center gap-4 py-4 text-center">
+              <p className="text-white font-semibold">
+                This link has expired. Please request a new password reset.
+              </p>
+              <Link
+                href="/login"
+                className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl transition-colors"
+              >
+                Back to login
+              </Link>
+            </div>
+          )}
+
           {/* Success state */}
-          {success ? (
+          {sessionReady && success ? (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
               <span className="text-5xl text-green-400">✓</span>
               <p className="text-white font-bold text-lg">Password updated!</p>
               <p className="text-sm text-gray-400">Redirecting you to login…</p>
             </div>
-          ) : (
+          ) : sessionReady ? (
             <>
               {/* Error banner */}
               {error && (
@@ -193,7 +238,7 @@ export default function ResetPasswordPage() {
                 </button>
               </form>
             </>
-          )}
+          ) : null}
         </div>
 
         {/* Footer link */}
