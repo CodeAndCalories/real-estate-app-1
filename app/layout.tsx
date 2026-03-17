@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../styles/globals.css'
 import Navbar from '@/components/Navbar'
 import CookieBanner from '@/components/CookieBanner'
+import SupportWidget from '@/components/SupportWidget'
 
 export const metadata: Metadata = {
   title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Navbar />
         <main>{children}</main>
         <CookieBanner />
+        <SupportWidget />
       </body>
     </html>
   )
