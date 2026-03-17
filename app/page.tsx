@@ -14,6 +14,7 @@ import InvestorUseCases from '@/components/InvestorUseCases'
 import DealExample from '@/components/DealExample'
 import InvestorTestimonials from '@/components/InvestorTestimonials'
 import InvestorTrust from '@/components/InvestorTrust'
+import BestDealHighlight from '@/components/BestDealHighlight'
 import StickyCTA from '@/components/StickyCTA'
 
 export default function HomePage() {
@@ -42,37 +43,40 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 3. Investor Trust — below product preview */}
+      {/* 3. Best Deal Highlight — live top deal from dataset */}
+      <BestDealHighlight isDark={isDark} />
+
+      {/* 4. Investor Trust */}
       <InvestorTrust isDark={isDark} />
 
-      {/* 4. Daily Deals */}
+      {/* 5. Daily Deals */}
       <DailyDeals isDark={isDark} />
 
-      {/* 5. How It Works */}
+      {/* 6. How It Works */}
       <HowItWorks isDark={isDark} />
 
-      {/* 6. Deal Example — concrete proof of concept */}
+      {/* 7. Deal Example — concrete proof of concept */}
       <DealExample isDark={isDark} />
 
-      {/* 7. Markets Covered */}
+      {/* 8. Markets Covered */}
       <MarketsCovered isDark={isDark} />
 
-      {/* 8. Investor Use Cases — flip / hold / wholesale */}
+      {/* 9. Investor Use Cases — flip / hold / wholesale */}
       <InvestorUseCases isDark={isDark} />
 
-      {/* 9. Who It's For */}
+      {/* 10. Who It's For */}
       <UserTypes isDark={isDark} />
 
-      {/* 10. Social Proof / Testimonials */}
+      {/* 11. Social Proof / Testimonials */}
       <InvestorTestimonials isDark={isDark} />
 
-      {/* 11. Pricing */}
+      {/* 12. Pricing */}
       <PricingSection isDark={isDark} />
 
-      {/* 12. FAQ */}
+      {/* 13. FAQ */}
       <FAQSection isDark={isDark} />
 
-      {/* 13. Final CTA */}
+      {/* 14. Final CTA */}
       <section className={`py-24 px-6 text-center ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-600 to-indigo-700'}`}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight text-white">
@@ -97,10 +101,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 14. Footer */}
+      {/* 15. Footer */}
       <SiteFooter isDark={isDark} />
 
-      {/* 15. Sticky mobile CTA — appears after scrolling 400px */}
+      {/* 16. Sticky mobile CTA — appears after scrolling 400px */}
       <StickyCTA isDark={isDark} />
 
     </div>

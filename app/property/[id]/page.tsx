@@ -9,7 +9,9 @@ import DealReportButton from '@/components/DealReportButton'
 import DealStatusSelect from '@/components/DealStatusSelect'
 import OwnerContactCard from '@/components/OwnerContactCard'
 import DealScoreBreakdown from '@/components/DealScoreBreakdown'
+import DealScoreExplanation from '@/components/DealScoreExplanation'
 import InvestorQuickActions from '@/components/InvestorQuickActions'
+import SaveDealButton from '@/components/SaveDealButton'
 
 // [id] = encodeURIComponent(signal.address)
 
@@ -222,7 +224,7 @@ export default async function PropertyPage({
         </div>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 leading-tight">{s.address}</h1>
             <p className="text-gray-500 mt-1">{s.city}, {s.zip}</p>
@@ -231,6 +233,20 @@ export default async function PropertyPage({
             <ScoreBadge score={score} />
             <LeadBadge type={s.lead_type} />
           </div>
+        </div>
+
+        {/* Deal Score Explanation — why this scored high */}
+        <DealScoreExplanation signal={s} />
+
+        {/* Save Deal button */}
+        <div className="mb-6">
+          <SaveDealButton
+            id={s.id}
+            address={s.address}
+            city={s.city}
+            opportunity_score={s.opportunity_score}
+            lead_type={s.lead_type}
+          />
         </div>
 
         {/* Key metrics */}

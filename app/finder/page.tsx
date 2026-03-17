@@ -34,6 +34,11 @@ import DealComparison from '@/components/DealComparison'
 import InvestorSignupBanner from '@/components/InvestorSignupBanner'
 import BestDealBanner from '@/components/BestDealBanner'
 import InvestorTrustBanner from '@/components/InvestorTrustBanner'
+import SavedDealsPanel from '@/components/SavedDealsPanel'
+import MarketLeaderboard from '@/components/MarketLeaderboard'
+import InvestorStats from '@/components/InvestorStats'
+import { QuickFilters } from '@/components/SearchFilters'
+import type { QuickFilterId } from '@/components/SearchFilters'
 import { propertyKey } from '@/lib/hooks/useSavedLeads'
 
 export type Property = {
@@ -146,6 +151,17 @@ export default function FinderPage() {
     })
   }
 
+  // Quick filters
+  const [activeQuickFilters, setActiveQuickFilters] = useState<Set<QuickFilterId>>(new Set())
+  const handleQuickFilterToggle = (id: QuickFilterId) => {
+    setActiveQuickFilters((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   // Advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [advMinScore, setAdvMinScore] = useState(0)
@@ -240,9 +256,26 @@ export default function FinderPage() {
             : 0
         if (eq < advMinEquity) return false
       }
+      // Quick filters
+      if (activeQuickFilters.has('hot') && (p.opportunity_score ?? 0) < 90) return false
+      if (activeQuickFilters.has('equity')) {
+        const eq =
+          p.estimated_value > 0 && p.loan_balance_estimate != null
+            ? (p.estimated_value - p.loan_balance_estimate) / p.estimated_value
+            : 0
+        if (eq < 0.3) return false
+      }
+      if (activeQuickFilters.has('pricedrops') && (p.price_drop_percent ?? 0) <= 5) return false
+      if (activeQuickFilters.has('rental')) {
+        const yld =
+          p.rent_estimate != null && p.estimated_value > 0
+            ? p.rent_estimate / p.estimated_value
+            : 0
+        if (yld < 0.009) return false
+      }
       return true
     })
-  }, [results, advMinScore, advMaxDOM, advMinEquity])
+  }, [results, advMinScore, advMaxDOM, advMinEquity, activeQuickFilters])
 
   const runSearch = () =>
     fetchPage(1, { city: searchCity, lead_type: searchLeadType, limit: searchMaxResults })
@@ -552,6 +585,9 @@ export default function FinderPage() {
         {/* Pipeline Summary */}
         <PipelineSummary isDark={isDark} />
 
+        {/* Saved Deals Panel */}
+        <SavedDealsPanel isDark={isDark} />
+
         {/* Opportunity Alerts */}
         <OpportunityAlerts isDark={isDark} />
 
@@ -565,6 +601,8 @@ export default function FinderPage() {
 
         {/* ── Section: Market Overview ──────────────────────────── */}
         <SectionDivider label="Market Overview" isDark={isDark} />
+        <InvestorStats isDark={isDark} />
+        <MarketLeaderboard isDark={isDark} />
         <MarketTrendCards isDark={isDark} />
         <SignalHeatmap isDark={isDark} onCityClick={handlePopularCity} />
 
@@ -714,6 +752,16 @@ export default function FinderPage() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Quick Filters */}
+            {viewMode === 'list' && (
+              <QuickFilters
+                isDark={isDark}
+                activeFilters={activeQuickFilters}
+                onToggle={handleQuickFilterToggle}
+                resultCount={activeQuickFilters.size > 0 ? displayedResults.length : undefined}
+              />
             )}
 
             {/* Action bar */}
