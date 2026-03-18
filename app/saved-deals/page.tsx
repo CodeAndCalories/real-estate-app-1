@@ -83,6 +83,11 @@ function csvCell(val: string | number | null | undefined): string {
     : s
 }
 
+/** Truncate a string to the first n words */
+function truncateToWords(s: string, n: number): string {
+  return s.split(/\s+/).slice(0, n).join(' ')
+}
+
 function downloadCSV(rows: (string | number | null | undefined)[][], filename: string): void {
   const csv  = rows.map((r) => r.map(csvCell).join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -153,19 +158,25 @@ export default function SavedDealsPage() {
   const handleExportCSV = () => {
     const today    = new Date().toISOString().slice(0, 10)
     const filename = `propertysignalhq-saved-deals-${today}.csv`
-    const headers  = ['Address', 'Score', 'Confidence', 'Price', 'Beds', 'Baths', 'Sqft', 'Year Built', 'Tag', 'Saved Date']
-    const rows     = deals.map((d) => [
-      d.address,
-      d.score,
-      d.confidence,
-      d.price      ?? '',
-      d.beds       ?? '',
-      d.baths      ?? '',
-      d.sqft       ?? '',
-      d.year_built ?? '',
-      tagMap[d.id] ?? '',
-      toCSVDate(d.saved_at),
-    ])
+    const headers  = ['Address', 'Score', 'Key Signals', 'Confidence', 'Price', 'Beds', 'Baths', 'Sqft', 'Year Built', 'Tag', 'Saved Date']
+    const rows     = deals.map((d) => {
+      const keySignals = d.bullets
+        .map((b) => truncateToWords(b, 5))
+        .join(' | ')
+      return [
+        d.address,
+        d.score,
+        keySignals,
+        d.confidence,
+        d.price      ?? '',
+        d.beds       ?? '',
+        d.baths      ?? '',
+        d.sqft       ?? '',
+        d.year_built ?? '',
+        tagMap[d.id] ?? '',
+        toCSVDate(d.saved_at),
+      ]
+    })
     downloadCSV([headers, ...rows], filename)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 1000)

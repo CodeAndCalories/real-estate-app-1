@@ -24,9 +24,10 @@ interface SimilarSignal {
   lead_type:         string
 }
 
-type PageState = 'form' | 'loading' | 'result' | 'limit' | 'error'
-type SaveState = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
-type ShareState = 'idle' | 'copied'
+type PageState        = 'form' | 'loading' | 'result' | 'limit' | 'error'
+type SaveState        = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
+type ShareState       = 'idle' | 'copied'
+type SimilarSaveState = 'idle' | 'saving' | 'saved'
 
 // ── Loading copy ──────────────────────────────────────────────────────────────
 
@@ -94,7 +95,8 @@ export default function AnalyzePage() {
   const [saveState,    setSaveState]    = useState<SaveState>('idle')
   const [shareState,   setShareState]   = useState<ShareState>('idle')
   const [showToast,    setShowToast]    = useState(false)
-  const [similarDeals, setSimilarDeals] = useState<SimilarSignal[]>([])
+  const [similarDeals,   setSimilarDeals]   = useState<SimilarSignal[]>([])
+  const [similarSaveMap, setSimilarSaveMap] = useState<Record<string, SimilarSaveState>>({})
 
   const loadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -112,14 +114,27 @@ export default function AnalyzePage() {
         )
         if (!res.ok) return
         const data = (await res.json()) as { signals: SimilarSignal[] }
-        const filtered = (data.signals ?? [])
+        // Sort by score proximity first, then prioritise same lead_type
+        const candidates = (data.signals ?? [])
           .filter(
             (s) =>
               Math.abs(s.opportunity_score - result.score) <= 15 &&
               s.address.toLowerCase() !== address.toLowerCase().trim()
           )
-          .slice(0, 3)
-        setSimilarDeals(filtered.length >= 3 ? filtered : [])
+          .sort(
+            (a, b) =>
+              Math.abs(a.opportunity_score - result.score) -
+              Math.abs(b.opportunity_score - result.score)
+          )
+        // Infer lead type from the closest-scoring match
+        const inferredType = candidates[0]?.lead_type ?? null
+        const sorted = inferredType
+          ? [
+              ...candidates.filter((s) => s.lead_type === inferredType),
+              ...candidates.filter((s) => s.lead_type !== inferredType),
+            ]
+          : candidates
+        setSimilarDeals(sorted.length >= 3 ? sorted.slice(0, 3) : [])
       } catch {
         // ignore abort / network errors
       }
@@ -223,6 +238,7 @@ export default function AnalyzePage() {
     setShareState('idle')
     setShowToast(false)
     setSimilarDeals([])
+    setSimilarSaveMap({})
   }
 
   const handleShare = async () => {
@@ -278,6 +294,43 @@ export default function AnalyzePage() {
       setSaveState('error')
     } catch {
       setSaveState('error')
+    }
+  }
+
+  const handleSaveSimilar = async (s: SimilarSignal) => {
+    if (!isPro) return
+    const current = similarSaveMap[s.id]
+    if (current === 'saving' || current === 'saved') return
+    setSimilarSaveMap((prev) => ({ ...prev, [s.id]: 'saving' }))
+    try {
+      const { data: { session } } = await supabaseBrowser.auth.getSession()
+      if (!session?.access_token) {
+        setSimilarSaveMap((prev) => ({ ...prev, [s.id]: 'idle' }))
+        return
+      }
+      const confidence: 'High' | 'Medium' | 'Low' =
+        s.opportunity_score >= 70 ? 'High' :
+        s.opportunity_score >= 40 ? 'Medium' : 'Low'
+      const res = await fetch('/api/analyze/save', {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          address:    s.address,
+          score:      s.opportunity_score,
+          confidence,
+          bullets:    [`${s.lead_type} signal detected in ${s.city}`],
+        }),
+      })
+      const data = (await res.json()) as { saved?: boolean; already_saved?: boolean }
+      setSimilarSaveMap((prev) => ({
+        ...prev,
+        [s.id]: data.saved || data.already_saved ? 'saved' : 'idle',
+      }))
+    } catch {
+      setSimilarSaveMap((prev) => ({ ...prev, [s.id]: 'idle' }))
     }
   }
 
@@ -538,29 +591,57 @@ export default function AnalyzePage() {
             {/* Similar Deals */}
             {similarDeals.length >= 3 && (
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                   Similar Deals in {extractCityName(address)}
                 </p>
+                <p className="text-xs text-gray-500 italic mt-1 mb-3">
+                  Investors are actively analyzing similar properties in this area.
+                </p>
                 <div className="space-y-2">
-                  {similarDeals.map((s) => (
-                    <Link
-                      key={s.id}
-                      href={`/finder?city=${encodeURIComponent(extractCityName(address))}`}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all hover:bg-white/[0.06] hover:border-white/20"
-                    >
-                      <span className="truncate text-xs text-gray-300 min-w-0">
-                        {s.address}
-                      </span>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className={`text-sm font-bold ${scoreColor(s.opportunity_score)}`}>
-                          {s.opportunity_score}
-                        </span>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${leadTypeBadgeCls(s.lead_type)}`}>
-                          {s.lead_type}
-                        </span>
+                  {similarDeals.map((s) => {
+                    const simSave = similarSaveMap[s.id] ?? 'idle'
+                    return (
+                      <div
+                        key={s.id}
+                        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all hover:bg-white/[0.06] hover:border-white/20"
+                      >
+                        {/* Clickable address + score area */}
+                        <Link
+                          href={`/finder?city=${encodeURIComponent(extractCityName(address))}`}
+                          className="flex flex-1 items-center justify-between gap-3 min-w-0"
+                        >
+                          <span className="truncate text-xs text-gray-300 min-w-0">
+                            {s.address}
+                          </span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className={`text-sm font-bold ${scoreColor(s.opportunity_score)}`}>
+                              {s.opportunity_score}
+                            </span>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${leadTypeBadgeCls(s.lead_type)}`}>
+                              {s.lead_type}
+                            </span>
+                          </div>
+                        </Link>
+
+                        {/* Save button — pro only */}
+                        {isPro && (
+                          <button
+                            onClick={() => { void handleSaveSimilar(s) }}
+                            disabled={simSave === 'saving' || simSave === 'saved'}
+                            className={`flex-shrink-0 text-base leading-none transition-colors disabled:cursor-not-allowed ${
+                              simSave === 'saved'
+                                ? 'text-yellow-400'
+                                : 'text-gray-600 hover:text-yellow-400'
+                            }`}
+                            aria-label={simSave === 'saved' ? 'Saved' : 'Save this deal'}
+                            title={simSave === 'saved' ? 'Saved' : 'Save deal'}
+                          >
+                            {simSave === 'saved' ? '★' : simSave === 'saving' ? '…' : '☆'}
+                          </button>
+                        )}
                       </div>
-                    </Link>
-                  ))}
+                    )
+                  })}
                 </div>
                 <p className="mt-2 text-right">
                   <Link
