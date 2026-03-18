@@ -23,18 +23,18 @@ function FreshnessBadge({ address }: { address: string }) {
   const days = getFreshnessDays(address)
   if (days <= 2)
     return (
-      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
         New
       </span>
     )
   if (days <= 5)
     return (
-      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-600 border border-blue-200">
+      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-900/30 text-blue-400 border border-blue-700">
         Updated
       </span>
     )
   return (
-    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-white/5 text-gray-500 border border-white/10">
       Recent
     </span>
   )
@@ -61,17 +61,11 @@ function Row({
       ? 'text-green-500 font-semibold'
       : highlight === 'red'
       ? 'text-red-500 font-semibold'
-      : isDark
-      ? 'text-gray-200'
-      : 'text-gray-800'
+      : 'text-gray-200'
 
   return (
-    <div
-      className={`flex items-center justify-between px-3 py-2.5 ${
-        isDark ? 'odd:bg-gray-800/40' : 'odd:bg-gray-50/60'
-      }`}
-    >
-      <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{label}</span>
+    <div className="flex items-center justify-between px-3 py-2.5 hover:bg-white/[0.02]">
+      <span className="text-xs text-gray-400">{label}</span>
       <span className={`text-xs font-medium text-right ${valueClass}`}>{value}</span>
     </div>
   )
@@ -122,31 +116,23 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
 
   const scoreBg =
     score >= 80
-      ? isDark
-        ? 'bg-green-900/30 border-green-700 text-green-400'
-        : 'bg-green-50 border-green-200 text-green-700'
+      ? 'bg-green-900/30 border-green-700 text-green-400'
       : score >= 60
-      ? isDark
-        ? 'bg-yellow-900/30 border-yellow-700 text-yellow-400'
-        : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-      : isDark
-      ? 'bg-red-900/30 border-red-800 text-red-400'
-      : 'bg-red-50 border-red-200 text-red-600'
+      ? 'bg-yellow-900/30 border-yellow-700 text-yellow-400'
+      : 'bg-red-900/30 border-red-800 text-red-400'
 
   const leadTypeBg =
     p.lead_type === 'Pre-Foreclosure'
-      ? 'bg-red-100 text-red-700'
+      ? 'bg-red-900/30 text-red-400'
       : p.lead_type === 'Expired Listing'
-      ? 'bg-yellow-100 text-yellow-700'
-      : 'bg-green-100 text-green-700'
+      ? 'bg-yellow-900/30 text-yellow-400'
+      : 'bg-green-900/30 text-green-400'
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
-          isDark ? 'bg-black/60' : 'bg-black/30'
-        } ${isSlideIn ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 bg-black/60 ${isSlideIn ? 'opacity-100' : 'opacity-0'}`}
         onClick={close}
       />
 
@@ -155,21 +141,17 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
         className={`fixed top-0 right-0 h-full z-50 flex flex-col shadow-2xl
           transition-transform duration-300 ease-in-out
           ${isSlideIn ? 'translate-x-0' : 'translate-x-full'}
-          ${isDark ? 'bg-gray-900 border-l border-gray-700' : 'bg-white border-l border-gray-200'}
+          bg-[#0a0f1e] border-l border-white/10
         `}
         style={{ width: 'min(420px, 100vw)' }}
       >
         {/* Header */}
-        <div
-          className={`flex items-start justify-between px-5 py-4 border-b flex-shrink-0 ${
-            isDark ? 'border-gray-700' : 'border-gray-100'
-          }`}
-        >
+        <div className="flex items-start justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
           <div className="flex-1 min-w-0">
-            <h2 className={`font-bold text-sm leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className="font-display font-bold text-xl leading-snug text-white">
               {p.address}
             </h2>
-            <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p className="text-xs mt-0.5 text-gray-400">
               {p.city}, {p.zip}
             </p>
           </div>
@@ -179,9 +161,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
               className={`text-xl leading-none transition-colors ${
                 isSaved
                   ? 'text-yellow-400 hover:text-yellow-500'
-                  : isDark
-                  ? 'text-gray-600 hover:text-yellow-400'
-                  : 'text-gray-300 hover:text-yellow-400'
+                  : 'text-gray-600 hover:text-yellow-400'
               }`}
               aria-label={isSaved ? 'Unsave signal' : 'Save signal'}
             >
@@ -189,9 +169,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
             </button>
             <button
               onClick={close}
-              className={`p-1.5 rounded-md transition-colors ${
-                isDark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-400 hover:bg-gray-100'
-              }`}
+              className="p-1.5 rounded-md transition-colors text-gray-400 hover:bg-white/5"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -207,45 +185,33 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
           {/* Score / Freshness / Lead Type row */}
           <div className="grid grid-cols-3 gap-2">
             <div className={`rounded-lg border p-3 text-center ${scoreBg}`}>
-              <div className="text-2xl font-bold">{score}</div>
+              <div className="font-display text-2xl font-bold">{score}</div>
               <div className="text-[11px] font-medium mt-0.5 opacity-80">{scoreLabel}</div>
             </div>
-            <div
-              className={`rounded-lg border p-3 text-center ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}
-            >
+            <div className="rounded-lg border p-3 text-center bg-white/5 border-white/10">
               <div className="flex justify-center mb-1">
                 <FreshnessBadge address={p.address} />
               </div>
-              <div className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Data Age</div>
+              <div className="text-[11px] text-gray-400">Data Age</div>
             </div>
-            <div
-              className={`rounded-lg border p-3 text-center flex flex-col items-center justify-center gap-1 ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
-              }`}
-            >
+            <div className="rounded-lg border p-3 text-center flex flex-col items-center justify-center gap-1 bg-white/5 border-white/10">
               <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${leadTypeBg}`}>
                 {p.lead_type}
               </span>
-              <span className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Lead Type</span>
+              <span className="text-[11px] text-gray-400">Lead Type</span>
             </div>
           </div>
 
           {/* Owner Contact */}
           <div>
-            <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 ${
-              isDark ? 'text-gray-500' : 'text-gray-400'
-            }`}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
               Owner Contact
             </p>
-            <div className={`rounded-lg border p-3 space-y-2.5 ${
-              isDark ? 'bg-gray-800/60 border-gray-700' : 'bg-gray-50 border-gray-200'
-            }`}>
+            <div className={`rounded-lg border p-3 space-y-2.5 bg-white/5 border-white/10 ${isPro ? 'border-l-2 border-emerald-500/40' : ''}`}>
               {isPro ? (
                 <>
                   <div className="flex items-start justify-between gap-3">
-                    <span className={`text-[11px] font-semibold shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className="text-[11px] font-semibold shrink-0 text-gray-500">
                       📞 Owner Phone
                     </span>
                     <span className="text-xs font-mono text-emerald-400 text-right">
@@ -253,10 +219,10 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className={`text-[11px] font-semibold shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className="text-[11px] font-semibold shrink-0 text-gray-500">
                       📬 Mailing Address
                     </span>
-                    <span className={`text-xs text-right ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className="text-xs text-right text-gray-300">
                       {p.owner_mailing_address ?? '—'}
                     </span>
                   </div>
@@ -267,7 +233,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
               ) : (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className={`text-[11px] font-semibold ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                    <span className="text-[11px] font-semibold text-gray-600">
                       📞 Owner Phone
                     </span>
                     <span className="text-xs font-mono text-gray-600 blur-sm select-none">
@@ -275,7 +241,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className={`text-[11px] font-semibold ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                    <span className="text-[11px] font-semibold text-gray-600">
                       📬 Mailing Address
                     </span>
                     <span className="text-xs text-gray-600 blur-sm select-none">
@@ -294,26 +260,18 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
           </div>
 
           {/* Why This Is an Opportunity */}
-          <div
-            className={`rounded-lg border p-3.5 ${
-              isDark ? 'bg-blue-950/40 border-blue-800' : 'bg-blue-50 border-blue-200'
-            }`}
-          >
-            <p
-              className={`text-[11px] font-semibold uppercase tracking-wide mb-2 ${
-                isDark ? 'text-blue-400' : 'text-blue-600'
-              }`}
-            >
+          <div className="rounded-lg border p-3.5 bg-blue-950/40 border-blue-800">
+            <p className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-2">
               Why This Is an Opportunity
             </p>
             <ul className="space-y-1.5">
               {explanations.map((line, i) => (
                 <li
                   key={i}
-                  className={`text-xs flex gap-2 ${isDark ? 'text-blue-300' : 'text-blue-800'}`}
+                  className="flex gap-2 bg-white/[0.02] rounded-lg p-3 border border-white/[0.04]"
                 >
-                  <span className="flex-shrink-0 mt-0.5">•</span>
-                  {line}
+                  <span className="flex-shrink-0 mt-0.5 text-blue-400">•</span>
+                  <span className="text-xs text-blue-300">{line}</span>
                 </li>
               ))}
             </ul>
@@ -321,18 +279,10 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
 
           {/* Property details */}
           <div>
-            <p
-              className={`text-[11px] font-semibold uppercase tracking-wide mb-2 ${
-                isDark ? 'text-gray-500' : 'text-gray-400'
-              }`}
-            >
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
               Property Details
             </p>
-            <div
-              className={`rounded-lg border divide-y text-sm overflow-hidden ${
-                isDark ? 'border-gray-700 divide-gray-700' : 'border-gray-100 divide-gray-100'
-              }`}
-            >
+            <div className="rounded-lg border divide-y text-sm overflow-hidden border-white/10 divide-white/10">
               <Row label="Est. Value" value={fmt(p.estimated_value, '$')} isDark={isDark} />
               <Row
                 label="Est. Equity"
@@ -371,18 +321,10 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
         </div>
 
         {/* Footer */}
-        <div
-          className={`px-5 py-4 border-t flex-shrink-0 ${
-            isDark ? 'border-gray-700' : 'border-gray-100'
-          }`}
-        >
+        <div className="px-5 py-4 border-t border-white/10 flex-shrink-0">
           <button
             onClick={close}
-            className={`w-full py-2 rounded-lg text-sm font-semibold border transition-colors ${
-              isDark
-                ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
-                : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-            }`}
+            className="w-full py-2 rounded-lg text-sm font-semibold border transition-colors bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
           >
             Close
           </button>

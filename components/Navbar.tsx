@@ -53,18 +53,18 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <nav className="bg-[#020617]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
 
         {/* ── Logo ────────────────────────────────────────────────────── */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
           <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-sm shadow-blue-200 group-hover:bg-blue-700 transition-colors">
             P
           </span>
-          <span className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors hidden xs:block">
-            PropertySignal<span className="text-blue-600">HQ</span>
+          <span className="font-display font-bold text-white text-base hidden xs:block">
+            PropertySignal<span className="text-blue-400">HQ</span>
           </span>
-          <span className="ml-2 hidden xs:inline-block bg-blue-600/20 text-blue-400 border border-blue-600/30 text-xs px-1.5 py-0.5 rounded font-medium">
+          <span className="ml-2 hidden xs:inline-block text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/5 text-gray-500 border border-white/10">
             BETA
           </span>
         </Link>
@@ -75,7 +75,7 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-sm text-gray-400 hover:text-white transition-colors duration-150"
             >
               {l.label}
             </Link>
@@ -89,8 +89,8 @@ export default function Navbar() {
           {/* Skeleton while loading (prevents hydration flash) */}
           {!loaded ? (
             <div className="flex items-center gap-2">
-              <div className="w-16 h-8 rounded-lg bg-gray-100 animate-pulse" />
-              <div className="w-24 h-8 rounded-lg bg-blue-100 animate-pulse" />
+              <div className="w-16 h-8 rounded-lg bg-white/5 animate-pulse" />
+              <div className="w-24 h-8 rounded-lg bg-white/5 animate-pulse" />
             </div>
           ) : isLoggedIn && user ? (
 
@@ -98,14 +98,14 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen((v) => !v)}
-                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 text-gray-300 transition-colors"
               >
                 <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {initials(user.email)}
                 </span>
-                <span className="text-sm text-gray-700 max-w-[120px] truncate">{user.email}</span>
+                <span className="text-sm text-gray-300 max-w-[120px] truncate">{user.email}</span>
                 {isPro && (
-                  <span className="text-xs font-semibold text-emerald-500 whitespace-nowrap">● Pro</span>
+                  <span className="text-xs font-semibold text-emerald-400 whitespace-nowrap">● Pro</span>
                 )}
                 <svg
                   className={`w-3.5 h-3.5 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
@@ -117,15 +117,15 @@ export default function Navbar() {
 
               {/* Dropdown menu */}
               {userMenuOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-xl shadow-lg shadow-gray-100/80 overflow-hidden z-50">
-                  <div className="px-4 py-2.5 border-b border-gray-100">
-                    <p className="text-xs text-gray-400 font-medium">Signed in as</p>
-                    <p className="text-xs text-gray-700 font-semibold truncate">{user.email}</p>
+                <div className="absolute right-0 top-full mt-1.5 w-52 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg overflow-hidden z-50">
+                  <div className="px-4 py-2.5 border-b border-white/10">
+                    <p className="text-xs text-gray-500 font-medium">Signed in as</p>
+                    <p className="text-xs text-gray-200 font-semibold truncate">{user.email}</p>
                   </div>
                   <Link
                     href="/finder"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
                   >
                     <span>📊</span> Dashboard
                   </Link>
@@ -133,7 +133,7 @@ export default function Navbar() {
                     <Link
                       href="/saved-deals"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
                     >
                       <span>🔖</span> Saved Deals
                     </Link>
@@ -142,7 +142,7 @@ export default function Navbar() {
                     <Link
                       href="/favorites"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
                     >
                       <span>⭐</span> Favorites
                     </Link>
@@ -150,15 +150,15 @@ export default function Navbar() {
                   {isPro && (
                     <button
                       onClick={handleManageSubscription}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors text-left"
                     >
                       <span>⚙️</span> Manage Subscription
                     </button>
                   )}
-                  <div className="border-t border-gray-100" />
+                  <div className="border-t border-white/10" />
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
                   >
                     <span aria-hidden>↩</span> Log out
                   </button>
@@ -172,13 +172,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                className="text-sm font-semibold text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 transition-colors duration-150"
               >
                 Login
               </Link>
               <a
                 href="/upgrade"
-                className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-200"
+                className="text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors duration-150 shadow-lg shadow-blue-600/25"
               >
                 Get Started
               </a>
@@ -191,7 +191,7 @@ export default function Navbar() {
           <ThemeToggle />
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
             aria-label="Toggle menu"
           >
             {mobileOpen ? (
@@ -209,19 +209,19 @@ export default function Navbar() {
 
       {/* ── Mobile dropdown ──────────────────────────────────────────── */}
       {mobileOpen && (
-        <div className="sm:hidden border-t border-gray-100 bg-white px-6 py-4 space-y-1">
+        <div className="sm:hidden border-t border-white/5 bg-[#0a0f1e] px-6 py-4 space-y-1">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setMobileOpen(false)}
-              className="block text-sm text-gray-600 hover:text-blue-600 py-2 transition-colors"
+              className="block text-sm text-gray-400 hover:text-white py-2 transition-colors"
             >
               {l.label}
             </Link>
           ))}
 
-          <div className="pt-3 mt-1 border-t border-gray-100 space-y-2">
+          <div className="pt-3 mt-1 border-t border-white/5 space-y-2">
             {loaded && isLoggedIn && user ? (
               /* Logged-in mobile */
               <>
@@ -229,18 +229,18 @@ export default function Navbar() {
                   <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                     {initials(user.email)}
                   </span>
-                  <span className="text-sm text-gray-700 truncate">{user.email}</span>
+                  <span className="text-sm text-gray-300 truncate">{user.email}</span>
                 </div>
                 <Link
                   href="/finder"
                   onClick={() => setMobileOpen(false)}
-                  className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-colors"
+                  className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-center text-sm font-semibold text-red-600 border border-red-200 hover:bg-red-50 px-4 py-2.5 rounded-lg transition-colors"
+                  className="block w-full text-center text-sm font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/10 px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Log Out
                 </button>
@@ -251,14 +251,14 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="block w-full text-center text-sm font-semibold text-gray-700 border border-gray-200 hover:bg-gray-50 px-4 py-2.5 rounded-lg transition-colors"
+                  className="block w-full text-center text-sm font-semibold text-gray-300 border border-white/10 hover:bg-white/5 px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Login
                 </Link>
                 <a
                   href="/upgrade"
                   onClick={() => setMobileOpen(false)}
-                  className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-colors"
+                  className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Get Started
                 </a>

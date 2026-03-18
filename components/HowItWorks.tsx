@@ -39,19 +39,17 @@ export default function HowItWorks({ isDark }: Props) {
   return (
     <section
       id="how-it-works"
-      className={`py-20 px-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+      className="py-12 md:py-24 px-6 bg-[#020617]"
     >
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-14">
-          <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full ${
-            isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-50 text-blue-600'
-          }`}>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-blue-900/50 text-blue-400">
             How It Works
           </span>
-          <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-3 text-white">
             From Search to Outreach in Minutes
           </h2>
-          <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p className="text-base max-w-xl mx-auto text-gray-400">
             A simple three-step workflow to go from city selection to a ready-to-call lead list.
           </p>
         </div>
@@ -60,24 +58,18 @@ export default function HowItWorks({ isDark }: Props) {
           {STEPS.map((step) => (
             <div
               key={step.number}
-              className={`rounded-2xl p-8 border transition-all duration-300 hover:-translate-y-1.5 ${
-                isDark
-                  ? 'bg-gray-800 border-gray-700 shadow-xl shadow-black/40 hover:shadow-2xl hover:shadow-blue-950/60 hover:border-blue-700'
-                  : 'bg-white border-gray-100 shadow-lg shadow-gray-200/80 hover:shadow-xl hover:shadow-blue-100 hover:border-blue-200'
-              }`}
+              className="bg-[#0f172a] border border-white/10 rounded-xl p-8 transition-all duration-300 hover:-translate-y-1.5 shadow-xl shadow-black/40 hover:shadow-2xl hover:shadow-blue-950/60 hover:border-blue-500/40"
             >
               <div className="flex items-center gap-3 mb-6">
-                <span className={`text-4xl font-black leading-none select-none ${
-                  isDark ? 'text-blue-500/25' : 'text-blue-100'
-                }`}>
+                <span className="text-4xl font-black leading-none select-none text-blue-500/25">
                   {step.number}
                 </span>
-                <span className={`${isDark ? 'text-blue-400' : 'text-blue-600'} [&>svg]:w-7 [&>svg]:h-7`}>{step.icon}</span>
+                <span className="text-blue-400 [&>svg]:w-7 [&>svg]:h-7">{step.icon}</span>
               </div>
-              <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className="font-display text-lg font-bold mb-2 text-white">
                 {step.title}
               </h3>
-              <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className="text-sm leading-relaxed text-gray-400">
                 {step.description}
               </p>
             </div>

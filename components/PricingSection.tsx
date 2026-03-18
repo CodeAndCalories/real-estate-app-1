@@ -30,48 +30,38 @@ export default function PricingSection({ isDark }: Props) {
   return (
     <section
       id="pricing"
-      className={`py-24 px-6 ${isDark ? 'bg-gray-950' : 'bg-gradient-to-b from-blue-50 to-white'}`}
+      className="py-12 md:py-24 px-6 bg-[#020617]"
     >
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-14">
-          <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full ${
-            isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-50 text-blue-600'
-          }`}>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-blue-900/50 text-blue-400">
             Pricing
           </span>
-          <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-3 text-white">
             One Plan. Everything Included.
           </h2>
-          <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p className="text-base max-w-xl mx-auto text-gray-400">
             No tiers, no feature walls — every tool in one flat monthly price.
           </p>
         </div>
 
         {/* Single centered card */}
         <div className="flex justify-center">
-          <div className={`w-full max-w-md rounded-2xl border p-9 relative shadow-2xl ${
-            isDark
-              ? 'bg-blue-900/40 border-blue-500 shadow-blue-900/50'
-              : 'bg-blue-600 border-blue-500 shadow-blue-300/60'
-          }`}>
+          <div className="w-full max-w-sm bg-[#0f172a] border border-white/10 rounded-xl p-9 relative shadow-2xl shadow-black/50">
             {/* Badge */}
-            <span className={`absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap ${
-              isDark ? 'bg-blue-500 text-white' : 'bg-white text-blue-600'
-            }`}>
+            <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap bg-blue-600 text-white">
               All Features Included
             </span>
 
             {/* Plan name */}
-            <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${
-              isDark ? 'text-blue-400' : 'text-blue-200'
-            }`}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-400">
               PropertySignalHQ Pro
             </p>
 
             {/* Price */}
             <div className="flex items-end gap-1.5 mb-1">
-              <span className="text-5xl font-black text-white leading-none">$39</span>
-              <span className={`text-sm mb-2 ${isDark ? 'text-blue-300' : 'text-blue-100'}`}>/ month</span>
+              <span className="font-display text-5xl font-black text-white leading-none">$39</span>
+              <span className="text-sm mb-2 text-blue-300">/ month</span>
             </div>
 
             {/* Comparison note */}
@@ -80,7 +70,7 @@ export default function PricingSection({ isDark }: Props) {
             </p>
 
             {/* Tagline */}
-            <p className={`text-sm mb-7 ${isDark ? 'text-blue-300' : 'text-blue-100'}`}>
+            <p className="text-sm mb-7 text-blue-300">
               Everything investors need to find and analyze off-market opportunities.
             </p>
 
@@ -88,8 +78,8 @@ export default function PricingSection({ isDark }: Props) {
             <ul className="space-y-2.5 mb-8">
               {FEATURES.map((f) => (
                 <li key={f} className="flex items-start gap-2.5">
-                  <span className={`mt-0.5 shrink-0 text-sm ${isDark ? 'text-blue-400' : 'text-blue-200'}`}>✓</span>
-                  <span className={`text-sm ${isDark ? 'text-blue-100' : 'text-white'}`}>{f}</span>
+                  <span className="mt-0.5 shrink-0 text-sm text-blue-400">✓</span>
+                  <span className="text-sm text-gray-300">{f}</span>
                 </li>
               ))}
             </ul>
@@ -97,7 +87,7 @@ export default function PricingSection({ isDark }: Props) {
             {/* CTA — swapped for pro members */}
             {isConfirmedPro ? (
               <>
-                <div className="block w-full text-center font-semibold text-base py-3 rounded-xl bg-green-600 text-white cursor-default">
+                <div className="block w-full text-center font-semibold text-base py-3 rounded-lg bg-emerald-600/10 text-emerald-400 border border-emerald-600/20 cursor-default">
                   ✓ You&apos;re a Pro Member
                 </div>
                 <p className="text-sm text-gray-400 text-center mt-2">
@@ -108,11 +98,7 @@ export default function PricingSection({ isDark }: Props) {
               <>
                 <a
                   href="/upgrade"
-                  className={`block w-full text-center font-bold text-base py-3.5 rounded-xl transition-all shadow-md ${
-                    isDark
-                      ? 'bg-blue-500 hover:bg-blue-400 text-white'
-                      : 'bg-white hover:bg-blue-50 text-blue-600'
-                  }`}
+                  className="block w-full text-center font-bold text-base py-3.5 rounded-lg transition-all shadow-md bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/25"
                 >
                   Unlock Owner Contacts →
                 </a>
@@ -130,7 +116,7 @@ export default function PricingSection({ isDark }: Props) {
               </>
             )}
 
-            <p className={`text-center text-xs mt-3 ${isDark ? 'text-blue-500' : 'text-blue-200'}`}>
+            <p className="text-center text-xs mt-3 text-gray-500">
               Cancel anytime.
             </p>
           </div>

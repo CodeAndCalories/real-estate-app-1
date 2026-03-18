@@ -19,12 +19,12 @@ export default function SiteFooter({ isDark }: Props) {
   const year = new Date().getFullYear()
 
   return (
-    <footer className={`border-t ${isDark ? 'bg-gray-950 border-gray-800' : 'bg-gray-900 border-gray-800'}`}>
+    <footer className="border-t border-white/10 bg-[#020617]">
       <div className="max-w-5xl mx-auto px-6 py-14">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
           {/* Brand */}
           <div>
-            <span className="text-white font-black text-xl">PropertySignalHQ</span>
+            <span className="font-display text-white font-black text-xl">PropertySignalHQ</span>
             <p className="text-gray-500 text-sm mt-2 leading-relaxed max-w-xs">
               Property intelligence for real estate professionals.
             </p>
@@ -38,7 +38,7 @@ export default function SiteFooter({ isDark }: Props) {
                 <li key={l.label}>
                   <a
                     href={l.href}
-                    className="text-gray-500 hover:text-gray-200 text-sm transition-colors"
+                    className="text-gray-400 hover:text-white text-sm transition-colors"
                   >
                     {l.label}
                   </a>
@@ -55,7 +55,7 @@ export default function SiteFooter({ isDark }: Props) {
                 <li key={l.label}>
                   <a
                     href={l.href}
-                    className="text-gray-500 hover:text-gray-200 text-sm transition-colors"
+                    className="text-gray-400 hover:text-white text-sm transition-colors"
                   >
                     {l.label}
                   </a>
@@ -65,7 +65,7 @@ export default function SiteFooter({ isDark }: Props) {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-gray-600 text-xs">
             © PropertySignalHQ. All rights reserved.
           </p>

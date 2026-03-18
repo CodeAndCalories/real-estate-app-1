@@ -7,7 +7,27 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          bg:          '#020617',
+          card:        '#0f172a',
+          border:      '#1e293b',
+          blue:        '#2563eb',
+          'blue-light':'#3b82f6',
+        },
+      },
+      fontFamily: {
+        display: ['var(--font-syne)', 'sans-serif'],
+      },
+      boxShadow: {
+        'glow-blue':    '0 0 20px rgba(37, 99, 235, 0.15)',
+        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.15)',
+      },
+      transitionDuration: {
+        DEFAULT: '200ms',
+      },
+    },
   },
   plugins: [],
 }

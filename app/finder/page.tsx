@@ -444,32 +444,22 @@ export default function FinderPage() {
     : summary
   const showResults = showSavedOnly || showFavoritesOnly || searched
 
-  // Theme-aware class helpers
-  const pageBg = isDark
-    ? 'min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-blue-950'
-    : 'min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50'
+  // Theme-aware class helpers — always dark
+  const pageBg = 'min-h-screen bg-[#020617]'
 
-  const card = isDark
-    ? 'bg-gray-800 border border-gray-700 rounded-xl shadow-sm'
-    : 'bg-white border border-gray-200 rounded-xl shadow-sm'
+  const card = 'bg-[#0f172a] border border-white/10 rounded-xl shadow-sm'
 
-  const textPrimary = isDark ? 'text-white' : 'text-gray-900'
-  const textSecondary = isDark ? 'text-gray-400' : 'text-gray-500'
-  const textMuted = isDark ? 'text-gray-500' : 'text-gray-400'
+  const textPrimary = 'text-white'
+  const textSecondary = 'text-gray-400'
+  const textMuted = 'text-gray-500'
 
-  const selectClass = isDark
-    ? 'w-full border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100'
-    : 'w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900'
+  const selectClass = 'w-full border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#0f172a] text-gray-200 transition-colors'
 
-  const labelClass = `block text-xs font-semibold uppercase tracking-wide mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`
+  const labelClass = 'block text-xs font-semibold uppercase tracking-widest mb-2 text-gray-500'
 
   const paginationBtnBase = `px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors`
-  const paginationBtnActive = isDark
-    ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600'
-    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-  const paginationBtnDisabled = isDark
-    ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
-    : 'bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed'
+  const paginationBtnActive = 'bg-[#0f172a] border-white/10 text-gray-300 hover:bg-white/10'
+  const paginationBtnDisabled = 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed'
 
   return (
     <div className={pageBg}>
@@ -477,11 +467,7 @@ export default function FinderPage() {
 
         {/* Demo Dataset Badge — hidden for pro users */}
         {!isPro && <div className="flex items-center gap-2 mb-4">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
-            isDark
-              ? 'bg-amber-900/30 border-amber-700 text-amber-400'
-              : 'bg-amber-50 border-amber-300 text-amber-700'
-          }`}>
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border bg-amber-500/10 border-amber-500/20 text-amber-400">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
             Demo Dataset
           </span>
@@ -491,7 +477,7 @@ export default function FinderPage() {
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <div>
-            <h1 className={`text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
+            <h1 className={`font-display text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
             <p className="text-xs text-gray-500 mt-0.5">Updated daily across 30+ markets</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -500,12 +486,8 @@ export default function FinderPage() {
                 onClick={() => { setShowFavoritesOnly((v) => !v); setShowSavedOnly(false) }}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${
                   showFavoritesOnly
-                    ? isDark
-                      ? 'bg-yellow-900/30 border-yellow-600 text-yellow-400 hover:bg-yellow-900/50'
-                      : 'bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100'
-                    : isDark
-                    ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
-                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                    : 'bg-white/5 border-white/10 text-gray-400'
                 }`}
               >
                 <span>⭐</span>
@@ -517,12 +499,8 @@ export default function FinderPage() {
                 onClick={() => { setShowSavedOnly((v) => !v); setShowFavoritesOnly(false) }}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${
                   showSavedOnly
-                    ? isDark
-                      ? 'bg-yellow-900/30 border-yellow-700 text-yellow-400 hover:bg-yellow-900/50'
-                      : 'bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100'
-                    : isDark
-                    ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
-                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                    : 'bg-white/5 border-white/10 text-gray-400'
                 }`}
               >
                 <span className="text-yellow-400">★</span>
@@ -598,18 +576,14 @@ export default function FinderPage() {
             <button
               onClick={runSearch}
               disabled={isLoading}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-lg text-sm transition-colors"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-lg text-sm transition-colors shadow-lg shadow-blue-600/25"
             >
               {isLoading ? 'Loading…' : 'Generate Leads'}
             </button>
             <button
               onClick={handleSaveSearch}
               title="Save current filters as a saved search"
-              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${
-                isDark
-                  ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600 hover:border-blue-600'
-                  : 'bg-white border-gray-300 text-gray-600 hover:bg-blue-50 hover:border-blue-300'
-              }`}
+              className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-blue-600/40"
             >
               <span>＋</span> Save Search
             </button>
@@ -617,12 +591,8 @@ export default function FinderPage() {
               onClick={() => setShowAdvancedFilters((v) => !v)}
               className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${
                 showAdvancedFilters
-                  ? isDark
-                    ? 'bg-blue-900/30 border-blue-700 text-blue-400'
-                    : 'bg-blue-50 border-blue-300 text-blue-600'
-                  : isDark
-                  ? 'bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600'
-                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                  ? 'bg-blue-900/30 border-blue-700 text-blue-400'
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
               }`}
             >
               Filters {showAdvancedFilters ? '▲' : '▼'}
@@ -636,7 +606,7 @@ export default function FinderPage() {
 
           {/* Advanced filter panel */}
           {showAdvancedFilters && (
-            <div className={`mt-4 pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
+            <div className="mt-4 pt-4 border-t border-white/10">
               <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${textSecondary}`}>
                 Advanced Filters <span className={`font-normal normal-case ${textMuted}`}>(applied client-side to current results)</span>
               </p>
@@ -717,20 +687,16 @@ export default function FinderPage() {
 
         {/* Recent Deals You Saved — pro only */}
         {isPro && (
-          <div className={`rounded-xl border mb-5 overflow-hidden ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
-          }`}>
+          <div className="rounded-xl border mb-5 overflow-hidden bg-[#0f172a] border-white/10">
             {/* Header */}
-            <div className={`flex items-center justify-between px-4 py-3 border-b ${
-              isDark ? 'border-gray-700' : 'border-gray-100'
-            }`}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <span className="text-base">🔖</span>
                 <div>
-                  <h2 className={`text-sm font-bold uppercase tracking-wide ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-white">
                     Recent Deals You Saved
                   </h2>
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className="text-xs text-gray-400">
                     Your latest analyzed opportunities
                   </p>
                 </div>
@@ -747,10 +713,10 @@ export default function FinderPage() {
               {recentDeals.length === 0 ? (
                 /* Empty state */
                 <div className="text-center py-6">
-                  <p className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className="text-sm font-medium mb-1 text-gray-300">
                     No saved deals yet
                   </p>
-                  <p className={`text-xs mb-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <p className="text-xs mb-4 text-gray-500">
                     Analyze a property to start tracking opportunities.
                   </p>
                   <Link
@@ -765,11 +731,9 @@ export default function FinderPage() {
                   {recentDeals.map((deal) => (
                     <div
                       key={deal.id}
-                      className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 ${
-                        isDark ? 'border-gray-700 bg-gray-700/40' : 'border-gray-100 bg-gray-50'
-                      }`}
+                      className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 border-white/10 bg-white/5"
                     >
-                      <p className={`text-sm font-medium truncate capitalize ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                      <p className="text-sm font-medium truncate capitalize text-gray-200">
                         {deal.address}
                       </p>
                       <div className="flex items-center gap-2 flex-shrink-0">

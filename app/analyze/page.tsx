@@ -45,6 +45,12 @@ function scoreColor(score: number): string {
   return 'text-red-400'
 }
 
+function scoreGlow(score: number): string {
+  if (score >= 70) return 'drop-shadow-[0_0_35px_rgba(16,185,129,0.3)]'
+  if (score >= 40) return 'drop-shadow-[0_0_35px_rgba(245,158,11,0.3)]'
+  return 'drop-shadow-[0_0_35px_rgba(239,68,68,0.3)]'
+}
+
 function confidenceStyle(confidence: string): string {
   if (confidence === 'High')   return 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20'
   if (confidence === 'Medium') return 'bg-yellow-600/10 text-yellow-400 border-yellow-600/20'
@@ -489,11 +495,11 @@ export default function AnalyzePage() {
             {/* Score + confidence + save button */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className={`text-6xl font-bold leading-none ${scoreColor(result.score)}`}>
+                <p className={`text-8xl font-black font-display leading-none ${scoreColor(result.score)} ${scoreGlow(result.score)}`}>
                   {result.score}
                 </p>
                 <p className="mt-1 text-sm text-gray-400">Signal Score</p>
-                <span className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold ${confidenceStyle(result.confidence)}`}>
+                <span className={`mt-2 inline-block rounded-full border px-4 py-2 text-sm font-semibold ${confidenceStyle(result.confidence)}`}>
                   {result.confidence} Confidence
                 </span>
                 <p className="mt-2 text-sm text-gray-400">Based on {address}</p>
