@@ -45,6 +45,34 @@ function formatDate(iso: string): string {
   })
 }
 
+/** Format ISO timestamp as MM/DD/YYYY for CSV output */
+function toCSVDate(iso: string): string {
+  const d  = new Date(iso)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${mm}/${dd}/${d.getFullYear()}`
+}
+
+/** Wrap a CSV cell value in quotes if it contains commas, quotes, or newlines */
+function csvCell(val: string | number | null | undefined): string {
+  if (val === null || val === undefined) return ''
+  const s = String(val)
+  return s.includes(',') || s.includes('"') || s.includes('\n')
+    ? `"${s.replace(/"/g, '""')}"`
+    : s
+}
+
+function downloadCSV(rows: (string | number | null | undefined)[][], filename: string): void {
+  const csv  = rows.map((r) => r.map(csvCell).join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function SavedDealsPage() {
@@ -55,6 +83,27 @@ export default function SavedDealsPage() {
   const [deals,     setDeals]     = useState<SavedDeal[]>([])
   const [fetching,  setFetching]  = useState(true)
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
+  const [showToast, setShowToast] = useState(false)
+
+  const handleExportCSV = () => {
+    const today    = new Date().toISOString().slice(0, 10)
+    const filename = `propertysignalhq-saved-deals-${today}.csv`
+    const headers  = ['Address', 'Score', 'Confidence', 'Price', 'Beds', 'Baths', 'Sqft', 'Year Built', 'Saved Date']
+    const rows     = deals.map((d) => [
+      d.address,
+      d.score,
+      d.confidence,
+      d.price      ?? '',
+      d.beds       ?? '',
+      d.baths      ?? '',
+      d.sqft       ?? '',
+      d.year_built ?? '',
+      toCSVDate(d.saved_at),
+    ])
+    downloadCSV([headers, ...rows], filename)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 1000)
+  }
 
   // Redirect if not logged in
   useEffect(() => {
@@ -133,22 +182,35 @@ export default function SavedDealsPage() {
             <p className="mt-1 text-gray-400">Your analyzed properties</p>
           </div>
 
-          {/* Sort toggle */}
-          {deals.length > 1 && (
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-              {(['newest', 'highest_score'] as SortOrder[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSortOrder(s)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                    sortOrder === s
-                      ? 'bg-white/10 text-white'
-                      : 'text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  {s === 'newest' ? 'Newest' : 'Highest Score'}
-                </button>
-              ))}
+          {/* Sort toggle + Export — only when deals exist */}
+          {deals.length > 0 && (
+            <div className="flex items-center gap-2">
+              {deals.length > 1 && (
+                <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+                  {(['newest', 'highest_score'] as SortOrder[]).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSortOrder(s)}
+                      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                        sortOrder === s
+                          ? 'bg-white/10 text-white'
+                          : 'text-gray-500 hover:text-gray-300'
+                      }`}
+                    >
+                      {s === 'newest' ? 'Newest' : 'Highest Score'}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-1.5 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 px-3 py-1.5 text-sm transition-all"
+              >
+                <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export CSV
+              </button>
             </div>
           )}
         </div>
@@ -232,6 +294,16 @@ export default function SavedDealsPage() {
         </p>
 
       </div>
+
+      {/* CSV download toast */}
+      {showToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg pointer-events-none">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Downloading CSV…
+        </div>
+      )}
     </div>
   )
 }
