@@ -185,6 +185,20 @@ export default function FinderPage() {
     } catch { /* ignore */ }
   }, [])
 
+  // Saved analyses count (any logged-in user)
+  const [savedAnalysesCount, setSavedAnalysesCount] = useState<number | undefined>(undefined)
+  useEffect(() => {
+    if (!isLoggedIn || !user?.email) return
+    const email = user.email.toLowerCase().trim()
+    supabaseBrowser
+      .from('saved_analyses')
+      .select('id', { count: 'exact', head: true })
+      .eq('email', email)
+      .then(({ count }) => {
+        if (count !== null) setSavedAnalysesCount(count)
+      })
+  }, [isLoggedIn, user?.email])
+
   // Recent analyzed deals (pro only)
   interface RecentDeal {
     id: string
@@ -610,7 +624,7 @@ export default function FinderPage() {
         <InvestorTrustBanner isDark={isDark} />
 
         {/* Portfolio Summary — user's saved + pipeline deal counts */}
-        <PortfolioSummary isDark={isDark} />
+        <PortfolioSummary isDark={isDark} savedAnalysesCount={savedAnalysesCount} />
 
         {/* Recent Deals You Saved — pro only */}
         {isPro && (

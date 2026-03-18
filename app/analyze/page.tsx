@@ -18,6 +18,7 @@ interface AnalyzeResult {
 
 type PageState = 'form' | 'loading' | 'result' | 'limit' | 'error'
 type SaveState = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
+type ShareState = 'idle' | 'copied'
 
 // ── Loading copy ──────────────────────────────────────────────────────────────
 
@@ -41,6 +42,12 @@ function confidenceStyle(confidence: string): string {
   return 'bg-gray-600/10 text-gray-400 border-gray-600/20'
 }
 
+function cityFromAddress(addr: string): string {
+  const parts = addr.split(',').map((p) => p.trim()).filter(Boolean)
+  if (parts.length < 2) return addr.trim()
+  return parts.slice(-2).join(', ')
+}
+
 const inputCls =
   'w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all'
 
@@ -59,11 +66,13 @@ export default function AnalyzePage() {
   const [yearBuilt, setYearBuilt] = useState('')
 
   // UI state
-  const [pageState, setPageState] = useState<PageState>('form')
-  const [result,    setResult]    = useState<AnalyzeResult | null>(null)
-  const [errorMsg,  setErrorMsg]  = useState('')
-  const [loadStep,  setLoadStep]  = useState(0)
-  const [saveState, setSaveState] = useState<SaveState>('idle')
+  const [pageState,   setPageState]   = useState<PageState>('form')
+  const [result,      setResult]      = useState<AnalyzeResult | null>(null)
+  const [errorMsg,    setErrorMsg]    = useState('')
+  const [loadStep,    setLoadStep]    = useState(0)
+  const [saveState,   setSaveState]   = useState<SaveState>('idle')
+  const [shareState,  setShareState]  = useState<ShareState>('idle')
+  const [showToast,   setShowToast]   = useState(false)
 
   const loadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -160,6 +169,23 @@ export default function AnalyzePage() {
     setResult(null)
     setErrorMsg('')
     setSaveState('idle')
+    setShareState('idle')
+    setShowToast(false)
+  }
+
+  const handleShare = async () => {
+    if (!result) return
+    const city = cityFromAddress(address)
+    const text = `Just found a ${result.score}/100 signal score deal in ${city} 🔥\nAnalyzed on PropertySignalHQ\npropertysignalhq.com/analyze`
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch { /* ignore — clipboard may be unavailable */ }
+    setShareState('copied')
+    setShowToast(true)
+    setTimeout(() => {
+      setShareState('idle')
+      setShowToast(false)
+    }, 2000)
   }
 
   const handleSave = async () => {
@@ -423,6 +449,16 @@ export default function AnalyzePage() {
               </p>
             )}
 
+            {/* Share button */}
+            <div>
+              <button
+                onClick={handleShare}
+                className="rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 px-4 py-2 text-sm transition-all"
+              >
+                {shareState === 'copied' ? '✓ Copied' : 'Share Deal 🔥'}
+              </button>
+            </div>
+
             {/* CTA */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <p className="mb-3 text-sm font-semibold text-white">
@@ -484,6 +520,16 @@ export default function AnalyzePage() {
         )}
 
       </div>
+
+      {/* Share toast */}
+      {showToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg pointer-events-none">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Copied! Share your deal 🔥
+        </div>
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { useSavedDeals } from '@/lib/hooks/useSavedDeals'
 
 type Props = {
   isDark: boolean
+  savedAnalysesCount?: number
 }
 
 type StatItem = {
@@ -19,7 +20,7 @@ type StatItem = {
   }
 }
 
-export default function PortfolioSummary({ isDark }: Props) {
+export default function PortfolioSummary({ isDark, savedAnalysesCount }: Props) {
   const { counts }      = useDealPipeline()
   const { deals }       = useSavedDeals()
   const [mounted, setMounted] = useState(false)
@@ -30,7 +31,7 @@ export default function PortfolioSummary({ isDark }: Props) {
   const stats: StatItem[] = [
     {
       label: 'Saved Deals',
-      value: deals.length,
+      value: savedAnalysesCount ?? deals.length,
       icon: '⭐',
       accent: {
         card:    isDark ? 'bg-yellow-900/20 border-yellow-700/50'  : 'bg-yellow-50 border-yellow-200',
