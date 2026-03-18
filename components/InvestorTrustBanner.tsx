@@ -5,8 +5,8 @@ type Props = {
 }
 
 const POINTS = [
-  { icon: '🏙️', text: '14 real estate markets tracked' },
-  { icon: '📊', text: '6,600+ property signals analyzed' },
+  { icon: '🏙️', text: '20 real estate markets tracked' },
+  { icon: '📊', text: '10,400+ property signals analyzed' },
   { icon: '⚡', text: 'Daily opportunity scoring engine' },
 ]
 

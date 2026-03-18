@@ -110,7 +110,7 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
         </p>
         {!isPro && (
           <p className={`text-sm mt-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-            Pro users unlock signals across all 14 markets.{' '}
+            Pro users unlock signals across all 20 markets.{' '}
             <a href="/upgrade" className="text-blue-400 hover:underline">
               Upgrade →
             </a>

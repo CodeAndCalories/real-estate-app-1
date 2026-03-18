@@ -54,8 +54,8 @@ export default function AboutPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-xl shadow-xl">
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">The Solution</h2>
             <p className="text-gray-300 leading-relaxed mb-5">
-              We built PropertySignalHQ to simplify the gut check. We analyze data across 14 major
-              US markets — from Miami to Nashville — and distill it into a single, actionable
+              We built PropertySignalHQ to simplify the gut check. We analyze data across 20 major
+              US markets — from Miami to Denver — and distill it into a single, actionable
               Opportunity Score.
             </p>
             <p className="text-sm font-semibold text-white mb-3">We analyze the signals that matter:</p>

@@ -45,10 +45,10 @@ function getReply(input: string, isPro: boolean): string | null {
   const text = input.toLowerCase()
 
   if (text.includes('price') || text.includes('cost') || text.includes('$') || text.includes('39')) {
-    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to all 14 markets, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session. Cancel anytime. No contracts.'
+    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to all 20 markets, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session. Cancel anytime. No contracts.'
   }
   if (text.includes('market') || text.includes('city') || text.includes('where') || text.includes('cover')) {
-    return 'We track 14 major US markets including Miami, Dallas, Phoenix, Atlanta, Chicago, Nashville, and more. Data is updated daily.'
+    return 'We track 20 major US markets including Miami, Dallas, Phoenix, Atlanta, Chicago, Nashville, Austin, Denver, Charlotte, and more. Data is updated daily.'
   }
   if (text.includes('cancel') || text.includes('refund') || text.includes('stop')) {
     return 'You can cancel anytime — no contracts or commitments. Log in → click your email top right → Manage Subscription. You keep access until end of billing period.'
@@ -57,10 +57,10 @@ function getReply(input: string, isPro: boolean): string | null {
     return 'You can sign up at /signup, log in at /login, or reset your password using the Forgot Password link on the login page.'
   }
   if (text.includes('get') || text.includes('include') || text.includes('feature') || text.includes('pro')) {
-    return 'With Pro you get: off-market property signals scored 0–100, full owner contact info (phone + email), equity data, coverage across 14 US cities, and daily updated leads.'
+    return 'With Pro you get: off-market property signals scored 0–100, full owner contact info (phone + email), equity data, coverage across 20 US cities, and daily updated leads.'
   }
   if (text.includes('how') && (text.includes('work') || text.includes('signal'))) {
-    return 'We analyze property data across 14 US cities and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
+    return 'We analyze property data across 20 US cities and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
   }
   if (text.includes('worth') || text.includes('should i') || text.includes('good') || text.includes('better')) {
     return isPro
@@ -123,7 +123,7 @@ function PricingScreen({ onBack, onClose, isPro }: { onBack: () => void; onClose
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
         PropertySignalHQ is <span className="font-bold text-white">$39/month</span> with no hidden
-        fees. You get full access to all 14 markets, unlimited searches, and complete property
+        fees. You get full access to all 20 markets, unlimited searches, and complete property
         signal data.
         <br /><br />
         Most users start finding opportunities within their first session. Cancel anytime. No contracts.
@@ -153,7 +153,7 @@ function WhatDoIGetScreen({ onBack, onClose, isPro }: { onBack: () => void; onCl
           'Off-market property signals scored 0–100',
           'Full owner contact info (phone + email)',
           'Equity data and deal indicators',
-          'Coverage across 14 US cities',
+          'Coverage across 20 US cities',
           'Daily updated leads',
         ].map((item) => (
           <li key={item} className="flex items-start gap-2">
@@ -179,7 +179,7 @@ function HowItWorksScreen({ onBack, onClose }: { onBack: () => void; onClose: ()
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
-        We analyze property data across 14 US cities and score each property{' '}
+        We analyze property data across 20 US cities and score each property{' '}
         <span className="font-semibold text-white">0–100</span> based on signal strength. Higher
         score = higher likelihood of being an off-market opportunity.
         <br /><br />
@@ -205,8 +205,8 @@ function MarketCoverageScreen({ onBack, onClose }: { onBack: () => void; onClose
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
-        We track <span className="font-semibold text-white">14 major US markets</span> including
-        Miami, Dallas, Phoenix, Atlanta, Chicago, Nashville, and more. Data is updated daily so
+        We track <span className="font-semibold text-white">20 major US markets</span> including
+        Miami, Dallas, Phoenix, Atlanta, Chicago, Nashville, Austin, Denver, and more. Data is updated daily so
         there are always fresh opportunities to explore.
       </p>
       <p className="mt-3 text-sm">

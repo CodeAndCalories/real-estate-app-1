@@ -67,6 +67,10 @@ const AREA_CODES: Record<string, readonly number[]> = {
   OH: [216, 234, 330, 440],
   CA: [213, 310, 323, 408, 415, 424, 619, 818],
   NY: [212, 347, 516, 646, 718, 914, 917, 929],
+  NC: [704, 828, 910, 919, 980, 984],
+  TN: [423, 615, 629, 731, 865, 901],
+  IN: [219, 260, 317, 463, 765, 812],
+  CO: [303, 719, 720, 970],
 }
 const FALLBACK_AREA_CODES: readonly number[] = [214, 312, 404, 503, 614, 615, 720, 816, 901, 971]
 
@@ -146,6 +150,34 @@ const SAME_STATE_POOLS: Record<string, MailingTemplate[]> = {
     { street: 'Atlantic Ave',     city: 'Brooklyn',    state: 'NY', zip: '11201' },
     { street: 'Queens Blvd',      city: 'Forest Hills', state: 'NY', zip: '11375' },
     { street: 'Pelham Pkwy',      city: 'Bronx',       state: 'NY', zip: '10469' },
+  ],
+  NC: [
+    { street: 'Providence Rd',    city: 'Charlotte',   state: 'NC', zip: '28211' },
+    { street: 'South Blvd',       city: 'Charlotte',   state: 'NC', zip: '28209' },
+    { street: 'Hillsborough St',  city: 'Raleigh',     state: 'NC', zip: '27603' },
+    { street: 'Glenwood Ave',     city: 'Raleigh',     state: 'NC', zip: '27605' },
+    { street: 'Tryon St',         city: 'Charlotte',   state: 'NC', zip: '28202' },
+  ],
+  TN: [
+    { street: 'Broadway',         city: 'Nashville',   state: 'TN', zip: '37203' },
+    { street: 'West End Ave',     city: 'Nashville',   state: 'TN', zip: '37205' },
+    { street: 'Charlotte Ave',    city: 'Nashville',   state: 'TN', zip: '37209' },
+    { street: 'Nolensville Pike', city: 'Nashville',   state: 'TN', zip: '37211' },
+    { street: 'Gallatin Ave',     city: 'Nashville',   state: 'TN', zip: '37206' },
+  ],
+  IN: [
+    { street: 'Meridian St',      city: 'Indianapolis', state: 'IN', zip: '46204' },
+    { street: 'Washington St',    city: 'Indianapolis', state: 'IN', zip: '46204' },
+    { street: 'Keystone Ave',     city: 'Indianapolis', state: 'IN', zip: '46220' },
+    { street: 'College Ave',      city: 'Indianapolis', state: 'IN', zip: '46220' },
+    { street: 'Broad Ripple Ave', city: 'Indianapolis', state: 'IN', zip: '46220' },
+  ],
+  CO: [
+    { street: 'Colfax Ave',       city: 'Denver',      state: 'CO', zip: '80218' },
+    { street: 'Broadway',         city: 'Denver',      state: 'CO', zip: '80203' },
+    { street: 'Colorado Blvd',    city: 'Denver',      state: 'CO', zip: '80206' },
+    { street: 'Federal Blvd',     city: 'Denver',      state: 'CO', zip: '80219' },
+    { street: 'Speer Blvd',       city: 'Denver',      state: 'CO', zip: '80203' },
   ],
 }
 
