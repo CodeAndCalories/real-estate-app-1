@@ -136,6 +136,15 @@ export default function Navbar() {
                     </Link>
                   )}
                   {isPro && (
+                    <Link
+                      href="/favorites"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <span>⭐</span> Favorites
+                    </Link>
+                  )}
+                  {isPro && (
                     <button
                       onClick={handleManageSubscription}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"

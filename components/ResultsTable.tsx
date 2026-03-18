@@ -195,17 +195,31 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
                 {onToggleFavorite && (
                   <td
                     className="px-2 py-3 text-center"
-                    onClick={(e) => { e.stopPropagation(); onToggleFavorite(p) }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isPro) onToggleFavorite(p)
+                    }}
                   >
-                    <button
-                      className={`text-sm leading-none transition-colors ${
-                        favorited ? 'text-yellow-400' : isDark ? 'text-gray-600 hover:text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
-                      }`}
-                      aria-label={favorited ? 'Remove from shortlist' : 'Add to shortlist'}
-                      title={favorited ? 'Remove from shortlist' : 'Add to shortlist'}
-                    >
-                      {favorited ? '⭐' : '☆'}
-                    </button>
+                    {isPro ? (
+                      <button
+                        className={`text-sm leading-none transition-colors ${
+                          favorited ? 'text-yellow-400' : isDark ? 'text-gray-600 hover:text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
+                        }`}
+                        aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+                        title={favorited ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        {favorited ? '⭐' : '☆'}
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        title="Upgrade to save favorites"
+                        className="text-sm leading-none text-gray-300 cursor-not-allowed opacity-40"
+                        aria-label="Upgrade to save favorites"
+                      >
+                        ☆
+                      </button>
+                    )}
                   </td>
                 )}
 

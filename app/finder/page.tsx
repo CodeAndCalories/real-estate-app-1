@@ -185,6 +185,83 @@ export default function FinderPage() {
     } catch { /* ignore */ }
   }, [])
 
+  // ── DB-backed favorites (pro: functional, free: column visible but disabled) ──
+  const [dbFavoriteKeys, setDbFavoriteKeys] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (!isLoggedIn || !user?.email) { setDbFavoriteKeys(new Set()); return }
+    supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.access_token) return
+      fetch('/api/favorites', {
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
+      })
+        .then((r) => r.json())
+        .then((data: { favorites?: { property_id: string }[] }) => {
+          if (data.favorites) {
+            setDbFavoriteKeys(new Set(data.favorites.map((f) => f.property_id)))
+          }
+        })
+        .catch(() => {})
+    })
+  }, [isLoggedIn, user?.email])
+
+  const handleDbFavoriteToggle = async (p: Property) => {
+    if (!isLoggedIn || !isPro) return
+    const key = propertyKey(p)
+
+    // Optimistic update
+    setDbFavoriteKeys((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+
+    try {
+      const { data: { session } } = await supabaseBrowser.auth.getSession()
+      if (!session?.access_token) return
+
+      const res = await fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          property_id: key,
+          address:     p.address,
+          city:        p.city,
+          score:       p.opportunity_score ?? null,
+          signal_type: p.lead_type,
+        }),
+      })
+      const data = (await res.json()) as { favorited?: boolean; error?: string }
+
+      // Sync with confirmed server state
+      if (data.favorited !== undefined) {
+        setDbFavoriteKeys((prev) => {
+          const next = new Set(prev)
+          if (data.favorited) next.add(key)
+          else next.delete(key)
+          return next
+        })
+      } else {
+        // On error, revert optimistic update
+        setDbFavoriteKeys((prev) => {
+          const next = new Set(prev)
+          if (next.has(key)) next.delete(key)
+          else next.add(key)
+          return next
+        })
+      }
+    } catch {
+      // Revert on network error
+      setDbFavoriteKeys((prev) => {
+        const next = new Set(prev)
+        if (next.has(key)) next.delete(key)
+        else next.add(key)
+        return next
+      })
+    }
+  }
+
   // Saved analyses count (any logged-in user)
   const [savedAnalysesCount, setSavedAnalysesCount] = useState<number | undefined>(undefined)
   useEffect(() => {
@@ -998,8 +1075,8 @@ export default function FinderPage() {
                 onRowClick={setSelectedProperty}
                 onToggleSave={toggleSave}
                 savedKeys={savedKeys}
-                onToggleFavorite={(p) => toggleFavorite(p as unknown as Signal)}
-                favoriteKeys={favoriteKeys}
+                onToggleFavorite={isLoggedIn ? handleDbFavoriteToggle : undefined}
+                favoriteKeys={isLoggedIn ? dbFavoriteKeys : favoriteKeys}
                 onCompare={handleCompare}
                 compareKeys={compareKeys}
                 isPro={isPro}
