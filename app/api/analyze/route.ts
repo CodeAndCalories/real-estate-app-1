@@ -62,32 +62,83 @@ function parseCityBenchmark(address: string): number | null {
 }
 
 function buildBullets(params: {
-  price:          number | null
-  sqft:           number | null
-  yearBuilt:      number | null
-  beds:           number | null
-  score:          number
-  belowBenchmark: boolean
+  yearBuilt:  number | null
+  beds:       number | null
+  baths:      number | null
+  score:      number
+  actualPpsf: number | null
+  benchmark:  number | null
 }): string[] {
-  const { price, sqft, yearBuilt, beds, score, belowBenchmark } = params
-  const candidates: string[] = []
+  const { yearBuilt, beds, baths, score, actualPpsf, benchmark } = params
+  const insights: string[] = []
 
-  if (belowBenchmark && price && sqft)
-    candidates.push('Price appears below estimated market range for this area')
-  if (yearBuilt !== null && yearBuilt < 1990)
-    candidates.push('Older build suggests value-add or renovation opportunity')
-  if (yearBuilt !== null && yearBuilt >= 2010)
-    candidates.push('Newer construction — lower distress signal likelihood')
-  if (beds !== null && beds >= 3)
-    candidates.push('Multi-bedroom profile matches typical investor target')
-  if (score > 70)
-    candidates.push('Strong signal profile based on provided data')
-  if (score < 40)
-    candidates.push('Limited signal indicators with current data provided')
+  // ── Price vs benchmark ────────────────────────────────────────────────────
+  if (actualPpsf !== null && benchmark !== null && benchmark > 0) {
+    const ratio = actualPpsf / benchmark
+    if (ratio < 0.85) {
+      insights.push(
+        'This property is priced noticeably below the typical $/sqft for the area, which can indicate a motivated seller or an opportunity to capture equity on purchase.'
+      )
+    } else if (ratio > 1.1) {
+      insights.push(
+        'This property is priced above typical market levels, which may limit margin unless there are unique upside factors not reflected in the data.'
+      )
+    } else {
+      insights.push(
+        'The property appears roughly in line with local pricing, suggesting a more competitive deal where profit will depend on execution rather than entry discount.'
+      )
+    }
+  }
 
-  const PAD = 'Additional data would improve signal accuracy'
-  while (candidates.length < 3) candidates.push(PAD)
-  return candidates.slice(0, 3)
+  // ── Year built ────────────────────────────────────────────────────────────
+  if (insights.length < 3 && yearBuilt !== null) {
+    if (yearBuilt < 1970) {
+      insights.push(
+        'The older build increases the likelihood of value-add potential, making it attractive for investors targeting renovation or forced appreciation.'
+      )
+    } else if (yearBuilt <= 1990) {
+      insights.push(
+        'Property age suggests moderate upgrade potential, though not as strong as older distressed inventory.'
+      )
+    } else if (yearBuilt > 2010) {
+      insights.push(
+        'Newer construction reduces the likelihood of distress-driven discounts, making it less attractive for value-add strategies.'
+      )
+    }
+  }
+
+  // ── Bedroom / layout ──────────────────────────────────────────────────────
+  if (insights.length < 3 && beds !== null) {
+    if (beds >= 3 && (baths ?? 0) >= 2) {
+      insights.push(
+        'The 3 bed / 2 bath layout aligns with strong rental and resale demand in most markets, improving exit flexibility.'
+      )
+    } else if (beds <= 2) {
+      insights.push(
+        'The smaller layout may appeal to a narrower buyer pool, though rental demand in urban markets can offset this.'
+      )
+    }
+  }
+
+  // ── Score-based fallbacks ─────────────────────────────────────────────────
+  if (insights.length < 3 && score >= 70) {
+    insights.push(
+      'Strong signal profile based on multiple data points — this property scores well across price, market conditions, and owner motivation indicators.'
+    )
+  }
+
+  if (insights.length < 3 && score < 40) {
+    insights.push(
+      'Limited distress signals detected. This property may be better suited for conventional buyers than value-add investors.'
+    )
+  }
+
+  // ── Padding ───────────────────────────────────────────────────────────────
+  const PAD =
+    'Additional market data may reveal further opportunities not captured in current signals.'
+  while (insights.length < 3) insights.push(PAD)
+
+  return insights.slice(0, 3)
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
@@ -170,15 +221,15 @@ export async function POST(req: NextRequest) {
 
   // ── 6. Scoring ───────────────────────────────────────────────────────────
   let score = 50
-  let belowBenchmark = false
 
   // Price vs benchmark
   const benchmark = parseCityBenchmark(address)
+  let actualPpsf: number | null = null
   if (benchmark !== null && price !== null && sqft !== null && sqft > 0) {
-    const actualPpsf = price / sqft
-    if (actualPpsf < benchmark * 0.85) { score += 20; belowBenchmark = true }
-    else if (actualPpsf < benchmark * 0.95) { score += 10; belowBenchmark = true }
-    else if (actualPpsf > benchmark * 1.1)  { score -= 10 }
+    actualPpsf = price / sqft
+    if (actualPpsf < benchmark * 0.85)      score += 20
+    else if (actualPpsf < benchmark * 0.95) score += 10
+    else if (actualPpsf > benchmark * 1.1)  score -= 10
   }
 
   // Year built
@@ -209,7 +260,7 @@ export async function POST(req: NextRequest) {
     filledCount >= 2 ? 'Medium' : 'Low'
 
   // Bullets
-  const bullets = buildBullets({ price, sqft, yearBuilt, beds, score, belowBenchmark })
+  const bullets = buildBullets({ yearBuilt, beds, baths, score, actualPpsf, benchmark })
 
   // ── 7. Save to Supabase ──────────────────────────────────────────────────
   const { error: insertError } = await supabase

@@ -63,6 +63,15 @@ export type Property = {
   price_drop_percent: number | null
   rent_estimate: number | null
   opportunity_score: number | null
+  // Enriched contact + ownership fields
+  owner_phone: string | null
+  owner_mailing_address: string | null
+  owner_state: string | null
+  years_owned: number | null
+  tax_delinquent: boolean | null
+  vacancy_signal: boolean | null
+  inherited: boolean | null
+  absentee_owner: boolean | null
 }
 
 export type Filters = {
@@ -1162,6 +1171,7 @@ export default function FinderPage() {
           onClose={() => setSelectedProperty(null)}
           isSaved={selectedProperty ? isSaved(selectedProperty) : false}
           onToggleSave={toggleSave}
+          isPro={isPro}
         />
       </div>
 

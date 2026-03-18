@@ -11,6 +11,7 @@ type Props = {
   onClose: () => void
   isSaved: boolean
   onToggleSave: (p: Property) => void
+  isPro: boolean
 }
 
 function getFreshnessDays(address: string): number {
@@ -76,7 +77,7 @@ function Row({
   )
 }
 
-export default function SignalDetailDrawer({ property, onClose, isSaved, onToggleSave }: Props) {
+export default function SignalDetailDrawer({ property, onClose, isSaved, onToggleSave, isPro }: Props) {
   const { isDark } = useThemeMode()
 
   // localP keeps content visible during the close animation
@@ -228,6 +229,67 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                 {p.lead_type}
               </span>
               <span className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Lead Type</span>
+            </div>
+          </div>
+
+          {/* Owner Contact */}
+          <div>
+            <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Owner Contact
+            </p>
+            <div className={`rounded-lg border p-3 space-y-2.5 ${
+              isDark ? 'bg-gray-800/60 border-gray-700' : 'bg-gray-50 border-gray-200'
+            }`}>
+              {isPro ? (
+                <>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className={`text-[11px] font-semibold shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                      📞 Owner Phone
+                    </span>
+                    <span className="text-xs font-mono text-emerald-400 text-right">
+                      {p.owner_phone ?? '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className={`text-[11px] font-semibold shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                      📬 Mailing Address
+                    </span>
+                    <span className={`text-xs text-right ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {p.owner_mailing_address ?? '—'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-500 italic pt-0.5">
+                    Best effort data — verify before outreach
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={`text-[11px] font-semibold ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                      📞 Owner Phone
+                    </span>
+                    <span className="text-xs font-mono text-gray-600 blur-sm select-none">
+                      (***) ***-****
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={`text-[11px] font-semibold ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                      📬 Mailing Address
+                    </span>
+                    <span className="text-xs text-gray-600 blur-sm select-none">
+                      *** Hidden St, ***
+                    </span>
+                  </div>
+                  <a
+                    href="/upgrade"
+                    className="block text-xs text-blue-400 hover:underline pt-0.5"
+                  >
+                    Unlock owner contact info →
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
