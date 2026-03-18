@@ -495,10 +495,24 @@ export default function AnalyzePage() {
             {/* Score + confidence + save button */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className={`text-8xl font-black font-display leading-none ${scoreColor(result.score)} ${scoreGlow(result.score)}`}>
-                  {result.score}
-                </p>
-                <p className="mt-1 text-sm text-gray-400">Signal Score</p>
+                <div className={`flex items-end gap-3 ${scoreColor(result.score)}`}>
+                  {/* Animated Signal Bars */}
+                  <svg
+                    key={result.score}
+                    width="24" height="24" viewBox="0 0 20 20" fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="mb-2 flex-shrink-0"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="11" width="3" height="6" rx="1" fill="currentColor" className="signal-bar signal-bar-1" />
+                    <rect x="8.5" y="7" width="3" height="10" rx="1" fill="currentColor" className="signal-bar signal-bar-2" />
+                    <rect x="14" y="3" width="3" height="14" rx="1" fill="currentColor" className="signal-bar signal-bar-3" />
+                  </svg>
+                  <p className={`text-8xl font-black font-display leading-none ${scoreGlow(result.score)}`}>
+                    {result.score}
+                  </p>
+                </div>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-gray-500">Signal Score</p>
                 <span className={`mt-2 inline-block rounded-full border px-4 py-2 text-sm font-semibold ${confidenceStyle(result.confidence)}`}>
                   {result.confidence} Confidence
                 </span>

@@ -185,7 +185,19 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
           {/* Score / Freshness / Lead Type row */}
           <div className="grid grid-cols-3 gap-2">
             <div className={`rounded-lg border p-3 text-center ${scoreBg}`}>
-              <div className="font-display text-2xl font-bold">{score}</div>
+              <div className="flex items-end justify-center gap-1.5 mb-0.5">
+                <svg
+                  width="16" height="16" viewBox="0 0 20 20" fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="flex-shrink-0"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="11" width="3" height="6" rx="1" fill="currentColor" />
+                  <rect x="8.5" y="7" width="3" height="10" rx="1" fill="currentColor" />
+                  <rect x="14" y="3" width="3" height="14" rx="1" fill="currentColor" />
+                </svg>
+                <div className="font-display text-2xl font-bold leading-none">{score}</div>
+              </div>
               <div className="text-[11px] font-medium mt-0.5 opacity-80">{scoreLabel}</div>
             </div>
             <div className="rounded-lg border p-3 text-center bg-white/5 border-white/10">

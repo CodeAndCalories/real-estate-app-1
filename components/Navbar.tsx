@@ -57,9 +57,14 @@ export default function Navbar() {
 
         {/* ── Logo ────────────────────────────────────────────────────── */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-sm shadow-blue-200 group-hover:bg-blue-700 transition-colors">
-            P
-          </span>
+          <svg
+            width="36" height="36" viewBox="0 0 40 40" fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="opacity-90 group-hover:opacity-80 transition-opacity duration-150"
+          >
+            <path d="M12 32V8H22C26.4183 8 30 11.5817 30 16C30 20.4183 26.4183 24 22 24H18.5L12 32Z" fill="white"/>
+            <path d="M10 26L18 18" stroke="#020617" strokeWidth="3" strokeLinecap="round"/>
+          </svg>
           <span className="font-display font-bold text-white text-base hidden xs:block">
             PropertySignal<span className="text-blue-400">HQ</span>
           </span>

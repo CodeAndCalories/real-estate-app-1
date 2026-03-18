@@ -22,3 +22,17 @@ body {
 .drawer-panel {
   transition-duration: 400ms;
 }
+
+/* Signal Bars animated icon */
+@keyframes signal-bar-grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+.signal-bar {
+  transform-origin: bottom;
+  animation: signal-bar-grow 300ms ease-out both;
+}
+.signal-bar-1 { animation-delay: 0ms;   }
+.signal-bar-2 { animation-delay: 150ms; }
+.signal-bar-3 { animation-delay: 250ms; }

@@ -71,7 +71,12 @@ function ScoreBadge({ score, lines }: { score: number; lines: string[] }) {
       : 'bg-red-100 text-red-700 border border-red-200'
   return (
     <div className="flex flex-col gap-0.5 relative group">
-      <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold cursor-help ${colorClass}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold cursor-help ${colorClass}`}>
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="11" width="3" height="6" rx="1" fill="currentColor" />
+          <rect x="8.5" y="7" width="3" height="10" rx="1" fill="currentColor" />
+          <rect x="14" y="3" width="3" height="14" rx="1" fill="currentColor" />
+        </svg>
         {score}
       </span>
       <span className="text-[10px] text-gray-400 leading-tight">{label}</span>
