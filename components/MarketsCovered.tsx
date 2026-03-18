@@ -53,7 +53,7 @@ export default function MarketsCovered({ isDark }: Props) {
             Markets Covered
           </span>
           <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Active Leads Across 30 Major US Markets
+            Active Leads Across 30+ Major US Markets
           </h2>
           <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             Fresh leads updated regularly across every major region.
@@ -66,7 +66,7 @@ export default function MarketsCovered({ isDark }: Props) {
             {totalLeads.toLocaleString()}+
           </span>
           <span className={`ml-2 text-base font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            active leads across 30 major US markets
+            active leads across 30+ major US markets
           </span>
         </div>
 

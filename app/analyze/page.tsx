@@ -255,6 +255,7 @@ export default function AnalyzePage() {
           <p className="mt-2 text-gray-400">
             Enter any property details and get an instant Signal Score based on market data.
           </p>
+          <p className="mt-1 text-xs text-gray-600">Powered by 18,000+ property signals</p>
         </div>
 
         {/* ── FORM ── */}

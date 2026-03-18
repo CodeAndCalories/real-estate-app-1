@@ -481,7 +481,10 @@ export default function FinderPage() {
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
-          <h1 className={`text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
+          <div>
+            <h1 className={`text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
+            <p className="text-xs text-gray-500 mt-0.5">Updated daily across 30+ markets</p>
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
             {favorites.length > 0 && (
               <button
