@@ -154,6 +154,14 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
             <p className="text-xs mt-0.5 text-gray-400">
               {p.city}, {p.zip}
             </p>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.address}, ${p.city}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors mt-0.5 inline-block"
+            >
+              View on Map →
+            </a>
           </div>
           <div className="flex items-center gap-2 ml-3 flex-shrink-0">
             <button

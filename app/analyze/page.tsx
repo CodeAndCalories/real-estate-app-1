@@ -28,6 +28,7 @@ type PageState        = 'form' | 'loading' | 'result' | 'limit' | 'error'
 type SaveState        = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
 type ShareState       = 'idle' | 'copied'
 type SimilarSaveState = 'idle' | 'saving' | 'saved'
+type AlertState       = 'idle' | 'loading' | 'success' | 'duplicate' | 'error'
 
 // ── Loading copy ──────────────────────────────────────────────────────────────
 
@@ -103,6 +104,7 @@ export default function AnalyzePage() {
   const [showToast,    setShowToast]    = useState(false)
   const [similarDeals,   setSimilarDeals]   = useState<SimilarSignal[]>([])
   const [similarSaveMap, setSimilarSaveMap] = useState<Record<string, SimilarSaveState>>({})
+  const [alertState,     setAlertState]     = useState<AlertState>('idle')
 
   const loadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -337,6 +339,26 @@ export default function AnalyzePage() {
       }))
     } catch {
       setSimilarSaveMap((prev) => ({ ...prev, [s.id]: 'idle' }))
+    }
+  }
+
+  const handleDealAlert = async () => {
+    if (!user?.email || alertState === 'loading') return
+    setAlertState('loading')
+    try {
+      const res = await fetch('/api/deal-alerts', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          email:           user.email,
+          city_preference: extractCityName(address),
+        }),
+      })
+      if (res.status === 409) { setAlertState('duplicate'); return }
+      if (!res.ok)            { setAlertState('error');     return }
+      setAlertState('success')
+    } catch {
+      setAlertState('error')
     }
   }
 
@@ -609,6 +631,42 @@ export default function AnalyzePage() {
                 </div>
               )
             })()}
+
+            {/* Deal Alerts CTA */}
+            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-4">
+              {alertState === 'success' ? (
+                <p className="text-sm text-emerald-400 font-medium">
+                  ✓ You&apos;ll be notified when similar deals appear
+                </p>
+              ) : alertState === 'duplicate' ? (
+                <p className="text-sm text-blue-400 font-medium">✓ Alerts active</p>
+              ) : (
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <p className="text-sm text-gray-400">
+                    Want deals like this sent to you automatically?
+                  </p>
+                  {user ? (
+                    <button
+                      onClick={handleDealAlert}
+                      disabled={alertState === 'loading'}
+                      className="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded-lg px-4 py-2 text-sm transition-colors whitespace-nowrap"
+                    >
+                      {alertState === 'loading' ? 'Saving…' : 'Get Deal Alerts →'}
+                    </button>
+                  ) : (
+                    <a
+                      href="/login"
+                      className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-4 py-2 text-sm transition-colors whitespace-nowrap"
+                    >
+                      Get Deal Alerts →
+                    </a>
+                  )}
+                </div>
+              )}
+              {alertState === 'error' && (
+                <p className="text-xs text-red-400 mt-1">Something went wrong — please try again.</p>
+              )}
+            </div>
 
             {/* Usage counter — free users only */}
             {result.analyses_used !== null && result.analyses_limit !== null && (

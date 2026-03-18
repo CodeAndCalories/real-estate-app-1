@@ -1,10 +1,36 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
 type Props = {
   isDark: boolean
 }
 
+const FOMO_MESSAGES = [
+  '🔥 Score 94 detected in Austin, TX — Pre-Foreclosure · 2 min ago',
+  '🔥 Score 91 detected in Nashville, TN — Tax Delinquent · 5 min ago',
+  '🔥 Score 88 detected in Phoenix, AZ — Absentee Owner · 8 min ago',
+  '🔥 Score 96 detected in Dallas, TX — Pre-Foreclosure · 1 min ago',
+  '🔥 Score 89 detected in Miami, FL — Expired Listing · 3 min ago',
+  '🔥 Score 92 detected in Atlanta, GA — Inherited Property · 6 min ago',
+  '🔥 Score 87 detected in Charlotte, NC — Tax Delinquent · 4 min ago',
+]
+
 export default function HeroSection({ isDark: _isDark }: Props) {
+  const [fomoIdx,     setFomoIdx]     = useState(0)
+  const [fomoVisible, setFomoVisible] = useState(true)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFomoVisible(false)
+      setTimeout(() => {
+        setFomoIdx((i) => (i + 1) % FOMO_MESSAGES.length)
+        setFomoVisible(true)
+      }, 300)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <section className="relative z-0 w-full overflow-hidden" style={{ minHeight: '600px' }}>
 
@@ -94,6 +120,18 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         <p className="text-xs text-gray-400 text-center mt-3">
           🔥 4,300+ high-score deals identified across 30+ markets
         </p>
+
+        {/* FOMO live feed */}
+        <div className="mt-5 max-w-lg mx-auto">
+          <div className="bg-[#0f172a] border border-white/10 rounded-lg px-4 py-2 text-center">
+            <p
+              className="text-xs text-gray-400 transition-opacity duration-300"
+              style={{ opacity: fomoVisible ? 1 : 0 }}
+            >
+              {FOMO_MESSAGES[fomoIdx]}
+            </p>
+          </div>
+        </div>
 
       </div>
 
