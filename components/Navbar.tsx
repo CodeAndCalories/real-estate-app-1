@@ -64,6 +64,9 @@ export default function Navbar() {
           <span className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors hidden xs:block">
             PropertySignal<span className="text-blue-600">HQ</span>
           </span>
+          <span className="ml-2 hidden xs:inline-block bg-blue-600/20 text-blue-400 border border-blue-600/30 text-xs px-1.5 py-0.5 rounded font-medium">
+            BETA
+          </span>
         </Link>
 
         {/* ── Desktop nav links ────────────────────────────────────────── */}

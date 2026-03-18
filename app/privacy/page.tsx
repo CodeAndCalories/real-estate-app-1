@@ -1,74 +1,114 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy — PropertySignalHQ',
+  description: 'Privacy Policy for PropertySignalHQ.',
+}
+
+const SECTIONS: { title: string; bullets?: string[]; body?: string; contact?: true }[] = [
+  {
+    title: '1. Information We Collect',
+    body: 'We collect information you provide directly to us, such as when you create an account (email address) and the property addresses or data you input into our "Analyze Deal" tool. We also automatically collect log data and cookies via Supabase to improve our service.',
+  },
+  {
+    title: '2. How We Use Your Information',
+    bullets: [
+      'Provide and maintain the PropertySignalHQ platform',
+      'Save and display your Saved Deals and Favorites',
+      'Process payments via Stripe',
+      'Communicate with you about service updates or support',
+    ],
+  },
+  {
+    title: '3. Data Sharing',
+    body: 'We do not sell your personal data. We share data only with service providers (Vercel, Supabase, Stripe, Resend) necessary to run the website.',
+  },
+  {
+    title: '4. Data Security',
+    body: 'We use industry-standard security measures (SSL/HTTPS) to protect your information. However, no internet transmission is 100% secure.',
+  },
+  {
+    title: '5. Data Retention',
+    body: 'We retain your data as long as your account is active. You may request deletion by emailing support@propertysignalhq.com.',
+  },
+  {
+    title: '6. Cookies',
+    body: 'We use essential cookies for authentication and session management only. We do not use advertising cookies.',
+  },
+  {
+    title: '7. Contact',
+    contact: true,
+  },
+]
+
 export default function PrivacyPage() {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
-      <div className="mb-10">
-        <a href="/" className="text-sm text-blue-600 hover:underline">← Back to home</a>
-      </div>
+    <div className="min-h-[calc(100vh-4rem)] bg-[#020617] relative overflow-hidden px-4 py-16">
 
-      <h1 className="text-4xl font-black text-gray-900 mb-2">Privacy Policy</h1>
-      <p className="text-sm text-gray-400 mb-10">Last updated: {new Date().getFullYear()}</p>
+      {/* Glow orbs */}
+      <div className="pointer-events-none absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px]" />
 
-      <div className="prose prose-gray max-w-none space-y-8 text-gray-700 text-sm leading-relaxed">
+      <div className="relative z-10 mx-auto max-w-3xl">
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">1. Information We Collect</h2>
-          <p>
-            PropertySignalHQ is a demo product. We do not collect personally identifiable information unless you voluntarily submit it through a contact form. The information we may collect includes your name and email address when you reach out via our contact page.
-          </p>
-        </section>
+        {/* Back link */}
+        <Link href="/" className="text-xs text-blue-400 hover:underline mb-6 inline-block">
+          ← Back to Home
+        </Link>
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">2. How We Use Your Information</h2>
-          <p>
-            Any information submitted through the contact form is used solely to respond to your inquiry. We do not sell, rent, or share your personal information with third parties for marketing purposes.
-          </p>
-        </section>
+        {/* Page header */}
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-white">Privacy Policy</h1>
+          <p className="mt-2 text-sm text-gray-500">Last Updated: March 17, 2026</p>
+        </div>
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3" id="cookies">3. Cookie Policy</h2>
-          <p>
-            This site uses minimal cookies and browser local storage to remember your preferences, such as your chosen theme (Day/Night) and cookie banner acceptance. No tracking cookies or third-party advertising cookies are used. You can clear your browser storage at any time to reset these preferences.
-          </p>
-        </section>
+        {/* Content card */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl shadow-2xl space-y-8">
+          {SECTIONS.map((s) => (
+            <div key={s.title}>
+              <h2 className="text-sm font-semibold text-white mb-2">{s.title}</h2>
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">4. Data Retention</h2>
-          <p>
-            Contact form submissions are retained only as long as necessary to respond to your inquiry. Local storage data (theme preference, cookie acceptance) is stored entirely in your browser and can be cleared at any time.
-          </p>
-        </section>
+              {s.contact && (
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  Questions? Email:{' '}
+                  <a
+                    href="mailto:support@propertysignalhq.com"
+                    className="text-blue-400 hover:underline"
+                  >
+                    support@propertysignalhq.com
+                  </a>
+                </p>
+              )}
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">5. Third-Party Services</h2>
-          <p>
-            This demo product does not currently use third-party analytics, advertising networks, or tracking services. If this changes, this policy will be updated accordingly.
-          </p>
-        </section>
+              {s.bullets && (
+                <ul className="space-y-1.5 mt-1">
+                  {s.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-sm text-gray-400">
+                      <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">6. Your Rights</h2>
-          <p>
-            You have the right to request access to, correction of, or deletion of any personal information we hold about you. To exercise these rights, please contact us via the <a href="/contact" className="text-blue-600 hover:underline">Contact page</a>.
-          </p>
-        </section>
+              {s.body && (
+                <p className="text-sm text-gray-400 leading-relaxed">{s.body}</p>
+              )}
+            </div>
+          ))}
+        </div>
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">7. Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of the service after changes constitutes acceptance of the revised policy.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">8. Contact</h2>
-          <p>
-            For privacy-related questions, email us at{' '}
-            <a href="mailto:support@propertysignalhq.com" className="text-blue-600 hover:underline">
-              support@propertysignalhq.com
-            </a>{' '}
-            or use our <a href="/contact" className="text-blue-600 hover:underline">Contact page</a>.
-          </p>
-        </section>
+        {/* Footer links */}
+        <p className="mt-8 text-center text-xs text-gray-600">
+          <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
+          {' · '}
+          <Link href="/about" className="hover:text-gray-400 transition-colors">About</Link>
+          {' · '}
+          <Link href="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
+        </p>
 
       </div>
     </div>

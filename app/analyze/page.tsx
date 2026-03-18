@@ -494,6 +494,14 @@ export default function AnalyzePage() {
           </div>
         )}
 
+        {/* Disclaimer — shown below result card */}
+        {pageState === 'result' && result && (
+          <p className="text-xs text-gray-500 text-center max-w-lg mx-auto mt-2">
+            Score is based on market signals and historical data. It does not account for physical
+            property condition or interior renovations. Not financial advice.
+          </p>
+        )}
+
         {/* ── LIMIT REACHED ── */}
         {pageState === 'limit' && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl shadow-2xl text-center space-y-4">

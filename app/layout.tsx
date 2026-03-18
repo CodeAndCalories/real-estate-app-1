@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '../styles/globals.css'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
 import SupportWidget from '@/components/SupportWidget'
 
@@ -33,9 +34,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 min-h-screen">
+      <body className="bg-gray-50 min-h-screen flex flex-col">
         <Navbar />
-        <main>{children}</main>
+        <main className="flex-1">{children}</main>
+        <Footer />
         <CookieBanner />
         <SupportWidget />
       </body>
