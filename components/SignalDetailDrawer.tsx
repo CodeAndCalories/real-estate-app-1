@@ -232,7 +232,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                 <>
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-[11px] font-semibold shrink-0 text-gray-500">
-                      📞 Owner Contact (Skip Trace)
+                      📞 Owner Contact (Best Available)
                     </span>
                     <span className="text-xs font-mono text-emerald-400 text-right">
                       {p.owner_phone ?? '—'}
@@ -254,7 +254,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                 <>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[11px] font-semibold text-gray-600">
-                      📞 Owner Contact (Skip Trace)
+                      📞 Owner Contact (Best Available)
                     </span>
                     <span className="text-xs font-mono text-gray-600 blur-sm select-none">
                       (***) ***-****
