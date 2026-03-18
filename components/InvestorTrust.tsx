@@ -31,7 +31,7 @@ const INVESTOR_TYPES = [
     emoji: '🤝',
     title: 'Wholesalers',
     description:
-      'Surface distressed owners and expired listings across 20 markets in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
+      'Surface distressed owners and expired listings across 30 markets in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
     highlights: ['Distressed owner signals', 'Expired listing filter', 'One-click CSV export'],
     light: 'border-green-200 bg-green-50',
     dark:  'border-green-800 bg-green-900/20',
@@ -102,7 +102,7 @@ export default function InvestorTrust({ isDark }: Props) {
           isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
         }`}>
           {[
-            { value: '10,400+', label: 'Signals analyzed', icon: '📊' },
+            { value: '18,900+', label: 'Signals analyzed', icon: '📊' },
             { value: '20',      label: 'Markets covered',  icon: '🏙️' },
             { value: '3',    label: 'Lead types tracked', icon: '🎯' },
             { value: '100%', label: 'Free to explore',  icon: '🆓' },

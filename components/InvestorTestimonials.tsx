@@ -131,7 +131,7 @@ export default function InvestorTestimonials({ isDark }: Props) {
             : 'bg-blue-50 border-blue-200'
         }`}>
           {[
-            { value: '10,400+', label: 'Signals analyzed' },
+            { value: '18,900+', label: 'Signals analyzed' },
             { value: '20',      label: 'Markets covered' },
             { value: '3',    label: 'Lead types tracked' },
             { value: '100%', label: 'Free to explore' },

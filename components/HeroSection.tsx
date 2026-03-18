@@ -77,8 +77,8 @@ export default function HeroSection({ isDark }: Props) {
           {/* Trust credibility bar — under CTA */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
-              { icon: '🏙️', text: '20 real estate markets tracked' },
-              { icon: '📊', text: '10,400+ property signals analyzed' },
+              { icon: '🏙️', text: '30 real estate markets tracked' },
+              { icon: '📊', text: '18,900+ property signals analyzed' },
               { icon: '💼', text: 'Built for real estate investors' },
             ].map((item) => (
               <div key={item.text} className="flex items-center gap-1.5">

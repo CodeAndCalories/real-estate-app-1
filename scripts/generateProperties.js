@@ -6,7 +6,7 @@
  *   lib/data/properties.json        — raw property listings
  *   lib/data/generated-signals.json — processed signals (same logic as lib/signals/generateSignals.ts)
  *
- * Original 8 cities: 625 properties each (band-based signal distribution)
+ * Original 8 cities: 750 properties each (band-based signal distribution)
  *   Signal distribution targets:
  *     20% price drops (>7% below previous price)
  *     10% long days on market (>90 days)
@@ -14,7 +14,8 @@
  *      5% below-market pricing (price/sqft < city avg * 0.85)
  *      4% hot leads (score ≥ 80) — price drop + relisted + long DOM combined
  *
- * New 10 cities: 500 properties each (balanced lead type distribution via i%3)
+ * Wave-1 cities (10): 750 properties each (balanced lead type distribution via i%3)
+ * Wave-2 cities (10): 500 properties each (balanced lead type distribution via i%3)
  *   ~33% Pre-Foreclosure, ~33% Expired Listing, ~34% Investor Opportunity
  *   (no single lead type exceeds 60% per city)
  *
@@ -37,7 +38,7 @@ const CITIES = [
   { name: 'Cleveland', abbr: 'cle', state: 'OH', zipPrefix: '441', avgPrice: 200000, priceRange: 130000, avgSqft: 1600, sqftRange: 650,  avgPriceSqft: 120 },
 ];
 
-// ─── New city configuration (500 properties each, balanced lead types) ────────
+// ─── Wave-1 city configuration (750 properties each, balanced lead types) ────
 const NEW_CITIES = [
   { name: 'Austin',       abbr: 'aus', state: 'TX', zipPrefix: '787', avgPrice: 560000, priceRange: 280000, avgSqft: 2000, sqftRange: 700,  avgPriceSqft: 280 },
   { name: 'Charlotte',    abbr: 'clt', state: 'NC', zipPrefix: '282', avgPrice: 380000, priceRange: 200000, avgSqft: 2100, sqftRange: 750,  avgPriceSqft: 185 },
@@ -51,11 +52,28 @@ const NEW_CITIES = [
   { name: 'Houston',      abbr: 'hou', state: 'TX', zipPrefix: '770', avgPrice: 350000, priceRange: 210000, avgSqft: 2200, sqftRange: 800,  avgPriceSqft: 158 },
 ];
 
-const NEW_PER_CITY = 500;
+const NEW_PER_CITY = 750;
+
+// ─── Wave-2 city configuration (500 properties each, balanced lead types) ────
+const NEW_CITIES_2 = [
+  { name: 'Seattle',        abbr: 'sea', state: 'WA', zipPrefix: '981', avgPrice: 750000, priceRange: 350000, avgSqft: 1600, sqftRange: 600, avgPriceSqft: 460 },
+  { name: 'Portland',       abbr: 'pdx', state: 'OR', zipPrefix: '972', avgPrice: 520000, priceRange: 250000, avgSqft: 1700, sqftRange: 600, avgPriceSqft: 305 },
+  { name: 'Minneapolis',    abbr: 'msp', state: 'MN', zipPrefix: '554', avgPrice: 340000, priceRange: 180000, avgSqft: 1700, sqftRange: 600, avgPriceSqft: 200 },
+  { name: 'Kansas City',    abbr: 'mci', state: 'MO', zipPrefix: '641', avgPrice: 270000, priceRange: 150000, avgSqft: 1800, sqftRange: 650, avgPriceSqft: 148 },
+  { name: 'Memphis',        abbr: 'mem', state: 'TN', zipPrefix: '381', avgPrice: 220000, priceRange: 130000, avgSqft: 1700, sqftRange: 600, avgPriceSqft: 130 },
+  { name: 'Baltimore',      abbr: 'bwi', state: 'MD', zipPrefix: '212', avgPrice: 310000, priceRange: 160000, avgSqft: 1600, sqftRange: 600, avgPriceSqft: 195 },
+  { name: 'Detroit',        abbr: 'det', state: 'MI', zipPrefix: '482', avgPrice: 170000, priceRange: 110000, avgSqft: 1500, sqftRange: 600, avgPriceSqft: 112 },
+  { name: 'Pittsburgh',     abbr: 'pit', state: 'PA', zipPrefix: '152', avgPrice: 260000, priceRange: 140000, avgSqft: 1600, sqftRange: 600, avgPriceSqft: 163 },
+  { name: 'Salt Lake City', abbr: 'slc', state: 'UT', zipPrefix: '841', avgPrice: 490000, priceRange: 220000, avgSqft: 1850, sqftRange: 650, avgPriceSqft: 265 },
+  { name: 'New Orleans',    abbr: 'msy', state: 'LA', zipPrefix: '701', avgPrice: 290000, priceRange: 160000, avgSqft: 1600, sqftRange: 600, avgPriceSqft: 183 },
+];
+
+const NEW_PER_CITY_2 = 500;
 
 const CITY_AVG_SQFT = {};
-CITIES.forEach(c => { CITY_AVG_SQFT[c.name.toLowerCase()] = c.avgPriceSqft; });
+CITIES.forEach(c     => { CITY_AVG_SQFT[c.name.toLowerCase()] = c.avgPriceSqft; });
 NEW_CITIES.forEach(c => { CITY_AVG_SQFT[c.name.toLowerCase()] = c.avgPriceSqft; });
+NEW_CITIES_2.forEach(c => { CITY_AVG_SQFT[c.name.toLowerCase()] = c.avgPriceSqft; });
 
 // ─── Street name pool ─────────────────────────────────────────────────────────
 const STREET_NAMES = [
@@ -105,22 +123,22 @@ function daysAgo(n) {
 // ─── Signal band layout (per city, 0-indexed within city batch) ──────────────
 //
 //  Band        Count  Signals
-//  0 – 24        25   price drop + relisted + long DOM  → score 80  (Hot Lead)
-//  25 – 49       25   price drop + relisted             → score 55
-//  50 – 124      75   price drop only                   → score 30
-//  125 – 162     38   long DOM only                     → score 25
-//  163 – 193     31   below market only                 → score 20
-//  194 – 624    431   normal                            → score 0
+//  0 – 29        30   price drop + relisted + long DOM  → score 80  (Hot Lead)
+//  30 – 59       30   price drop + relisted             → score 55
+//  60 – 149      90   price drop only                   → score 30
+//  150 – 194     45   long DOM only                     → score 25
+//  195 – 232     38   below market only                 → score 20
+//  233 – 749    517   normal                            → score 0
 //
-// Totals per city (625 props):
-//   price drop : 25+25+75 = 125 = 20%  ✓
-//   relisted   : 25+25    =  50 =  8%  ✓
-//   long DOM   : 25+38    =  63 = 10%  ✓
-//   below mkt  : 31       =  31 =  5%  ✓
-//   hot (≥80)  : 25       =  25 =  4%
+// Totals per city (750 props):
+//   price drop : 30+30+90 = 150 = 20%  ✓
+//   relisted   : 30+30    =  60 =  8%  ✓
+//   long DOM   : 30+45    =  75 = 10%  ✓
+//   below mkt  : 38       =  38 =  5%  ✓
+//   hot (≥80)  : 30       =  30 =  4%
 
-const TOTAL    = 5000;
-const PER_CITY = TOTAL / CITIES.length; // 625 exactly
+const TOTAL    = 6000;
+const PER_CITY = TOTAL / CITIES.length; // 750 exactly
 
 // ─── Generate properties ──────────────────────────────────────────────────────
 const properties = [];
@@ -129,10 +147,10 @@ for (const city of CITIES) {
   const usedAddresses = new Set();
 
   for (let i = 0; i < PER_CITY; i++) {
-    const hasPriceDrop = i <= 124;                    // bands 0-124
-    const hasRelisted  = i <= 49;                     // bands 0-49
-    const hasLongDOM   = i <= 24 || (i >= 125 && i <= 162); // bands 0-24 and 125-162
-    const hasBelowMkt  = i >= 163 && i <= 193;        // band 163-193
+    const hasPriceDrop = i <= 149;                      // bands 0-149
+    const hasRelisted  = i <= 59;                       // bands 0-59
+    const hasLongDOM   = i <= 29 || (i >= 150 && i <= 194); // bands 0-29 and 150-194
+    const hasBelowMkt  = i >= 195 && i <= 232;          // band 195-232
 
     // Unique address within this city
     let address;
@@ -208,11 +226,11 @@ for (const city of CITIES) {
   }
 }
 
-// ─── Generate new cities (500 each, balanced i%3 lead type distribution) ─────
+// ─── Generate wave-1 cities (750 each, balanced i%3 lead type distribution) ──
 //
-//  bucket 0 (i%3===0): Pre-Foreclosure  — price drop >7% + DOM >90  (~167/500 = 33%)
-//  bucket 1 (i%3===1): Expired Listing  — relisted 3+ times          (~167/500 = 33%)
-//  bucket 2 (i%3===2): Investor Opp     — normal / minor price drop   (~166/500 = 33%)
+//  bucket 0 (i%3===0): Pre-Foreclosure  — price drop >7% + DOM >90  (~250/750 = 33%)
+//  bucket 1 (i%3===1): Expired Listing  — relisted 3+ times          (~250/750 = 33%)
+//  bucket 2 (i%3===2): Investor Opp     — normal / minor price drop   (~250/750 = 33%)
 //
 //  No single lead type exceeds 34% — well under the 60% cap.
 
@@ -259,6 +277,92 @@ for (const city of NEW_CITIES) {
       // Investor Opportunity: normal or small single-step price drop (<7%)
       if (seededRand() < 0.35) {
         const prev = Math.round(basePrice * (1 + 0.01 + seededRand() * 0.05)); // 1–6% above
+        priceHistory = [prev, basePrice];
+      } else {
+        priceHistory = [basePrice];
+      }
+      dom = rand(5, 85);
+    }
+
+    const id          = `${city.abbr}-${String(i + 1).padStart(4, '0')}`;
+    const listingDate = daysAgo(dom);
+    const lastUpdated = daysAgo(rand(0, Math.min(dom - 1, 21)));
+
+    const prop = {
+      id,
+      address,
+      city:           city.name,
+      state:          city.state,
+      zip,
+      price:          priceHistory[priceHistory.length - 1],
+      beds,
+      baths,
+      sqft,
+      days_on_market: dom,
+      price_history:  priceHistory,
+      listing_date:   listingDate,
+      last_updated:   lastUpdated,
+    };
+
+    if (seededRand() < 0.65) {
+      prop.loan_balance = Math.round(prop.price * (0.38 + seededRand() * 0.36));
+    }
+    if (seededRand() < 0.45) {
+      prop.owner_name = pick(OWNER_NAMES);
+    }
+
+    properties.push(prop);
+  }
+}
+
+// ─── Generate wave-2 cities (500 each, balanced i%3 lead type distribution) ──
+//
+//  bucket 0 (i%3===0): Pre-Foreclosure  — price drop >7% + DOM >90  (~167/500 = 33%)
+//  bucket 1 (i%3===1): Expired Listing  — relisted 3+ times          (~167/500 = 33%)
+//  bucket 2 (i%3===2): Investor Opp     — normal / minor price drop   (~166/500 = 33%)
+
+for (const city of NEW_CITIES_2) {
+  const usedAddresses = new Set();
+
+  for (let i = 0; i < NEW_PER_CITY_2; i++) {
+    const bucket = i % 3; // 0=Pre-Foreclosure, 1=Expired Listing, 2=Investor Opportunity
+
+    let address;
+    do {
+      address = `${rand(101, 9999)} ${pick(STREET_NAMES)} ${pick(STREET_TYPES)}`;
+    } while (usedAddresses.has(address));
+    usedAddresses.add(address);
+
+    const zip   = `${city.zipPrefix}${rand(10, 99)}`;
+    const beds  = rand(2, 5);
+    const baths = Math.max(1, beds - rand(0, 1));
+    const sqft  = Math.max(800, rand(
+      city.avgSqft - Math.floor(city.sqftRange / 2),
+      city.avgSqft + Math.floor(city.sqftRange / 2)
+    ));
+    const basePrice = Math.max(80000, rand(
+      city.avgPrice - Math.floor(city.priceRange / 2),
+      city.avgPrice + Math.floor(city.priceRange / 2)
+    ));
+
+    let priceHistory;
+    let dom;
+
+    if (bucket === 0) {
+      // Pre-Foreclosure: price drop >7% AND DOM >90
+      const prev = Math.round(basePrice * (1 + 0.09 + seededRand() * 0.15));
+      priceHistory = [prev, basePrice];
+      dom = rand(92, 250);
+    } else if (bucket === 1) {
+      // Expired Listing: 3 entries, last step drop only 1–5% (<7%) so not Pre-Foreclosure
+      const mid  = Math.round(basePrice * (1 + 0.01 + seededRand() * 0.04));
+      const orig = Math.round(mid        * (1 + 0.05 + seededRand() * 0.12));
+      priceHistory = [orig, mid, basePrice];
+      dom = rand(35, 200);
+    } else {
+      // Investor Opportunity: normal or small single-step price drop (<7%)
+      if (seededRand() < 0.35) {
+        const prev = Math.round(basePrice * (1 + 0.01 + seededRand() * 0.05));
         priceHistory = [prev, basePrice];
       } else {
         priceHistory = [basePrice];
