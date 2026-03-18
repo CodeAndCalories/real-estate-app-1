@@ -41,7 +41,7 @@ export default function FAQSection({ isDark: _isDark }: Props) {
   return (
     <section
       id="faq"
-      className="py-12 md:py-24 px-4 sm:px-6 bg-[#020617]"
+      className="py-12 md:py-20 px-4 sm:px-6 bg-[#0a0f1e]"
     >
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">

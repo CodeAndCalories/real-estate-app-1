@@ -34,7 +34,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-[#020617]" />
 
       {/* Content — no frosted glass, text breathes on gradient */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-32 md:py-48 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-24 md:py-36 text-center">
 
         {/* Pre-header eyebrow */}
         <p className="text-blue-400/80 text-xs font-mono uppercase tracking-[0.2em] mb-6">
@@ -59,9 +59,9 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
             href="/finder"
-            className="w-full sm:w-auto text-center font-semibold px-8 py-4 rounded-lg text-base transition-all duration-150 shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/25"
+            className="w-full sm:w-auto text-center font-semibold px-8 py-4 rounded-lg text-base transition-all duration-150 shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20"
           >
-            Browse Deals →
+            Start Finding Deals →
           </a>
           <a
             href="#how-it-works"
@@ -89,6 +89,11 @@ export default function HeroSection({ isDark: _isDark }: Props) {
             </div>
           ))}
         </div>
+
+        {/* Proof line */}
+        <p className="text-xs text-gray-400 text-center mt-3">
+          🔥 4,300+ high-score deals identified across 30+ markets
+        </p>
 
       </div>
 

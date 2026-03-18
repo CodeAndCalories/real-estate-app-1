@@ -54,7 +54,7 @@ function Stars() {
 
 export default function InvestorTestimonials({ isDark }: Props) {
   return (
-    <section className={`py-20 px-6 ${isDark ? 'bg-gray-950' : 'bg-white'}`}>
+    <section className="py-20 px-6 bg-[#0a0f1e]">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}

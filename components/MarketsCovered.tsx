@@ -44,7 +44,7 @@ export default function MarketsCovered({ isDark }: Props) {
   const totalLeads = cities.reduce((sum, c) => sum + c.count, 0)
 
   return (
-    <section className={`py-24 px-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <section className="py-20 px-6 bg-[#020617]">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-4">
           <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full ${

@@ -30,7 +30,7 @@ export default function HomePage() {
       </div>
 
       {/* 4. Feature showcase — finder demo */}
-      <div className="border-t border-white/5 relative z-10 px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="border-t border-white/5 relative z-10 px-4 sm:px-6 lg:px-8 py-12 bg-[#0a0f1e]">
         <div className="max-w-[1100px] mx-auto rounded-xl shadow-2xl border overflow-hidden bg-[#0a0f1e] border-white/10">
           {/* Browser chrome */}
           <div className="flex items-center gap-2 px-4 py-3 border-b bg-[#0a0f1e] border-white/10">
@@ -64,7 +64,7 @@ export default function HomePage() {
       </div>
 
       {/* 9. Final CTA */}
-      <section className="border-t border-white/5 py-12 md:py-24 px-4 sm:px-6 text-center bg-[#0f172a]">
+      <section className="border-t border-white/5 py-12 md:py-20 px-4 sm:px-6 text-center bg-[#0a0f1e]">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
             Start Finding Property Leads Today

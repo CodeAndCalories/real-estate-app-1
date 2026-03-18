@@ -46,23 +46,44 @@ export default function InvestorTrust({ isDark }: Props) {
   const textMuted     = 'text-gray-500'
 
   return (
-    <section className="py-12 md:py-24 px-4 sm:px-6 bg-[#020617] border-t border-white/5">
+    <section className="py-12 md:py-20 px-4 sm:px-6 bg-[#0a0f1e] border-t border-white/5">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="max-w-2xl mb-12">
-          <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${
-            isDark ? 'text-blue-400' : 'text-blue-600'
-          }`}>
-            Built for real estate investors
-          </p>
-          <h2 className={`text-3xl sm:text-4xl font-black leading-tight mb-4 ${textPrimary}`}>
-            PropertySignalHQ helps investors find undervalued opportunities faster
-          </h2>
-          <p className={`text-base leading-relaxed ${textSecondary}`}>
-            By analyzing price drops, equity positions, and listing behavior across multiple markets,
-            we surface the deals worth your attention — before they disappear.
-          </p>
+        <div className="mb-8">
+          <div className="max-w-2xl mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-400">
+              Built for real estate investors
+            </p>
+            <h2 className={`text-3xl sm:text-4xl font-black leading-tight ${textPrimary}`}>
+              PropertySignalHQ helps investors find undervalued opportunities faster
+            </h2>
+          </div>
+
+          {/* Value prop cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
+              <div className="text-2xl mb-3">📉</div>
+              <h3 className="text-white font-semibold text-lg mb-2">Find Distressed Owners Early</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Surface pre-foreclosure, tax-delinquent, and vacant properties before they hit the market.
+              </p>
+            </div>
+            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
+              <div className="text-2xl mb-3">💰</div>
+              <h3 className="text-white font-semibold text-lg mb-2">Identify Underpriced Properties</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Our signal engine scores every property 0–100 based on price, equity, and market position.
+              </p>
+            </div>
+            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
+              <div className="text-2xl mb-3">⚡</div>
+              <h3 className="text-white font-semibold text-lg mb-2">Act Before the Competition</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Get owner contact info and deal data instantly — no MLS access required.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Investor type cards */}
