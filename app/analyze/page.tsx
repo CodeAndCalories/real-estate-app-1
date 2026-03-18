@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import posthog from 'posthog-js'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -231,6 +232,7 @@ export default function AnalyzePage() {
 
       setResult(data as AnalyzeResult)
       setPageState('result')
+      posthog.capture('analyze_deal_submitted', { city: extractCityName(address.trim()) })
     } catch {
       await minDelay
       setErrorMsg('Network error. Please try again.')
@@ -298,7 +300,7 @@ export default function AnalyzePage() {
       const data = (await res.json()) as { saved?: boolean; already_saved?: boolean; error?: string }
 
       if (data.already_saved) { setSaveState('already_saved'); return }
-      if (data.saved)         { setSaveState('saved');         return }
+      if (data.saved)         { setSaveState('saved'); posthog.capture('deal_saved'); return }
       setSaveState('error')
     } catch {
       setSaveState('error')
@@ -357,6 +359,7 @@ export default function AnalyzePage() {
       if (res.status === 409) { setAlertState('duplicate'); return }
       if (!res.ok)            { setAlertState('error');     return }
       setAlertState('success')
+      posthog.capture('deal_alert_subscribed')
     } catch {
       setAlertState('error')
     }
@@ -569,7 +572,7 @@ export default function AnalyzePage() {
                   </>
                 ) : (
                   <button
-                    onClick={() => { window.location.href = '/upgrade' }}
+                    onClick={() => { posthog.capture('upgrade_clicked'); window.location.href = '/upgrade' }}
                     className="rounded-lg bg-emerald-600/10 border border-emerald-600/20 text-emerald-400 px-5 py-2.5 text-sm font-medium transition-all hover:bg-emerald-600/20"
                   >
                     🔒 Save Deal

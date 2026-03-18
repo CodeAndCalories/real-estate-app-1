@@ -16,6 +16,7 @@ import { CHECKOUT_URL } from '@/lib/constants/checkout'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
+import posthog from 'posthog-js'
 
 export default function UpgradePage() {
   const router = useRouter()
@@ -39,6 +40,7 @@ export default function UpgradePage() {
       }
 
       const url = `${CHECKOUT_URL}?prefilled_email=${encodeURIComponent(session.user.email)}`
+      posthog.capture('upgrade_clicked')
       window.location.href = url
     })
   }, [router, loaded, proLoading, user, isPro])

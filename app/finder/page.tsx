@@ -43,6 +43,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import posthog from 'posthog-js'
 
 export type Property = {
   address: string
@@ -405,8 +406,10 @@ export default function FinderPage() {
     })
   }, [results, advMinScore, advMaxDOM, advMinEquity, activeQuickFilters])
 
-  const runSearch = () =>
+  const runSearch = () => {
+    posthog.capture('signal_finder_searched', { city: searchCity, lead_type: searchLeadType })
     fetchPage(1, { city: searchCity, lead_type: searchLeadType, limit: searchMaxResults })
+  }
 
   const exportAll = async () => {
     setIsExportingAll(true)
@@ -1108,7 +1111,7 @@ export default function FinderPage() {
                   Unlock the full database with verified contacts, skip-tracing, and real-time updates.
                 </p>
                 <button
-                  onClick={() => { window.location.href = '/upgrade' }}
+                  onClick={() => { posthog.capture('upgrade_clicked'); window.location.href = '/upgrade' }}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors"
                 >
                   Upgrade to Pro →

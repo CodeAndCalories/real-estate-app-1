@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
+import posthog from 'posthog-js'
 
 /** First letter of email, uppercased — used as avatar initials. */
 function initials(email: string): string {
@@ -25,6 +26,12 @@ export default function Navbar() {
   const { user, loaded, isLoggedIn, logout } = useAuth()
   const { isPro } = useProStatus(user?.email)
   const router = useRouter()
+
+  useEffect(() => {
+    if (loaded && isLoggedIn && user?.email) {
+      posthog.identify(user.email)
+    }
+  }, [loaded, isLoggedIn, user?.email])
 
   const handleManageSubscription = async () => {
     if (!user?.email) return
