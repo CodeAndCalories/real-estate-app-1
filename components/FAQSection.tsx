@@ -33,7 +33,7 @@ const FAQS = [
   },
 ]
 
-export default function FAQSection({ isDark }: Props) {
+export default function FAQSection({ isDark: _isDark }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i)
@@ -41,51 +41,39 @@ export default function FAQSection({ isDark }: Props) {
   return (
     <section
       id="faq"
-      className={`py-24 px-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+      className="py-12 md:py-24 px-4 sm:px-6 bg-[#020617]"
     >
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
-          <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full ${
-            isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-50 text-blue-600'
-          }`}>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
             FAQ
           </span>
-          <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-white tracking-tighter">
             Frequently Asked Questions
           </h2>
-          <p className={`text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p className="text-base text-gray-400">
             Everything you need to know before getting started.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {FAQS.map((faq, i) => (
             <div
               key={i}
-              className={`rounded-2xl border overflow-hidden shadow-sm transition-shadow duration-200 ${
-                isDark
-                  ? 'border-gray-700 bg-gray-800 hover:shadow-md hover:shadow-black/30'
-                  : 'border-gray-200 bg-white hover:shadow-md hover:shadow-gray-200/80'
-              }`}
+              className="rounded-xl border border-white/10 bg-[#0f172a] overflow-hidden transition-colors"
             >
               <button
                 onClick={() => toggle(i)}
-                className={`w-full flex items-center justify-between px-6 py-5 text-left transition-colors ${
-                  isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'
-                }`}
+                className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-white/[0.03] transition-colors duration-150"
               >
-                <span className={`text-sm font-semibold pr-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <span className="text-sm font-semibold pr-4 text-white">
                   {faq.q}
                 </span>
                 <span
-                  className={`shrink-0 w-5 h-5 flex items-center justify-center rounded-full border transition-transform ${
+                  className={`shrink-0 w-5 h-5 flex items-center justify-center rounded-full border transition-transform duration-150 ${
                     openIndex === i
-                      ? isDark
-                        ? 'border-blue-500 text-blue-400 rotate-45'
-                        : 'border-blue-500 text-blue-600 rotate-45'
-                      : isDark
-                      ? 'border-gray-600 text-gray-400'
-                      : 'border-gray-300 text-gray-400'
+                      ? 'border-blue-500 text-blue-400 rotate-45'
+                      : 'border-white/20 text-gray-500'
                   }`}
                 >
                   <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3">
@@ -96,11 +84,7 @@ export default function FAQSection({ isDark }: Props) {
               </button>
 
               {openIndex === i && (
-                <div className={`px-6 pb-6 text-sm leading-relaxed border-t ${
-                  isDark
-                    ? 'text-gray-400 border-gray-700'
-                    : 'text-gray-600 border-gray-100'
-                }`}>
+                <div className="px-6 pb-6 text-sm leading-relaxed border-t border-white/10 text-gray-400">
                   <div className="pt-4">{faq.a}</div>
                 </div>
               )}

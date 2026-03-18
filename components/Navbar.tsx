@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import ThemeToggle from '@/components/ThemeToggle'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
 
@@ -84,7 +83,6 @@ export default function Navbar() {
 
         {/* ── Desktop auth area ────────────────────────────────────────── */}
         <div className="hidden sm:flex items-center gap-3">
-          <ThemeToggle />
 
           {/* Skeleton while loading (prevents hydration flash) */}
           {!loaded ? (
@@ -188,7 +186,6 @@ export default function Navbar() {
 
         {/* ── Mobile hamburger ────────────────────────────────────────── */}
         <div className="flex sm:hidden items-center gap-3">
-          <ThemeToggle />
           <button
             onClick={() => setMobileOpen((v) => !v)}
             className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
