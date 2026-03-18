@@ -232,7 +232,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                 <>
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-[11px] font-semibold shrink-0 text-gray-500">
-                      📞 Owner Phone
+                      📞 Owner Contact (Skip Trace)
                     </span>
                     <span className="text-xs font-mono text-emerald-400 text-right">
                       {p.owner_phone ?? '—'}
@@ -240,21 +240,21 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-[11px] font-semibold shrink-0 text-gray-500">
-                      📬 Mailing Address
+                      📬 Mailing Address (Best Available)
                     </span>
                     <span className="text-xs text-right text-gray-300">
                       {p.owner_mailing_address ?? '—'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-500 italic pt-0.5">
-                    Best effort data — verify before outreach
+                  <p className="text-xs text-gray-500 italic mt-2">
+                    Best available contact data · Verify before outreach
                   </p>
                 </>
               ) : (
                 <>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[11px] font-semibold text-gray-600">
-                      📞 Owner Phone
+                      📞 Owner Contact (Skip Trace)
                     </span>
                     <span className="text-xs font-mono text-gray-600 blur-sm select-none">
                       (***) ***-****
@@ -262,7 +262,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[11px] font-semibold text-gray-600">
-                      📬 Mailing Address
+                      📬 Mailing Address (Best Available)
                     </span>
                     <span className="text-xs text-gray-600 blur-sm select-none">
                       *** Hidden St, ***
@@ -272,7 +272,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                     href="/upgrade"
                     className="block text-xs text-blue-400 hover:underline pt-0.5"
                   >
-                    Unlock owner contact info →
+                    Unlock Skip Trace Data →
                   </a>
                 </>
               )}
