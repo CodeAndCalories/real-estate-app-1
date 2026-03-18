@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
@@ -8,6 +8,8 @@ import { useProStatus } from '@/lib/hooks/useProStatus'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+type TagValue = 'hot' | 'follow-up' | 'cold'
 
 interface SavedDeal {
   id:         string
@@ -21,9 +23,20 @@ interface SavedDeal {
   confidence: string
   bullets:    string[]
   saved_at:   string
+  tag:        TagValue | null
+  notes:      string | null
 }
 
 type SortOrder = 'newest' | 'highest_score'
+
+// ── Tag config ────────────────────────────────────────────────────────────────
+
+const TAGS: { value: TagValue; emoji: string; label: string; active: string }[] = [
+  { value: 'hot',       emoji: '🔥', label: 'Hot',       active: 'bg-red-600/20 text-red-400 border-red-600/30' },
+  { value: 'follow-up', emoji: '📋', label: 'Follow-up', active: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' },
+  { value: 'cold',      emoji: '❄️', label: 'Cold',      active: 'bg-gray-600/20 text-gray-400 border-gray-600/30' },
+]
+const TAG_INACTIVE = 'bg-white/5 text-gray-500 border-white/10'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +58,14 @@ function formatDate(iso: string): string {
   })
 }
 
+/** Extract city name from "123 Main St, Tampa, FL 33601" → "Tampa" */
+function extractCity(address: string): string {
+  const parts = address.split(',').map((s) => s.trim()).filter(Boolean)
+  if (parts.length >= 3) return parts[parts.length - 2]
+  if (parts.length === 2) return parts[1]
+  return ''
+}
+
 /** Format ISO timestamp as MM/DD/YYYY for CSV output */
 function toCSVDate(iso: string): string {
   const d  = new Date(iso)
@@ -53,7 +74,7 @@ function toCSVDate(iso: string): string {
   return `${mm}/${dd}/${d.getFullYear()}`
 }
 
-/** Wrap a CSV cell value in quotes if it contains commas, quotes, or newlines */
+/** Wrap a CSV cell value in quotes if needed */
 function csvCell(val: string | number | null | undefined): string {
   if (val === null || val === undefined) return ''
   const s = String(val)
@@ -80,15 +101,59 @@ export default function SavedDealsPage() {
   const { user, loaded } = useAuth()
   const { isPro, loading: proLoading } = useProStatus(user?.email)
 
-  const [deals,     setDeals]     = useState<SavedDeal[]>([])
-  const [fetching,  setFetching]  = useState(true)
-  const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
-  const [showToast, setShowToast] = useState(false)
+  const [deals,          setDeals]          = useState<SavedDeal[]>([])
+  const [fetching,       setFetching]       = useState(true)
+  const [sortOrder,      setSortOrder]      = useState<SortOrder>('newest')
+  const [showToast,      setShowToast]      = useState(false)
+  // Per-deal tag + note local state (optimistic)
+  const [tagMap,         setTagMap]         = useState<Record<string, TagValue | null>>({})
+  const [noteMap,        setNoteMap]        = useState<Record<string, string>>({})
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null)
 
+  // ── API helper ─────────────────────────────────────────────────────────────
+  const patchDeal = useCallback(
+    async (id: string, updates: { tag?: TagValue | null; notes?: string }) => {
+      const { data: { session } } = await supabaseBrowser.auth.getSession()
+      if (!session?.access_token) return
+      try {
+        await fetch('/api/analyze/save', {
+          method:  'PATCH',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ id, ...updates }),
+        })
+      } catch { /* silent — optimistic UI already updated */ }
+    },
+    [],
+  )
+
+  // ── Tag handler ────────────────────────────────────────────────────────────
+  const handleTagClick = useCallback(
+    (id: string, tag: TagValue) => {
+      const current = tagMap[id] ?? null
+      const next    = current === tag ? null : tag
+      setTagMap((prev) => ({ ...prev, [id]: next }))
+      void patchDeal(id, { tag: next })
+    },
+    [tagMap, patchDeal],
+  )
+
+  // ── Notes blur handler (auto-save) ─────────────────────────────────────────
+  const handleNotesBlur = useCallback(
+    (id: string) => {
+      setExpandedNoteId(null)
+      void patchDeal(id, { notes: noteMap[id] ?? '' })
+    },
+    [noteMap, patchDeal],
+  )
+
+  // ── CSV export ─────────────────────────────────────────────────────────────
   const handleExportCSV = () => {
     const today    = new Date().toISOString().slice(0, 10)
     const filename = `propertysignalhq-saved-deals-${today}.csv`
-    const headers  = ['Address', 'Score', 'Confidence', 'Price', 'Beds', 'Baths', 'Sqft', 'Year Built', 'Saved Date']
+    const headers  = ['Address', 'Score', 'Confidence', 'Price', 'Beds', 'Baths', 'Sqft', 'Year Built', 'Tag', 'Saved Date']
     const rows     = deals.map((d) => [
       d.address,
       d.score,
@@ -98,6 +163,7 @@ export default function SavedDealsPage() {
       d.baths      ?? '',
       d.sqft       ?? '',
       d.year_built ?? '',
+      tagMap[d.id] ?? '',
       toCSVDate(d.saved_at),
     ])
     downloadCSV([headers, ...rows], filename)
@@ -105,12 +171,12 @@ export default function SavedDealsPage() {
     setTimeout(() => setShowToast(false), 1000)
   }
 
-  // Redirect if not logged in
+  // ── Auth redirect ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (loaded && !user) router.replace('/login')
   }, [loaded, user, router])
 
-  // Fetch saved deals
+  // ── Fetch saved deals ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!loaded || !user?.email || proLoading) return
     if (!isPro) { setFetching(false); return }
@@ -119,11 +185,23 @@ export default function SavedDealsPage() {
 
     supabaseBrowser
       .from('saved_analyses')
-      .select('id, address, price, beds, baths, sqft, year_built, score, confidence, bullets, saved_at')
+      .select('id, address, price, beds, baths, sqft, year_built, score, confidence, bullets, saved_at, tag, notes')
       .eq('email', email)
       .order(sortOrder === 'newest' ? 'saved_at' : 'score', { ascending: false })
       .then(({ data, error }) => {
-        if (!error && data) setDeals(data as SavedDeal[])
+        if (!error && data) {
+          const rows = data as SavedDeal[]
+          setDeals(rows)
+          // Initialise local maps from DB values
+          const tMap: Record<string, TagValue | null> = {}
+          const nMap: Record<string, string>          = {}
+          for (const d of rows) {
+            tMap[d.id] = d.tag   ?? null
+            nMap[d.id] = d.notes ?? ''
+          }
+          setTagMap(tMap)
+          setNoteMap(nMap)
+        }
         setFetching(false)
       })
   }, [loaded, user, isPro, proLoading, sortOrder])
@@ -233,57 +311,117 @@ export default function SavedDealsPage() {
 
           /* Deal cards grid */
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {deals.map((deal) => (
-              <div
-                key={deal.id}
-                className="rounded-xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl space-y-4"
-              >
-                {/* Top row: address + date */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-white leading-snug truncate capitalize">
-                      {deal.address}
-                    </p>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      Saved {formatDate(deal.saved_at)}
-                    </p>
+            {deals.map((deal) => {
+              const currentTag  = tagMap[deal.id] ?? null
+              const currentNote = noteMap[deal.id] ?? ''
+              const dealCity    = extractCity(deal.address)
+
+              return (
+                <div
+                  key={deal.id}
+                  className="rounded-xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl space-y-4"
+                >
+                  {/* Top row: address + date */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white leading-snug truncate capitalize">
+                        {deal.address}
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        Saved {formatDate(deal.saved_at)}
+                      </p>
+                    </div>
+
+                    {/* Score + confidence */}
+                    <div className="flex-shrink-0 text-right">
+                      <p className={`text-3xl font-bold leading-none ${scoreColor(deal.score)}`}>
+                        {deal.score}
+                      </p>
+                      <span className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-xs font-semibold ${confidenceStyle(deal.confidence)}`}>
+                        {deal.confidence}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Score + confidence */}
-                  <div className="flex-shrink-0 text-right">
-                    <p className={`text-3xl font-bold leading-none ${scoreColor(deal.score)}`}>
-                      {deal.score}
-                    </p>
-                    <span className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-xs font-semibold ${confidenceStyle(deal.confidence)}`}>
-                      {deal.confidence}
-                    </span>
+                  {/* Property details */}
+                  {(deal.price || deal.beds || deal.baths || deal.sqft) && (
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-400">
+                      {deal.price      && <span>${deal.price.toLocaleString()}</span>}
+                      {deal.beds       && <span>{deal.beds} bd</span>}
+                      {deal.baths      && <span>{deal.baths} ba</span>}
+                      {deal.sqft       && <span>{deal.sqft.toLocaleString()} sqft</span>}
+                      {deal.year_built && <span>Built {deal.year_built}</span>}
+                    </div>
+                  )}
+
+                  {/* ── Tags ──────────────────────────────────────────────── */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {TAGS.map(({ value, emoji, label, active }) => (
+                      <button
+                        key={value}
+                        onClick={() => handleTagClick(deal.id, value)}
+                        className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                          currentTag === value ? active : TAG_INACTIVE
+                        }`}
+                      >
+                        {emoji} {label}
+                      </button>
+                    ))}
                   </div>
+
+                  {/* ── Notes ─────────────────────────────────────────────── */}
+                  <div>
+                    {expandedNoteId === deal.id ? (
+                      <textarea
+                        className="w-full text-sm text-gray-300 bg-white/5 border border-white/10 rounded-lg p-2 resize-none outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                        value={currentNote}
+                        rows={3}
+                        autoFocus
+                        placeholder="Add a note…"
+                        onChange={(e) =>
+                          setNoteMap((prev) => ({ ...prev, [deal.id]: e.target.value }))
+                        }
+                        onBlur={() => handleNotesBlur(deal.id)}
+                      />
+                    ) : (
+                      <button
+                        onClick={() => setExpandedNoteId(deal.id)}
+                        className="w-full text-left text-sm text-gray-500 hover:text-gray-300 transition-colors truncate"
+                      >
+                        {currentNote
+                          ? <span className="text-gray-300">{currentNote}</span>
+                          : <span className="italic">Add note…</span>
+                        }
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Bullets */}
+                  <ul className="space-y-1.5">
+                    {deal.bullets.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* ── Similar deals link ────────────────────────────────── */}
+                  {dealCity && (
+                    <div className="pt-1 border-t border-white/5">
+                      <Link
+                        href={`/finder?city=${encodeURIComponent(dealCity)}`}
+                        className="text-xs text-blue-400 hover:underline transition-colors"
+                      >
+                        Find similar deals in {dealCity} →
+                      </Link>
+                    </div>
+                  )}
                 </div>
-
-                {/* Property details */}
-                {(deal.price || deal.beds || deal.baths || deal.sqft) && (
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-400">
-                    {deal.price    && <span>${deal.price.toLocaleString()}</span>}
-                    {deal.beds     && <span>{deal.beds} bd</span>}
-                    {deal.baths    && <span>{deal.baths} ba</span>}
-                    {deal.sqft     && <span>{deal.sqft.toLocaleString()} sqft</span>}
-                    {deal.year_built && <span>Built {deal.year_built}</span>}
-                  </div>
-                )}
-
-                {/* Bullets */}
-                <ul className="space-y-1.5">
-                  {deal.bullets.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                      <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 

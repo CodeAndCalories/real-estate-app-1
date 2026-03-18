@@ -16,6 +16,14 @@ interface AnalyzeResult {
   analyses_limit:  number | null
 }
 
+interface SimilarSignal {
+  id:                string
+  address:           string
+  city:              string
+  opportunity_score: number
+  lead_type:         string
+}
+
 type PageState = 'form' | 'loading' | 'result' | 'limit' | 'error'
 type SaveState = 'idle' | 'saving' | 'saved' | 'already_saved' | 'error'
 type ShareState = 'idle' | 'copied'
@@ -48,6 +56,19 @@ function cityFromAddress(addr: string): string {
   return parts.slice(-2).join(', ')
 }
 
+function extractCityName(addr: string): string {
+  const parts = addr.split(',').map((p) => p.trim()).filter(Boolean)
+  if (parts.length >= 3) return parts[parts.length - 2]
+  if (parts.length === 2) return parts[0]
+  return addr.trim()
+}
+
+function leadTypeBadgeCls(type: string): string {
+  if (type === 'Pre-Foreclosure')  return 'bg-red-500/20 text-red-400 border border-red-500/20'
+  if (type === 'Expired Listing')  return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20'
+  return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+}
+
 const inputCls =
   'w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all'
 
@@ -70,11 +91,41 @@ export default function AnalyzePage() {
   const [result,      setResult]      = useState<AnalyzeResult | null>(null)
   const [errorMsg,    setErrorMsg]    = useState('')
   const [loadStep,    setLoadStep]    = useState(0)
-  const [saveState,   setSaveState]   = useState<SaveState>('idle')
-  const [shareState,  setShareState]  = useState<ShareState>('idle')
-  const [showToast,   setShowToast]   = useState(false)
+  const [saveState,    setSaveState]    = useState<SaveState>('idle')
+  const [shareState,   setShareState]   = useState<ShareState>('idle')
+  const [showToast,    setShowToast]    = useState(false)
+  const [similarDeals, setSimilarDeals] = useState<SimilarSignal[]>([])
 
   const loadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Fetch similar deals when a result becomes available
+  useEffect(() => {
+    if (pageState !== 'result' || !result) return
+    const city = extractCityName(address)
+    if (!city) return
+    const abortCtrl = new AbortController()
+    ;(async () => {
+      try {
+        const res = await fetch(
+          `/api/signals?city=${encodeURIComponent(city)}&limit=50`,
+          { signal: abortCtrl.signal }
+        )
+        if (!res.ok) return
+        const data = (await res.json()) as { signals: SimilarSignal[] }
+        const filtered = (data.signals ?? [])
+          .filter(
+            (s) =>
+              Math.abs(s.opportunity_score - result.score) <= 15 &&
+              s.address.toLowerCase() !== address.toLowerCase().trim()
+          )
+          .slice(0, 3)
+        setSimilarDeals(filtered.length >= 3 ? filtered : [])
+      } catch {
+        // ignore abort / network errors
+      }
+    })()
+    return () => abortCtrl.abort()
+  }, [pageState, result, address])
 
   // Cycle loading text
   useEffect(() => {
@@ -171,6 +222,7 @@ export default function AnalyzePage() {
     setSaveState('idle')
     setShareState('idle')
     setShowToast(false)
+    setSimilarDeals([])
   }
 
   const handleShare = async () => {
@@ -482,6 +534,44 @@ export default function AnalyzePage() {
                 )}
               </div>
             </div>
+
+            {/* Similar Deals */}
+            {similarDeals.length >= 3 && (
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                  Similar Deals in {extractCityName(address)}
+                </p>
+                <div className="space-y-2">
+                  {similarDeals.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/finder?city=${encodeURIComponent(extractCityName(address))}`}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all hover:bg-white/[0.06] hover:border-white/20"
+                    >
+                      <span className="truncate text-xs text-gray-300 min-w-0">
+                        {s.address}
+                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-sm font-bold ${scoreColor(s.opportunity_score)}`}>
+                          {s.opportunity_score}
+                        </span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${leadTypeBadgeCls(s.lead_type)}`}>
+                          {s.lead_type}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <p className="mt-2 text-right">
+                  <Link
+                    href={`/finder?city=${encodeURIComponent(extractCityName(address))}`}
+                    className="text-xs text-blue-400 hover:underline"
+                  >
+                    Find similar deals →
+                  </Link>
+                </p>
+              </div>
+            )}
 
             {/* Reset */}
             <p className="text-center">
