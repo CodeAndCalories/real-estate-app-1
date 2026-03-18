@@ -556,17 +556,59 @@ export default function AnalyzePage() {
               </div>
             </div>
 
-            {/* Bullets */}
-            <ul className="space-y-2">
-              {result.bullets.map((b, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
-                  <svg className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {b}
-                </li>
-              ))}
-            </ul>
+            {/* Deal Insights */}
+            {(() => {
+              const filledCount = [price, beds, baths, sqft, yearBuilt].filter(Boolean).length
+              const badge =
+                filledCount >= 4
+                  ? { label: 'High Confidence',   cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' }
+                  : filledCount >= 2
+                  ? { label: 'Medium Confidence', cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'   }
+                  : { label: 'Low Confidence',    cls: 'bg-gray-500/10 text-gray-400 border-gray-500/20'         }
+              return (
+                <div>
+                  {/* Header row */}
+                  <div className="flex items-start justify-between gap-3 mb-1">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+                      Deal Insights
+                    </p>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${badge.cls}`}>
+                      {badge.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 mb-3">
+                    Based on market signals and property inputs
+                  </p>
+
+                  {/* Bullets */}
+                  <ul className="space-y-2">
+                    {result.bullets.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
+                        <svg className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Upgrade CTA — hidden for pro users */}
+                  {!isPro && (
+                    <div className="border-t border-white/5 mt-4 pt-4">
+                      <p className="text-sm text-gray-400">
+                        Want full owner contact details?{' '}
+                        <a
+                          href="/upgrade"
+                          className="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                        >
+                          Unlock Contact Insights →
+                        </a>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Usage counter — free users only */}
             {result.analyses_used !== null && result.analyses_limit !== null && (
