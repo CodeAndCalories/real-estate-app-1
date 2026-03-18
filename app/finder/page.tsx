@@ -17,7 +17,6 @@ import { useThemeMode } from '@/lib/hooks/useThemeMode'
 import SavedSearches, { saveSearch } from '@/components/SavedSearches'
 import type { SavedSearch } from '@/components/SavedSearches'
 import HotDeals from '@/components/HotDeals'
-import SignalHeatmap from '@/components/SignalHeatmap'
 import DailyOpportunities from '@/components/DailyOpportunities'
 import dynamic from 'next/dynamic'
 const DealCalculator = dynamic(() => import('@/components/DealCalculator'), { ssr: false })
@@ -28,7 +27,6 @@ import DashboardSummary from '@/components/DashboardSummary'
 import OpportunityAlerts from '@/components/OpportunityAlerts'
 import PipelineSummary from '@/components/PipelineSummary'
 import DealPipelinePanel from '@/components/DealPipelinePanel'
-import DealAlertsPanel from '@/components/DealAlertsPanel'
 import MarketTrendCards from '@/components/MarketTrendCards'
 import DealComparison from '@/components/DealComparison'
 import InvestorSignupBanner from '@/components/InvestorSignupBanner'
@@ -774,20 +772,11 @@ export default function FinderPage() {
         {/* Opportunity Alerts */}
         <OpportunityAlerts isDark={isDark} />
 
-        {/* Deal Alerts */}
-        <DealAlertsPanel
-          isDark={isDark}
-          currentCity={searchCity}
-          currentMinScore={advMinScore}
-          currentMinEquity={advMinEquity}
-        />
-
         {/* ── Section: Market Overview ──────────────────────────── */}
         <SectionDivider label="Market Overview" isDark={isDark} />
         <InvestorStats isDark={isDark} />
         <MarketLeaderboard isDark={isDark} />
         <MarketTrendCards isDark={isDark} />
-        <SignalHeatmap isDark={isDark} onCityClick={handlePopularCity} />
 
         {/* ── Section: Today's Opportunities ───────────────────── */}
         <SectionDivider label="Today's Opportunities" isDark={isDark} />

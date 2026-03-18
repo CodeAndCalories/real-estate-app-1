@@ -10,15 +10,15 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          bg:          '#020617',
-          card:        '#0f172a',
-          border:      '#1e293b',
-          blue:        '#2563eb',
-          'blue-light':'#3b82f6',
+          bg:           '#020617',
+          card:         '#0f172a',
+          border:       '#1e293b',
+          blue:         '#2563eb',
+          'blue-light': '#3b82f6',
         },
       },
       fontFamily: {
-        display: ['var(--font-syne)', 'sans-serif'],
+        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'glow-blue':    '0 0 20px rgba(37, 99, 235, 0.15)',

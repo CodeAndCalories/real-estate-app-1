@@ -2,31 +2,27 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-export type ThemeMode = 'auto' | 'day' | 'night'
+export type ThemeMode = 'day' | 'night'
 export type EffectiveTheme = 'day' | 'night'
 
 const STORAGE_KEY = 'leadfinder-theme'
 
-function computeEffective(mode: ThemeMode): EffectiveTheme {
-  if (mode === 'day') return 'day'
-  if (mode === 'night') return 'night'
-  const hour = new Date().getHours()
-  return hour >= 6 && hour < 18 ? 'day' : 'night'
-}
-
 export function useThemeMode() {
-  const [mode, setModeState] = useState<ThemeMode>('auto')
-  const [effective, setEffective] = useState<EffectiveTheme>('day')
+  const [mode, setModeState] = useState<ThemeMode>('night')
+  const [effective, setEffective] = useState<EffectiveTheme>('night')
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as ThemeMode) || 'auto'
-    setModeState(stored)
-    setEffective(computeEffective(stored))
+    const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null
+    // If stored value was 'auto' (legacy), default to 'night'
+    const resolved: ThemeMode = stored === 'day' ? 'day' : 'night'
+    setModeState(resolved)
+    setEffective(resolved)
 
     const sync = () => {
-      const updated = (localStorage.getItem(STORAGE_KEY) as ThemeMode) || 'auto'
-      setModeState(updated)
-      setEffective(computeEffective(updated))
+      const updated = localStorage.getItem(STORAGE_KEY) as ThemeMode | null
+      const r: ThemeMode = updated === 'day' ? 'day' : 'night'
+      setModeState(r)
+      setEffective(r)
     }
 
     window.addEventListener('theme-changed', sync)
@@ -40,7 +36,7 @@ export function useThemeMode() {
   const setMode = useCallback((m: ThemeMode) => {
     localStorage.setItem(STORAGE_KEY, m)
     setModeState(m)
-    setEffective(computeEffective(m))
+    setEffective(m)
     window.dispatchEvent(new Event('theme-changed'))
   }, [])
 

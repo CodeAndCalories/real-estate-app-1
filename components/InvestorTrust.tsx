@@ -41,12 +41,12 @@ const INVESTOR_TYPES = [
 ]
 
 export default function InvestorTrust({ isDark }: Props) {
-  const textPrimary   = isDark ? 'text-white'    : 'text-gray-900'
-  const textSecondary = isDark ? 'text-gray-400' : 'text-gray-600'
-  const textMuted     = isDark ? 'text-gray-500' : 'text-gray-400'
+  const textPrimary   = 'text-white'
+  const textSecondary = 'text-gray-400'
+  const textMuted     = 'text-gray-500'
 
   return (
-    <section className={`py-20 px-6 ${isDark ? 'bg-gray-900' : 'bg-slate-50'}`}>
+    <section className="py-12 md:py-24 px-4 sm:px-6 bg-[#020617] border-t border-white/5">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -70,9 +70,7 @@ export default function InvestorTrust({ isDark }: Props) {
           {INVESTOR_TYPES.map((type) => (
             <div
               key={type.title}
-              className={`rounded-2xl border p-5 flex flex-col ${
-                isDark ? type.dark : type.light
-              }`}
+              className="rounded-xl border border-white/10 bg-[#0f172a] p-6 flex flex-col"
             >
               <div className="flex items-center gap-2.5 mb-3">
                 <span className="text-2xl leading-none">{type.emoji}</span>
@@ -85,9 +83,7 @@ export default function InvestorTrust({ isDark }: Props) {
                 {type.highlights.map((h) => (
                   <li key={h} className="flex items-center gap-2">
                     <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${type.dot}`} />
-                    <span className={`text-xs font-semibold ${
-                      isDark ? type.textAccent.dark : type.textAccent.light
-                    }`}>
+                    <span className={`text-xs font-semibold ${type.textAccent.dark}`}>
                       {h}
                     </span>
                   </li>
@@ -98,9 +94,7 @@ export default function InvestorTrust({ isDark }: Props) {
         </div>
 
         {/* Stats row */}
-        <div className={`rounded-2xl border px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center ${
-          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
-        }`}>
+        <div className="rounded-xl border border-white/10 bg-[#0f172a] px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
             { value: '18,000+', label: 'Signals analyzed', icon: '📊' },
             { value: '20',      label: 'Markets covered',  icon: '🏙️' },
@@ -109,7 +103,7 @@ export default function InvestorTrust({ isDark }: Props) {
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-2xl mb-1 leading-none">{stat.icon}</div>
-              <div className={`text-2xl font-black ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+              <div className="text-2xl font-black text-blue-400">
                 {stat.value}
               </div>
               <div className={`text-xs mt-0.5 font-medium ${textMuted}`}>{stat.label}</div>

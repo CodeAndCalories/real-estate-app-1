@@ -2,20 +2,14 @@
 
 import { useThemeMode } from '@/lib/hooks/useThemeMode'
 import HeroSection from '@/components/HeroSection'
-import DailyDeals from '@/components/DailyDeals'
 import HowItWorks from '@/components/HowItWorks'
 import ProductPreview from '@/components/ProductPreview'
 import MarketsCovered from '@/components/MarketsCovered'
-import UserTypes from '@/components/UserTypes'
 import PricingSection from '@/components/PricingSection'
 import FAQSection from '@/components/FAQSection'
 import SiteFooter from '@/components/SiteFooter'
-import InvestorUseCases from '@/components/InvestorUseCases'
-import DealExample from '@/components/DealExample'
 import InvestorTestimonials from '@/components/InvestorTestimonials'
 import InvestorTrust from '@/components/InvestorTrust'
-import BestDealHighlight from '@/components/BestDealHighlight'
-import TopOpportunities from '@/components/TopOpportunities'
 import StickyCTA from '@/components/StickyCTA'
 
 export default function HomePage() {
@@ -27,67 +21,60 @@ export default function HomePage() {
       {/* 1. Hero */}
       <HeroSection isDark={isDark} />
 
-      {/* 2. Product Preview — floating overlap */}
-      <div className="relative z-10 md:-mt-8 mt-0 px-4 sm:px-6 lg:px-8">
+      {/* 2. Trust bar — investor types + stats */}
+      <InvestorTrust isDark={isDark} />
+
+      {/* 3. How It Works */}
+      <div className="border-t border-white/5">
+        <HowItWorks isDark={isDark} />
+      </div>
+
+      {/* 4. Feature showcase — finder demo */}
+      <div className="border-t border-white/5 relative z-10 px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="max-w-[1100px] mx-auto rounded-xl shadow-2xl border overflow-hidden bg-[#0a0f1e] border-white/10">
           {/* Browser chrome */}
           <div className="flex items-center gap-2 px-4 py-3 border-b bg-[#0a0f1e] border-white/10">
-            <span className="w-3 h-3 rounded-full bg-red-400" />
-            <span className="w-3 h-3 rounded-full bg-yellow-400" />
-            <span className="w-3 h-3 rounded-full bg-green-400" />
+            <span className="w-3 h-3 rounded-full bg-red-400/60" />
+            <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
+            <span className="w-3 h-3 rounded-full bg-green-400/60" />
+            <span className="ml-3 text-xs text-gray-600 font-mono">propertysignalhq.com/finder</span>
           </div>
           <ProductPreview isDark={isDark} />
         </div>
       </div>
 
-      {/* 3. Best Deal Highlight — live top deal from dataset */}
-      <BestDealHighlight isDark={isDark} />
+      {/* 5. Markets covered */}
+      <div className="border-t border-white/5">
+        <MarketsCovered isDark={isDark} />
+      </div>
 
-      {/* 4. Investor Trust */}
-      <InvestorTrust isDark={isDark} />
+      {/* 6. Testimonials */}
+      <div className="border-t border-white/5">
+        <InvestorTestimonials isDark={isDark} />
+      </div>
 
-      {/* 5. Daily Deals */}
-      <DailyDeals isDark={isDark} />
+      {/* 7. Pricing */}
+      <div className="border-t border-white/5" id="pricing">
+        <PricingSection isDark={isDark} />
+      </div>
 
-      {/* 6. How It Works */}
-      <HowItWorks isDark={isDark} />
+      {/* 8. FAQ */}
+      <div className="border-t border-white/5">
+        <FAQSection isDark={isDark} />
+      </div>
 
-      {/* 7. Deal Example — concrete proof of concept */}
-      <DealExample isDark={isDark} />
-
-      {/* 8. Markets Covered */}
-      <MarketsCovered isDark={isDark} />
-
-      {/* 9. Investor Use Cases — flip / hold / wholesale */}
-      <InvestorUseCases isDark={isDark} />
-
-      {/* 10. Who It's For */}
-      <UserTypes isDark={isDark} />
-
-      {/* 11. Social Proof / Testimonials */}
-      <InvestorTestimonials isDark={isDark} />
-
-      {/* 12. Top Opportunities — live high-score signals */}
-      <TopOpportunities isDark={isDark} />
-
-      {/* 13. Pricing */}
-      <PricingSection isDark={isDark} />
-
-      {/* 14. FAQ */}
-      <FAQSection isDark={isDark} />
-
-      {/* 15. Final CTA */}
-      <section className="py-24 px-6 text-center bg-[#0f172a]">
+      {/* 9. Final CTA */}
+      <section className="border-t border-white/5 py-12 md:py-24 px-4 sm:px-6 text-center bg-[#0f172a]">
         <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-4xl sm:text-5xl font-black mb-4 leading-tight text-white">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
             Start Finding Property Leads Today
           </h2>
-          <p className="text-lg mb-8 text-gray-400">
+          <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
             Browse 18,000+ pre-scored leads across 30+ major US markets.
           </p>
           <a
             href="/finder"
-            className="inline-block bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/25 w-full sm:w-auto font-bold text-lg px-10 py-4 rounded-lg transition-all"
+            className="inline-block w-full sm:w-auto font-semibold text-base px-10 py-4 rounded-lg transition-all duration-150 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/25"
           >
             Search Leads Now
           </a>
@@ -97,10 +84,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 16. Footer */}
+      {/* Footer */}
       <SiteFooter isDark={isDark} />
 
-      {/* 17. Sticky mobile CTA — appears after scrolling 400px */}
+      {/* Sticky mobile CTA */}
       <StickyCTA isDark={isDark} />
 
     </div>
