@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
     ? 100
     : undefined
 
-  // Build the query — select all columns except created_at
-  let query = supabase
+  // Use admin client to bypass RLS for public property reads
+  let query = supabaseAdmin
     .from('properties')
     .select('*', { count: 'exact' })
 
@@ -36,9 +36,13 @@ export async function GET(request: NextRequest) {
     query = query.gte('opportunity_score', parseInt(min_score, 10))
   }
 
+  // Always sort by score descending so results are deterministic
   if (sortParam === 'score') {
     query = query.order('opportunity_score', { ascending: false, nullsFirst: false })
   }
+
+  // Secondary sort for deterministic ordering
+  query = query.order('id', { ascending: true })
 
   if (limit !== undefined) {
     const offset = (page - 1) * limit
@@ -51,7 +55,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Strip created_at so the response shape stays the same
+  // Strip created_at so the response shape matches the Signal type
   const signals = (data ?? []).map(({ created_at: _, ...rest }) => rest)
 
   return NextResponse.json(

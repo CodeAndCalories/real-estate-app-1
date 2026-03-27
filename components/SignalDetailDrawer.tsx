@@ -306,29 +306,29 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
               <Row label="Est. Value" value={fmt(p.estimated_value, '$')} isDark={isDark} />
               <Row
                 label="Est. Equity"
-                value={equity !== null ? fmt(equity, '$') : '—'}
+                value={equity != null ? fmt(equity, '$') : '—'}
                 isDark={isDark}
-                highlight={equity !== null ? (equity > 0 ? 'green' : 'red') : undefined}
+                highlight={equity != null ? (equity > 0 ? 'green' : 'red') : undefined}
               />
               <Row label="Loan Balance" value={fmt(p.loan_balance_estimate, '$')} isDark={isDark} />
               <Row
                 label="Days on Market"
-                value={p.days_on_market !== null ? `${p.days_on_market} days` : '—'}
+                value={p.days_on_market != null ? `${p.days_on_market} days` : '—'}
                 isDark={isDark}
               />
               <Row
                 label="Days in Default"
-                value={p.days_in_default !== null ? `${p.days_in_default} days` : '—'}
+                value={p.days_in_default != null ? `${p.days_in_default} days` : '—'}
                 isDark={isDark}
               />
               <Row
                 label="Price Drop"
-                value={p.price_drop_percent !== null ? `${p.price_drop_percent}%` : '—'}
+                value={p.price_drop_percent != null ? `${p.price_drop_percent}%` : '—'}
                 isDark={isDark}
               />
               <Row
                 label="Rent Estimate"
-                value={p.rent_estimate !== null ? `${fmt(p.rent_estimate, '$')}/mo` : '—'}
+                value={p.rent_estimate != null ? `${fmt(p.rent_estimate, '$')}/mo` : '—'}
                 isDark={isDark}
               />
               {rentRatio && (

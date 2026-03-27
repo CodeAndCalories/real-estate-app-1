@@ -116,7 +116,7 @@ function SectionDivider({ label, isDark }: { label: string; isDark: boolean }) {
   )
 }
 
-const CITIES = ['', 'Miami', 'Los Angeles', 'New York', 'Dallas', 'Atlanta', 'Chicago', 'Phoenix', 'Cleveland']
+const DEFAULT_CITIES = ['', 'Miami', 'Los Angeles', 'New York', 'Dallas', 'Atlanta', 'Chicago', 'Phoenix', 'Cleveland']
 const LEAD_TYPES = [
   { value: '', label: 'All Lead Types' },
   { value: 'Pre-Foreclosure', label: 'Pre-Foreclosure / Distressed' },
@@ -147,6 +147,19 @@ export default function FinderPage() {
   const [searchCity, setSearchCity] = useState('')
   const [searchLeadType, setSearchLeadType] = useState('')
   const [searchMaxResults, setSearchMaxResults] = useState(50)
+
+  // Dynamic city list from Supabase
+  const [cityOptions, setCityOptions] = useState<string[]>(DEFAULT_CITIES)
+  useEffect(() => {
+    fetch('/api/cities')
+      .then((r) => r.json())
+      .then((data: { cities?: { city: string }[] }) => {
+        if (data.cities && data.cities.length > 0) {
+          setCityOptions(['', ...data.cities.map((c) => c.city)])
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const { savedLeads, savedKeys, toggleSave, isSaved } = useSavedLeads()
   const { favorites, favoriteKeys, toggleFavorite } = useFavorites()
@@ -531,7 +544,7 @@ export default function FinderPage() {
                 onChange={(e) => setSearchCity(e.target.value)}
                 className={selectClass}
               >
-                {CITIES.map((c) => (
+                {cityOptions.map((c) => (
                   <option key={c} value={c}>
                     {c === '' ? 'All Cities' : c}
                   </option>

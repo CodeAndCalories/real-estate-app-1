@@ -1,22 +1,25 @@
 'use client'
 
-import { useMemo } from 'react'
-import propertiesData from '@/lib/data/properties.json'
+import { useEffect, useState } from 'react'
 import { Property } from '@/app/finder/page'
-import type { RawProperty } from '@/lib/types/property'
-import { scoreAndEnrich } from '@/lib/utils/scoreProperty'
 
 type Props = {
   onRowClick: (p: Property) => void
 }
 
 export default function TopLeads({ onRowClick }: Props) {
-  const topLeads = useMemo(() => {
-    return (propertiesData as unknown as RawProperty[] as unknown as Property[])
-      .map(scoreAndEnrich)
-      .sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))
-      .slice(0, 8)
+  const [topLeads, setTopLeads] = useState<Property[]>([])
+
+  useEffect(() => {
+    fetch('/api/signals?limit=8&sort=score')
+      .then((r) => r.json())
+      .then((data: { signals: Property[] }) => {
+        setTopLeads(data.signals ?? [])
+      })
+      .catch(() => {})
   }, [])
+
+  if (topLeads.length === 0) return null
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">

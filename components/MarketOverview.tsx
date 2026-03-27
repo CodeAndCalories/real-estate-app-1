@@ -1,28 +1,24 @@
 'use client'
 
-import propertiesData from '@/lib/data/properties.json'
-import type { RawProperty } from '@/lib/types/property'
+import { useEffect, useState } from 'react'
 
-const CITIES = [
-  'Miami',
-  'Los Angeles',
-  'New York',
-  'Dallas',
-  'Atlanta',
-  'Chicago',
-  'Phoenix',
-  'Cleveland',
-]
+type CityCount = { city: string; count: number }
 
 export default function MarketOverview() {
-  const data = propertiesData as unknown as RawProperty[]
+  const [cities, setCities] = useState<CityCount[]>([])
+  const [total, setTotal] = useState(0)
 
-  const cityCounts = CITIES.map((city) => ({
-    city,
-    count: data.filter((p) => p.city.toLowerCase() === city.toLowerCase()).length,
-  }))
+  useEffect(() => {
+    fetch('/api/cities')
+      .then((r) => r.json())
+      .then((data: { total: number; cities: CityCount[] }) => {
+        setCities(data.cities ?? [])
+        setTotal(data.total ?? 0)
+      })
+      .catch(() => {})
+  }, [])
 
-  const total = cityCounts.reduce((sum, c) => sum + c.count, 0)
+  if (cities.length === 0) return null
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
@@ -31,7 +27,7 @@ export default function MarketOverview() {
         <span className="text-xs text-gray-400 font-medium">{total.toLocaleString()} total leads</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {cityCounts.map(({ city, count }) => (
+        {cities.map(({ city, count }) => (
           <div
             key={city}
             className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5"

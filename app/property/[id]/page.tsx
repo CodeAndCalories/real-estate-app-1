@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Signal } from '@/lib/data/getSignals'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import propertiesJson from '@/lib/data/properties.json'
 import type { RawProperty } from '@/lib/types/property'
 import InvestorNotes from '@/components/InvestorNotes'
@@ -186,7 +186,7 @@ export default async function PropertyPage({
   // Look up by stable hash id first, then fall back to address
   let signal: Signal | undefined
 
-  const { data: byId } = await supabase
+  const { data: byId } = await supabaseAdmin
     .from('properties')
     .select('*')
     .eq('id', decoded)
@@ -196,7 +196,7 @@ export default async function PropertyPage({
     const { created_at: _, ...rest } = byId
     signal = rest as Signal
   } else {
-    const { data: byAddress } = await supabase
+    const { data: byAddress } = await supabaseAdmin
       .from('properties')
       .select('*')
       .eq('address', decoded)
