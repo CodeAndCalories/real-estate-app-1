@@ -379,11 +379,6 @@ export default function FinderPage() {
       setResults(enriched)
       setSummary(buildSummary(enriched, city))
       setCurrentPage(page)
-
-      // Scroll results into view once data is ready
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 50)
       setShowSavedOnly(false)
       setSearched(true)
     } catch {
@@ -817,7 +812,7 @@ export default function FinderPage() {
         <HotDeals isDark={isDark} />
 
         {/* Loading / Results anchor */}
-        <div ref={resultsRef} />
+        <div id="results-section" ref={resultsRef} />
 
         {/* Loading state */}
         {isLoading && (
