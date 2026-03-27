@@ -108,7 +108,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
       ? p.estimated_value - p.loan_balance_estimate
       : null
   const rentRatio =
-    p.rent_estimate && p.estimated_value
+    p.rent_estimate != null && p.estimated_value != null && p.estimated_value > 0
       ? ((p.rent_estimate / p.estimated_value) * 100).toFixed(2) + '%'
       : null
   const explanations = explainSignal(p)

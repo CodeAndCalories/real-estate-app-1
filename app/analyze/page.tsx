@@ -564,6 +564,9 @@ export default function AnalyzePage() {
                         <Link href="/saved-deals" className="mt-1 block text-xs text-blue-400 hover:underline">
                           View Saved Deals →
                         </Link>
+                        <Link href="/finder" className="mt-1 block text-xs text-gray-400 hover:text-white transition-colors">
+                          Back to Dashboard →
+                        </Link>
                       </>
                     )}
                     {saveState === 'error' && (
@@ -777,15 +780,21 @@ export default function AnalyzePage() {
               </div>
             )}
 
-            {/* Reset */}
-            <p className="text-center">
+            {/* Actions */}
+            <div className="flex items-center justify-center gap-4">
               <button
                 onClick={reset}
                 className="text-sm text-blue-400 underline hover:text-blue-300 transition-colors"
               >
                 Analyze Another Deal
               </button>
-            </p>
+              <Link
+                href="/finder"
+                className="text-sm text-gray-400 underline hover:text-white transition-colors"
+              >
+                View Dashboard
+              </Link>
+            </div>
           </div>
         )}
 

@@ -166,6 +166,13 @@ export default function FinderPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
 
   const resultsRef = useRef<HTMLDivElement>(null)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 300)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   // Deal comparison
   const [compareList, setCompareList] = useState<Property[]>([])
@@ -687,6 +694,27 @@ export default function FinderPage() {
         {/* Best Deal Today Banner */}
         <BestDealBanner isDark={isDark} />
 
+        {/* Anchor Nav */}
+        <nav className="sticky top-0 z-30 -mx-4 px-4 py-2 mb-4 bg-[#020617]/90 backdrop-blur-md border-b border-white/5">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+            {[
+              { id: 'section-portfolio', label: 'Portfolio Summary' },
+              { id: 'section-recent-deals', label: 'Recent Deals' },
+              { id: 'section-alerts', label: 'Opportunity Alerts' },
+              { id: 'section-market-overview', label: 'Market Overview' },
+              { id: 'results-section', label: 'Results' },
+            ].map((s) => (
+              <button
+                key={s.id}
+                onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
         {/* Investor Signup Banner */}
         <InvestorSignupBanner isDark={isDark} />
 
@@ -694,9 +722,12 @@ export default function FinderPage() {
         <InvestorTrustBanner isDark={isDark} />
 
         {/* Portfolio Summary — user's saved + pipeline deal counts */}
+        <div id="section-portfolio">
         <PortfolioSummary isDark={isDark} savedAnalysesCount={savedAnalysesCount} />
+        </div>
 
         {/* Recent Deals You Saved — pro only */}
+        <div id="section-recent-deals"></div>
         {isPro && (
           <div className="rounded-xl border mb-5 overflow-hidden bg-[#0f172a] border-white/10">
             {/* Header */}
@@ -783,9 +814,12 @@ export default function FinderPage() {
         <SavedDealsPanel isDark={isDark} />
 
         {/* Opportunity Alerts */}
+        <div id="section-alerts">
         <OpportunityAlerts isDark={isDark} />
+        </div>
 
         {/* ── Section: Market Overview ──────────────────────────── */}
+        <div id="section-market-overview"></div>
         <SectionDivider label="Market Overview" isDark={isDark} />
         <InvestorStats isDark={isDark} />
         <MarketLeaderboard isDark={isDark} />
@@ -1158,6 +1192,19 @@ export default function FinderPage() {
           </p>
         </div>
       </div>
+
+      {/* Floating scroll-to-top button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-500"
+          aria-label="Scroll to top"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      )}
     </div>
   )
 }
