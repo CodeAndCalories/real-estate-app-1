@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import ResultsTable from '@/components/ResultsTable'
 import SignalDetailDrawer from '@/components/SignalDetailDrawer'
 import MapView from '@/components/MapView'
@@ -164,6 +164,8 @@ export default function FinderPage() {
   const { savedLeads, savedKeys, toggleSave, isSaved } = useSavedLeads()
   const { favorites, favoriteKeys, toggleFavorite } = useFavorites()
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   // Deal comparison
   const [compareList, setCompareList] = useState<Property[]>([])
@@ -377,6 +379,11 @@ export default function FinderPage() {
       setResults(enriched)
       setSummary(buildSummary(enriched, city))
       setCurrentPage(page)
+
+      // Scroll results into view once data is ready
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 50)
       setShowSavedOnly(false)
       setSearched(true)
     } catch {
@@ -421,6 +428,10 @@ export default function FinderPage() {
 
   const runSearch = () => {
     posthog.capture('signal_finder_searched', { city: searchCity, lead_type: searchLeadType })
+    // Scroll to loading indicator immediately so user sees feedback
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
     fetchPage(1, { city: searchCity, lead_type: searchLeadType, limit: searchMaxResults })
   }
 
@@ -804,6 +815,9 @@ export default function FinderPage() {
         {/* ── Section: High Score Deals ─────────────────────────── */}
         <SectionDivider label="High Score Deals" isDark={isDark} />
         <HotDeals isDark={isDark} />
+
+        {/* Loading / Results anchor */}
+        <div ref={resultsRef} />
 
         {/* Loading state */}
         {isLoading && (
