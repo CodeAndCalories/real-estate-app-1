@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server'
-import { getSignals } from '@/lib/data/getSignals'
+import { supabase } from '@/lib/supabase'
 
 export async function GET() {
-  // Load all signals (no pagination) and filter for hot leads
-  const { signals } = getSignals({ limit: 9999 })
+  const { data, error } = await supabase
+    .from('properties')
+    .select('*')
+    .gte('opportunity_score', 80)
+    .order('opportunity_score', { ascending: false, nullsFirst: false })
+    .limit(10)
 
-  const deals = signals
-    .filter((s) => (s.opportunity_score ?? 0) >= 80)
-    .sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))
-    .slice(0, 10)
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
+  const deals = (data ?? []).map(({ created_at: _, ...rest }) => rest)
   const date = new Date().toISOString().split('T')[0]
 
   return NextResponse.json(
     { date, deals },
     {
       headers: {
-        // Cache for 1 hour — deals refresh daily, not per-request
         'Cache-Control': 'public, max-age=3600',
       },
     }

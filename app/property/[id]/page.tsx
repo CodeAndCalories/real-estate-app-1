@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getSignals } from '@/lib/data/getSignals'
 import type { Signal } from '@/lib/data/getSignals'
+import { supabase } from '@/lib/supabase'
 import propertiesJson from '@/lib/data/properties.json'
 import type { RawProperty } from '@/lib/types/property'
 import InvestorNotes from '@/components/InvestorNotes'
@@ -183,9 +183,31 @@ export default async function PropertyPage({
   const { id } = await params
   const decoded = decodeURIComponent(id)
 
-  // Load signal data — look up by stable hash id first, then fall back to address
-  const { signals } = getSignals({ limit: 9999 })
-  const signal = signals.find((s) => s.id === decoded) ?? signals.find((s) => s.address === decoded)
+  // Look up by stable hash id first, then fall back to address
+  let signal: Signal | undefined
+
+  const { data: byId } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', decoded)
+    .single()
+
+  if (byId) {
+    const { created_at: _, ...rest } = byId
+    signal = rest as Signal
+  } else {
+    const { data: byAddress } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('address', decoded)
+      .single()
+
+    if (byAddress) {
+      const { created_at: _, ...rest } = byAddress
+      signal = rest as Signal
+    }
+  }
+
   if (!signal) notFound()
 
   const address = signal.address
