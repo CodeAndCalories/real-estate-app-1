@@ -16,7 +16,7 @@ export default function PopularCities({ onCityClick }: Props) {
       .then((r) => r.json())
       .then((data: { cities?: { city: string; count: number }[] }) => {
         if (data.cities && data.cities.length > 0) {
-          setCities(data.cities.slice(0, 8).map((c) => c.city))
+          setCities(data.cities.slice(0, 6).map((c) => c.city))
         }
       })
       .catch(() => {})

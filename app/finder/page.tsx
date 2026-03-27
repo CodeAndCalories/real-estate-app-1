@@ -485,15 +485,6 @@ export default function FinderPage() {
     <div className={pageBg}>
       <div className="max-w-[1200px] mx-auto px-4 py-8">
 
-        {/* Demo Dataset Badge — hidden for pro users */}
-        {!isPro && <div className="flex items-center gap-2 mb-4">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border bg-amber-500/10 border-amber-500/20 text-amber-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
-            Demo Dataset
-          </span>
-          <span className={`text-xs ${textMuted}`}>Showing simulated property signals</span>
-        </div>}
-
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <div>

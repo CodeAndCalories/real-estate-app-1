@@ -146,7 +146,6 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
             <th className="px-4 py-3 whitespace-nowrap">Score</th>
             <th className="px-4 py-3 whitespace-nowrap">Tags</th>
             <th className="px-4 py-3 whitespace-nowrap">Est. Equity</th>
-            <th className="px-4 py-3 whitespace-nowrap">Rent %</th>
             <th className="px-4 py-3 whitespace-nowrap">Est. Value</th>
             {onCompare && <th className="px-3 py-3 w-16 whitespace-nowrap">Compare</th>}
           </tr>
@@ -164,11 +163,6 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
             const equity =
               p.estimated_value && p.loan_balance_estimate !== null
                 ? p.estimated_value - p.loan_balance_estimate
-                : null
-
-            const rentRatio =
-              p.rent_estimate && p.estimated_value
-                ? ((p.rent_estimate / p.estimated_value) * 100).toFixed(2) + '%'
                 : null
 
             return (
@@ -308,11 +302,6 @@ export default function ResultsTable({ data, onRowClick, onToggleSave, savedKeys
                   ) : (
                     <span className={isDark ? 'text-gray-600' : 'text-gray-300'}>—</span>
                   )}
-                </td>
-
-                {/* Rent % */}
-                <td className={`px-4 py-3 whitespace-nowrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {rentRatio ?? <span className={isDark ? 'text-gray-600' : 'text-gray-300'}>—</span>}
                 </td>
 
                 {/* Est. Value */}

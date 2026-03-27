@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: 'How often are leads updated?',
-    a: 'The demo dataset is refreshed periodically to reflect realistic market conditions. In production, leads would be updated daily with live data pulled from public records, MLS expirations, and default notice filings.',
+    a: 'Leads are updated daily with live data pulled from public records, MLS expirations, and default notice filings.',
   },
   {
     q: 'Can I export leads?',
