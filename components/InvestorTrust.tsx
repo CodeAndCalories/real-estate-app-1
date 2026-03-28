@@ -31,7 +31,7 @@ const INVESTOR_TYPES = [
     emoji: '🤝',
     title: 'Wholesalers',
     description:
-      'Surface distressed owners and expired listings across 35 markets in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
+      'Surface distressed owners and expired listings across 60+ cities in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
     highlights: ['Distressed owner signals', 'Expired listing filter', 'One-click CSV export'],
     light: 'border-green-200 bg-green-50',
     dark:  'border-green-800 bg-green-900/20',
@@ -117,8 +117,8 @@ export default function InvestorTrust({ isDark }: Props) {
         {/* Stats row */}
         <div className="rounded-xl border border-white/10 bg-[#0f172a] px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
-            { value: '27,400+', label: 'Property signals',     icon: '📊' },
-            { value: '35',     label: 'Markets covered',      icon: '🏙️' },
+            { value: '35,200+', label: 'Property signals',     icon: '📊' },
+            { value: '60+',    label: 'Cities · all 50 states', icon: '🏙️' },
             { value: 'Zillow', label: 'Powered market data',  icon: '🎯' },
             { value: 'Weekly', label: 'Data updates',         icon: '🔄' },
           ].map((stat) => (

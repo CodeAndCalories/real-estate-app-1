@@ -84,6 +84,16 @@ const METRO_TO_CITY: Record<string, string> = {
   'New Orleans-Metairie, LA': 'New Orleans',
   'Austin, TX': 'Austin',
   'Austin-Round Rock-Georgetown, TX': 'Austin',
+  'Boston, MA': 'Boston',
+  'Boston-Cambridge-Newton, MA-NH': 'Boston',
+  'Milwaukee, WI': 'Milwaukee',
+  'Milwaukee-Waukesha, WI': 'Milwaukee',
+  'Louisville, KY': 'Louisville',
+  'Louisville/Jefferson County, KY-IN': 'Louisville',
+  'Omaha, NE': 'Omaha',
+  'Omaha-Council Bluffs, NE-IA': 'Omaha',
+  'Boise, ID': 'Boise',
+  'Boise City, ID': 'Boise',
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
