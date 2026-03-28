@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ResultsTable from '@/components/ResultsTable'
 import SignalDetailDrawer from '@/components/SignalDetailDrawer'
@@ -131,7 +131,7 @@ const LEAD_TYPES = [
 const STRATEGIES = ['All Strategies', 'Fix and Flip', 'Buy and Hold', 'Wholesale', 'Rental Income']
 const MAX_RESULTS = [50, 100, 250, 500]
 
-export default function FinderPage() {
+function FinderContent() {
   const { isDark } = useThemeMode()
   const { isLoggedIn, user } = useAuth()
   const { isPro } = useProStatus(user?.email)
@@ -1285,5 +1285,13 @@ export default function FinderPage() {
         </button>
       )}
     </div>
+  )
+}
+
+export default function FinderPage() {
+  return (
+    <Suspense fallback={null}>
+      <FinderContent />
+    </Suspense>
   )
 }
