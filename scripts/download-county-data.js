@@ -117,14 +117,14 @@ const COUNTIES = {
       // Square footage for price/sqft
       const sqft = safeNum(r['hd_sf'])
       const pricePerSqft = sqft && sqft > 0
-        ? Math.round((estimatedValue / sqft) * 100) / 100 : null
+        ? Math.round(estimatedValue / sqft) : null
 
       const addr = `${address}, ${city}, IL`
       return {
         id: computeId(addr, city),
         address, city,
         zip: '',
-        estimated_value: estimatedValue,
+        estimated_value: Math.round(estimatedValue),
         price_per_sqft: pricePerSqft,
         owner_name: null,
         tax_delinquent: null,
@@ -167,7 +167,7 @@ const COUNTIES = {
         id: computeId(addr, city),
         address, city,
         zip: zip ?? '',
-        estimated_value: marketValue,
+        estimated_value: Math.round(marketValue),
         owner_name: ownerName, owner_mailing_address: ownerAddr, owner_state: ownerState,
         tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
@@ -199,7 +199,7 @@ const COUNTIES = {
 
       const sqft = safeNum(r['bldg_area'] ?? r['BLDG_AREA'] ?? r['sq_ft'] ?? r['SQFT'])
       const pricePerSqft = sqft && sqft > 0
-        ? Math.round((assessedValue / sqft) * 100) / 100 : null
+        ? Math.round(assessedValue / sqft) : null
 
       const ownerName = safeStr(r['owner_name'] ?? r['OWNER_NAME'] ?? r['own_name1'])
       const ownerAddr = safeStr(r['owner_address'] ?? r['MAIL_ADDR'] ?? r['mail_address'])
@@ -209,7 +209,7 @@ const COUNTIES = {
         id: computeId(addr, city),
         address, city,
         zip: zip ?? '',
-        estimated_value: assessedValue,
+        estimated_value: Math.round(assessedValue),
         price_per_sqft: pricePerSqft,
         owner_name: ownerName, owner_mailing_address: ownerAddr, owner_state: null,
         tax_delinquent: null, lead_type: 'county_record',
