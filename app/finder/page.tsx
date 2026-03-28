@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import ResultsTable from '@/components/ResultsTable'
 import SignalDetailDrawer from '@/components/SignalDetailDrawer'
 import MapView from '@/components/MapView'
@@ -134,6 +135,7 @@ export default function FinderPage() {
   const { isDark } = useThemeMode()
   const { isLoggedIn, user } = useAuth()
   const { isPro } = useProStatus(user?.email)
+  const searchParams = useSearchParams()
 
   const [results, setResults] = useState<Property[]>([])
   const [totalMatched, setTotalMatched] = useState(0)
@@ -152,16 +154,24 @@ export default function FinderPage() {
   const [searchLeadType, setSearchLeadType] = useState('')
   const [searchMaxResults, setSearchMaxResults] = useState(50)
 
-  // Dynamic city list from Supabase + preferred city restore
+  // Dynamic city list from Supabase + city restore (URL param > localStorage)
   const [cityOptions, setCityOptions] = useState<string[]>(DEFAULT_CITIES)
   useEffect(() => {
-    try {
-      const preferred = localStorage.getItem('pshq-preferred-city')
-      if (preferred) {
-        setSearchCity(preferred)
-        setWelcomeBackCity(preferred)
-      }
-    } catch { /* ignore */ }
+    const urlCity = searchParams.get('city')
+    if (urlCity) {
+      // URL param takes priority — set city and immediately run the search
+      setSearchCity(urlCity)
+      setWelcomeBackCity(null)
+      fetchPage(1, { city: urlCity, lead_type: '', limit: 50 })
+    } else {
+      try {
+        const preferred = localStorage.getItem('pshq-preferred-city')
+        if (preferred) {
+          setSearchCity(preferred)
+          setWelcomeBackCity(preferred)
+        }
+      } catch { /* ignore */ }
+    }
 
     fetch('/api/cities')
       .then((r) => r.json())
@@ -171,7 +181,7 @@ export default function FinderPage() {
         }
       })
       .catch(() => {})
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { savedLeads, savedKeys, toggleSave, isSaved } = useSavedLeads()
   const { favorites, favoriteKeys, toggleFavorite } = useFavorites()

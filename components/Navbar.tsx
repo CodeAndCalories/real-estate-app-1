@@ -15,6 +15,7 @@ function initials(email: string): string {
 const NAV_LINKS = [
   { href: '/#how-it-works', label: 'How It Works'  },
   { href: '/#pricing',      label: 'Pricing'       },
+  { href: '/cities',        label: 'Markets'       },
   { href: '/analyze',       label: 'Analyze Deal'  },
   { href: '/#faq',          label: 'FAQ'           },
   { href: '/contact',       label: 'Contact'       },
