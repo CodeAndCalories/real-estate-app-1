@@ -123,7 +123,6 @@ const COUNTIES = {
       return {
         id: computeId(addr, city),
         address, city,
-        state: 'IL',
         zip: '',
         estimated_value: estimatedValue,
         price_per_sqft: pricePerSqft,
@@ -167,7 +166,6 @@ const COUNTIES = {
       return {
         id: computeId(addr, city),
         address, city,
-        state: 'TX',
         zip: zip ?? '',
         estimated_value: marketValue,
         owner_name: ownerName, owner_mailing_address: ownerAddr, owner_state: ownerState,
@@ -210,7 +208,6 @@ const COUNTIES = {
       return {
         id: computeId(addr, city),
         address, city,
-        state: 'AZ',
         zip: zip ?? '',
         estimated_value: assessedValue,
         price_per_sqft: pricePerSqft,
