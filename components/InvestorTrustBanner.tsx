@@ -5,8 +5,8 @@ type Props = {
 }
 
 const POINTS = [
-  { icon: '🏙️', text: '30 real estate markets covered' },
-  { icon: '📊', text: '18,900+ property signals analyzed' },
+  { icon: '🏙️', text: '35 real estate markets covered' },
+  { icon: '📊', text: '27,400+ property signals analyzed' },
   { icon: '🌡️', text: 'Zillow-powered market data' },
 ]
 

@@ -131,8 +131,8 @@ export default function InvestorTestimonials({ isDark }: Props) {
             : 'bg-blue-50 border-blue-200'
         }`}>
           {[
-            { value: '18,900+', label: 'Property signals' },
-            { value: '30',     label: 'Markets covered' },
+            { value: '27,400+', label: 'Property signals' },
+            { value: '35',     label: 'Markets covered' },
             { value: 'Zillow', label: 'Powered market data' },
             { value: 'Weekly', label: 'Data updates' },
           ].map((stat) => (

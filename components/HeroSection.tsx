@@ -64,7 +64,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Pre-header eyebrow */}
         <p className="text-blue-400/80 text-xs font-mono uppercase tracking-[0.2em] mb-6">
-          Search 30+ Markets · 18,900+ Signals
+          Search 35 Markets · 27,400+ Signals
         </p>
 
         {/* Main heading */}
@@ -78,7 +78,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300">
-          Access 18,900+ distressed property signals across 30 markets, powered by real Zillow market data. Find motivated sellers before anyone else.
+          Access 27,400+ distressed property signals across 35 markets, powered by real Zillow market data. Find motivated sellers before anyone else.
         </p>
 
         {/* CTA row */}
@@ -99,14 +99,14 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Below-CTA count line */}
         <p className="text-gray-400 text-sm mt-4">
-          18,900+ properties analyzed across 30+ markets
+          27,400+ properties analyzed across 35 markets
         </p>
 
         {/* Trust credibility bar */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           {[
-            { text: '18,900+ Properties' },
-            { text: '30 Markets' },
+            { text: '27,400+ Properties' },
+            { text: '35 Markets' },
             { text: 'Real Zillow Data' },
             { text: 'Weekly Updates' },
           ].map((item) => (

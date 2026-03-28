@@ -5,8 +5,8 @@ type Props = {
 }
 
 const ITEMS = [
-  { icon: '🏙️', text: '30 real estate markets covered' },
-  { icon: '📊', text: '18,900+ property signals analyzed' },
+  { icon: '🏙️', text: '35 real estate markets covered' },
+  { icon: '📊', text: '27,400+ property signals analyzed' },
   { icon: '🔍', text: 'Signal scoring 0–100 on every lead' },
   { icon: '🌡️', text: 'Zillow-powered market temperature data' },
   { icon: '📥', text: 'CSV export ready' },

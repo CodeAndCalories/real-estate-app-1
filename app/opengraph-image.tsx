@@ -127,14 +127,14 @@ export default function OGImage() {
             lineHeight: 1.5,
           }}
         >
-          Pre-foreclosures, expired listings &amp; distressed owners — scored and ranked across 30+ US markets.
+          Pre-foreclosures, expired listings &amp; distressed owners — scored and ranked across 35 US markets.
         </p>
 
         {/* Stat row */}
         <div style={{ display: 'flex', gap: 48 }}>
           {[
-            { value: '18,000+', label: 'Signals analyzed' },
-            { value: '30+',     label: 'Markets covered'  },
+            { value: '27,400+', label: 'Signals analyzed' },
+            { value: '35',      label: 'Markets covered'  },
             { value: '3',       label: 'Lead types'       },
             { value: '100%',    label: 'Free to explore'  },
           ].map((stat) => (

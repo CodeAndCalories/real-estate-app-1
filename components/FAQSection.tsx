@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: 'What cities are supported?',
-    a: 'Currently the platform covers 30+ major US markets — Miami, Dallas, Phoenix, Atlanta, Chicago, Cleveland, Los Angeles, New York, Tampa, Nashville, Jacksonville, Denver, Houston, San Antonio, Austin, Charlotte, Raleigh, Columbus, Indianapolis, and more — with hundreds of leads per city. Additional cities are added regularly.',
+    a: 'The platform covers 35 major US markets — Miami, Dallas, Phoenix, Atlanta, Chicago, Cleveland, Los Angeles, New York, Tampa, Nashville, Jacksonville, Denver, Houston, San Antonio, Austin, Charlotte, Raleigh, Columbus, Indianapolis, Orlando, Sacramento, Richmond, Oklahoma City, Cincinnati, and more — with hundreds of leads per city. Additional cities are added regularly.',
   },
   {
     q: 'Can I cancel anytime?',
