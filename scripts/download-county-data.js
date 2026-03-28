@@ -1,9 +1,10 @@
 /**
- * download-county-data.js — Fetches county property data CSVs,
+ * download-county-data.js — Fetches county property data,
  * maps fields to the Supabase `properties` schema, and upserts in batches.
  *
  * Usage:
  *   node scripts/download-county-data.js cook
+ *   node scripts/download-county-data.js cook --limit 500
  *   node scripts/download-county-data.js dallas
  *   node scripts/download-county-data.js maricopa
  *   node scripts/download-county-data.js all
@@ -20,15 +21,17 @@ const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars')
+  console.error('✗ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars')
   process.exit(1)
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-const BATCH_SIZE = 500
+const BATCH_SIZE       = 500
+const FETCH_TIMEOUT_MS = 30_000  // 30 seconds per request
+const PROGRESS_EVERY   = 1000    // log a line every N rows processed
 
-// ── FNV-1a 32-bit ID (matches existing scripts) ───────────────────────────────
+// ── FNV-1a 32-bit ID ──────────────────────────────────────────────────────────
 
 function computeId(address, city) {
   const str = `${address}||${city}`
@@ -60,39 +63,48 @@ function safeStr(val) {
   return s === '' ? null : s
 }
 
+/** fetch() with an AbortController timeout. Throws descriptive errors. */
+async function fetchWithTimeout(url, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, { signal: controller.signal })
+    clearTimeout(timer)
+    return res
+  } catch (err) {
+    clearTimeout(timer)
+    if (err.name === 'AbortError') {
+      throw new Error(
+        `Request timed out after ${timeoutMs / 1000}s.\n` +
+        `  Tip: use --limit to fetch fewer rows, or check your network connection.`
+      )
+    }
+    throw new Error(`Network error: ${err.message}`)
+  }
+}
+
 // ── County Config ─────────────────────────────────────────────────────────────
-//
-// Each county entry defines:
-//   url        — direct CSV download URL
-//   state      — two-letter state code
-//   mapRow(r)  — maps raw CSV row → properties schema object (returns null to skip)
-//
-// Field mapping targets the `properties` table schema:
-//   id, address, city, state, zip, estimated_value, price_per_sqft,
-//   owner_name, owner_phone, owner_mailing_address, owner_state,
-//   years_owned, tax_delinquent, vacancy_signal, inherited, absentee_owner,
-//   lead_type, days_on_market, rent_estimate, opportunity_score,
-//   loan_balance_estimate, days_in_default, previous_listing_price,
-//   price_drop_percent, market_avg_price_per_sqft, agent_name
 
 const COUNTIES = {
-  // ── Cook County, IL ─────────────────────────────────────────────────────────
-  // Dataset: Assessor - Parcel Sales (nj4t-kc8j)
-  // Key fields: pin, class, address, city, nbhd, sale_price, sale_date, year
-  cook: {
-    label: 'Cook County, IL',
-    url: 'https://datacatalog.cookcountyil.gov/api/views/nj4t-kc8j/rows.csv?accessType=DOWNLOAD',
-    state: 'IL',
-    mapRow(r) {
-      // Build address from available columns (Socrata export uses header names directly)
-      const address =
-        safeStr(r['address'] ?? r['Address'] ?? r['PROP_ADDRESS'] ?? r['prop_address'])
-      const city =
-        safeStr(r['city'] ?? r['City'] ?? r['CITY'] ?? r['township_name'] ?? r['Township'])
-      const zip =
-        safeStr(r['zip_code'] ?? r['zip'] ?? r['Zip'] ?? r['ZIP'])
 
-      // Skip rows without a usable address
+  // ── Cook County, IL ─────────────────────────────────────────────────────────
+  // Uses the Socrata JSON API (paginated) instead of the bulk CSV download.
+  // Socrata endpoint: /resource/<dataset-id>.json?$limit=N&$offset=N
+  cook: {
+    label:       'Cook County, IL',
+    url:         'https://datacatalog.cookcountyil.gov/api/views/nj4t-kc8j/rows.csv?accessType=DOWNLOAD',
+    socrataUrl:  'https://datacatalog.cookcountyil.gov/resource/nj4t-kc8j.json',
+    useSocrata:  true,  // prefer paginated JSON API over giant CSV
+    state:       'IL',
+    mapRow(r) {
+      const address = safeStr(
+        r['address'] ?? r['Address'] ?? r['PROP_ADDRESS'] ?? r['prop_address']
+      )
+      const city = safeStr(
+        r['city'] ?? r['City'] ?? r['CITY'] ?? r['township_name'] ?? r['Township']
+      )
+      const zip = safeStr(r['zip_code'] ?? r['zip'] ?? r['Zip'] ?? r['ZIP'])
+
       if (!address || !city) return null
 
       const salePrice = safeNum(
@@ -101,72 +113,49 @@ const COUNTIES = {
       const assessedValue = safeNum(
         r['assessed_value'] ?? r['Assessed Value'] ?? r['tot_assess'] ?? r['mktval']
       )
-
       const estimatedValue = salePrice ?? assessedValue
-
-      // Skip rows with no value at all
       if (!estimatedValue) return null
 
       const ownerName = safeStr(
         r['taxpayer_name'] ?? r['owner_name'] ?? r['Owner Name'] ?? r['taxpayer1']
       )
       const taxDelinqRaw = safeStr(r['tax_delinquent'] ?? r['Tax Delinquent'] ?? '')
-      const taxDelinquent =
-        taxDelinqRaw ? taxDelinqRaw.toLowerCase() === 'true' || taxDelinqRaw === '1' : null
+      const taxDelinquent = taxDelinqRaw
+        ? taxDelinqRaw.toLowerCase() === 'true' || taxDelinqRaw === '1'
+        : null
 
       const addr = `${address}, ${city}, IL`
       return {
         id: computeId(addr, city),
-        address,
-        city,
+        address, city,
         state: 'IL',
         zip: zip ?? '',
         estimated_value: estimatedValue,
         owner_name: ownerName,
         tax_delinquent: taxDelinquent,
         lead_type: 'county_record',
-        absentee_owner: null,
-        vacancy_signal: null,
-        inherited: null,
-        loan_balance_estimate: null,
-        days_in_default: null,
-        days_on_market: null,
-        previous_listing_price: null,
-        price_drop_percent: null,
-        price_per_sqft: null,
-        market_avg_price_per_sqft: null,
-        rent_estimate: null,
-        opportunity_score: null,
-        agent_name: null,
-        owner_phone: null,
-        owner_mailing_address: null,
-        owner_state: null,
-        years_owned: null,
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null, price_per_sqft: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, owner_mailing_address: null,
+        owner_state: null, years_owned: null,
       }
     },
   },
 
   // ── Dallas County, TX ────────────────────────────────────────────────────────
-  // Dataset: Dallas CAD bulk download
-  // NOTE: Dallas CAD uses a file portal at dallascad.org — update the url below
-  // with the direct CSV/TSV link once obtained from the DataProducts.aspx page.
-  // Typical direct URL pattern:
-  //   https://www.dallascad.org/AcctDetailRes.aspx  (no bulk CSV)
-  //   Bulk exports are available as zip files; extract and point to the CSV.
   dallas: {
-    label: 'Dallas County, TX',
-    url: 'https://www.dallascad.org/Downloads/Misc/2024_Certified_Values_-_All_Real_Accounts.zip',
-    state: 'TX',
-    isZip: true, // flag — not yet auto-extracted; see TODO below
+    label:  'Dallas County, TX',
+    url:    'https://www.dallascad.org/Downloads/Misc/2024_Certified_Values_-_All_Real_Accounts.zip',
+    state:  'TX',
+    isZip:  true,
     mapRow(r) {
       const address = safeStr(
         r['situs_address'] ?? r['SITUS_ADDRESS'] ?? r['property_address'] ?? r['ADDRESS']
       )
-      const city = safeStr(
-        r['situs_city'] ?? r['SITUS_CITY'] ?? r['city'] ?? r['CITY']
-      )
-      const zip = safeStr(r['situs_zip'] ?? r['SITUS_ZIP'] ?? r['zip'] ?? r['ZIP'])
-
+      const city = safeStr(r['situs_city'] ?? r['SITUS_CITY'] ?? r['city'] ?? r['CITY'])
+      const zip  = safeStr(r['situs_zip']  ?? r['SITUS_ZIP']  ?? r['zip']  ?? r['ZIP'])
       if (!address || !city) return null
 
       const marketValue = safeNum(
@@ -174,68 +163,39 @@ const COUNTIES = {
       )
       if (!marketValue) return null
 
-      const ownerName = safeStr(
-        r['owner_name'] ?? r['OWNER_NAME'] ?? r['owner1_name']
-      )
-      const ownerAddr = safeStr(
-        r['owner_address'] ?? r['OWNER_ADDRESS'] ?? r['mail_address']
-      )
-      const ownerState = safeStr(r['owner_state'] ?? r['OWNER_STATE'])
+      const ownerName  = safeStr(r['owner_name']    ?? r['OWNER_NAME']    ?? r['owner1_name'])
+      const ownerAddr  = safeStr(r['owner_address'] ?? r['OWNER_ADDRESS'] ?? r['mail_address'])
+      const ownerState = safeStr(r['owner_state']   ?? r['OWNER_STATE'])
 
       const addr = `${address}, ${city}, TX`
       return {
         id: computeId(addr, city),
-        address,
-        city,
+        address, city,
         state: 'TX',
         zip: zip ?? '',
         estimated_value: marketValue,
-        owner_name: ownerName,
-        owner_mailing_address: ownerAddr,
-        owner_state: ownerState,
-        tax_delinquent: null,
-        lead_type: 'county_record',
-        absentee_owner: null,
-        vacancy_signal: null,
-        inherited: null,
-        loan_balance_estimate: null,
-        days_in_default: null,
-        days_on_market: null,
-        previous_listing_price: null,
-        price_drop_percent: null,
-        price_per_sqft: null,
-        market_avg_price_per_sqft: null,
-        rent_estimate: null,
-        opportunity_score: null,
-        agent_name: null,
-        owner_phone: null,
-        years_owned: null,
+        owner_name: ownerName, owner_mailing_address: ownerAddr, owner_state: ownerState,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null, price_per_sqft: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
       }
     },
   },
 
-  // ── Maricopa County, AZ ───────────────────────────────────────────────────────
-  // Dataset: Maricopa County GIS Open Data parcels
-  // The ArcGIS portal provides CSV exports. A direct CSV URL can be obtained by:
-  //   1. Going to https://data-maricopa.opendata.arcgis.com/
-  //   2. Searching "parcels"
-  //   3. Clicking Download → CSV and copying the URL
-  // Update the url below with the actual download link.
+  // ── Maricopa County, AZ ──────────────────────────────────────────────────────
   maricopa: {
     label: 'Maricopa County, AZ',
-    url: 'https://opendata.arcgis.com/datasets/YOUR_DATASET_ID_HERE.csv',
+    url:   'https://opendata.arcgis.com/datasets/YOUR_DATASET_ID_HERE.csv',
     state: 'AZ',
     mapRow(r) {
       const address = safeStr(
         r['situs_address'] ?? r['SITUS_STADDR'] ?? r['SITUS_ADDR'] ?? r['address']
       )
-      const city = safeStr(
-        r['situs_city'] ?? r['SITUS_CITY'] ?? r['city']
-      )
-      const zip = safeStr(
-        r['situs_zip'] ?? r['SITUS_ZIP'] ?? r['zip']
-      )
-
+      const city = safeStr(r['situs_city'] ?? r['SITUS_CITY'] ?? r['city'])
+      const zip  = safeStr(r['situs_zip']  ?? r['SITUS_ZIP']  ?? r['zip'])
       if (!address || !city) return null
 
       const assessedValue = safeNum(
@@ -244,91 +204,172 @@ const COUNTIES = {
       if (!assessedValue) return null
 
       const sqft = safeNum(r['bldg_area'] ?? r['BLDG_AREA'] ?? r['sq_ft'] ?? r['SQFT'])
-      const pricePerSqft =
-        sqft && sqft > 0 ? Math.round((assessedValue / sqft) * 100) / 100 : null
+      const pricePerSqft = sqft && sqft > 0
+        ? Math.round((assessedValue / sqft) * 100) / 100 : null
 
-      const ownerName = safeStr(
-        r['owner_name'] ?? r['OWNER_NAME'] ?? r['own_name1']
-      )
-      const ownerAddr = safeStr(
-        r['owner_address'] ?? r['MAIL_ADDR'] ?? r['mail_address']
-      )
+      const ownerName = safeStr(r['owner_name'] ?? r['OWNER_NAME'] ?? r['own_name1'])
+      const ownerAddr = safeStr(r['owner_address'] ?? r['MAIL_ADDR'] ?? r['mail_address'])
 
       const addr = `${address}, ${city}, AZ`
       return {
         id: computeId(addr, city),
-        address,
-        city,
+        address, city,
         state: 'AZ',
         zip: zip ?? '',
         estimated_value: assessedValue,
         price_per_sqft: pricePerSqft,
-        owner_name: ownerName,
-        owner_mailing_address: ownerAddr,
-        owner_state: null,
-        tax_delinquent: null,
-        lead_type: 'county_record',
-        absentee_owner: null,
-        vacancy_signal: null,
-        inherited: null,
-        loan_balance_estimate: null,
-        days_in_default: null,
-        days_on_market: null,
-        previous_listing_price: null,
-        price_drop_percent: null,
-        market_avg_price_per_sqft: null,
-        rent_estimate: null,
-        opportunity_score: null,
-        agent_name: null,
-        owner_phone: null,
-        years_owned: null,
+        owner_name: ownerName, owner_mailing_address: ownerAddr, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
       }
     },
   },
 }
 
-// ── Fetch + Stream Parse ───────────────────────────────────────────────────────
+// ── Socrata JSON API processor ────────────────────────────────────────────────
+//
+// Paginates through /resource/<id>.json?$limit=PAGE&$offset=N until
+// no more rows or the optional --limit cap is reached.
 
-async function processCounty(countyKey) {
+async function processCountySocrata(countyKey, rowLimit) {
+  const config    = COUNTIES[countyKey]
+  const PAGE_SIZE = 1000
+  let offset         = 0
+  let totalFetched   = 0
+  let totalUpserted  = 0
+  let totalSkipped   = 0
+  let totalErrors    = 0
+  let lastProgressAt = 0
+
+  const effectiveLimit = rowLimit ?? Infinity
+
+  console.log(`\n── ${config.label} (Socrata JSON API) ${'─'.repeat(20)}`)
+  if (rowLimit) console.log(`  Row limit: ${rowLimit}`)
+  console.log(`  Endpoint: ${config.socrataUrl}`)
+
+  while (totalFetched < effectiveLimit) {
+    const thisPage = Math.min(PAGE_SIZE, effectiveLimit - totalFetched)
+    const url = `${config.socrataUrl}?$limit=${thisPage}&$offset=${offset}`
+
+    process.stdout.write(`  Fetching offset=${offset}… `)
+
+    let res
+    try {
+      res = await fetchWithTimeout(url)
+    } catch (err) {
+      console.error(`\n✗ ${err.message}`)
+      break
+    }
+
+    if (!res.ok) {
+      console.error(`\n✗ HTTP ${res.status} ${res.statusText} at offset=${offset}`)
+      console.error(`  URL: ${url}`)
+      break
+    }
+
+    let page
+    try {
+      page = await res.json()
+    } catch (err) {
+      console.error(`\n✗ Failed to parse JSON response: ${err.message}`)
+      break
+    }
+
+    if (!Array.isArray(page) || page.length === 0) {
+      console.log('no more records.')
+      break
+    }
+
+    console.log(`got ${page.length} rows.`)
+
+    // Map to schema
+    const batch = []
+    for (const row of page) {
+      try {
+        const record = config.mapRow(row)
+        if (record) batch.push(record)
+        else totalSkipped++
+      } catch {
+        totalSkipped++
+      }
+    }
+
+    totalFetched += page.length
+    offset       += page.length
+
+    // Upsert to Supabase
+    if (batch.length > 0) {
+      const { error } = await supabase
+        .from('properties')
+        .upsert(batch, { onConflict: 'id' })
+
+      if (error) {
+        totalErrors++
+        console.error(`  ✗ Upsert error: ${error.message}`)
+      } else {
+        totalUpserted += batch.length
+      }
+    }
+
+    // Progress log every PROGRESS_EVERY rows
+    if (totalFetched - lastProgressAt >= PROGRESS_EVERY || page.length < thisPage) {
+      console.log(
+        `  ── ${totalFetched} fetched | ${totalUpserted} upserted | ${totalSkipped} skipped | ${totalErrors} errors`
+      )
+      lastProgressAt = totalFetched
+    }
+
+    // End of dataset
+    if (page.length < thisPage) break
+  }
+
+  console.log(
+    `\n✓ Done — ${totalUpserted} upserted, ${totalSkipped} skipped, ${totalErrors} errors`
+  )
+}
+
+// ── CSV processor ─────────────────────────────────────────────────────────────
+
+async function processCountyCSV(countyKey, rowLimit) {
   const config = COUNTIES[countyKey]
-  if (!config) {
-    console.error(`Unknown county: ${countyKey}. Options: ${Object.keys(COUNTIES).join(', ')}`)
+
+  console.log(`\n── ${config.label} (CSV) ${'─'.repeat(30)}`)
+  if (rowLimit) console.log(`  Row limit: ${rowLimit}`)
+  console.log(`  Fetching: ${config.url}`)
+  console.log(`  (30s timeout — will abort if server doesn't respond)`)
+
+  let res
+  try {
+    res = await fetchWithTimeout(config.url)
+  } catch (err) {
+    console.error(`✗ ${err.message}`)
     return
   }
 
-  if (config.isZip) {
-    console.warn(
-      `\n⚠  ${config.label}: URL points to a ZIP file.\n` +
-      `   Auto-extraction is not implemented. Extract the CSV manually and re-run,\n` +
-      `   or update the 'url' in the config to point directly to the CSV.\n`
-    )
-    return
-  }
-
-  if (config.url.includes('YOUR_DATASET_ID_HERE')) {
-    console.warn(
-      `\n⚠  ${config.label}: URL not yet configured.\n` +
-      `   Update the 'url' in COUNTIES.${countyKey} with a direct CSV download link.\n`
-    )
-    return
-  }
-
-  console.log(`\n── ${config.label} ─────────────────────────────────`)
-  console.log(`Fetching: ${config.url}`)
-
-  const res = await fetch(config.url)
   if (!res.ok) {
-    console.error(`HTTP ${res.status} fetching ${config.label}: ${res.statusText}`)
+    console.error(`✗ HTTP ${res.status} ${res.statusText}`)
+    console.error(`  The server rejected the request. Check the URL in COUNTIES.${countyKey}.url`)
     return
   }
 
-  const csvText = await res.text()
-  console.log(`Downloaded ${(csvText.length / 1024 / 1024).toFixed(2)} MB — parsing...`)
+  let csvText
+  try {
+    process.stdout.write('  Downloading… ')
+    csvText = await res.text()
+    console.log(`${(csvText.length / 1024 / 1024).toFixed(2)} MB received.`)
+  } catch (err) {
+    console.error(`\n✗ Failed to read response body: ${err.message}`)
+    return
+  }
 
-  // Log first row of headers for debugging / mapping verification
-  const firstNewline = csvText.indexOf('\n')
-  if (firstNewline !== -1) {
-    console.log(`Headers: ${csvText.slice(0, firstNewline).trim()}`)
+  // Log headers for mapping verification
+  const firstNl = csvText.indexOf('\n')
+  if (firstNl !== -1) {
+    console.log(`  Headers: ${csvText.slice(0, firstNl).trim()}`)
   }
 
   const parsed = Papa.parse(csvText, {
@@ -338,75 +379,118 @@ async function processCounty(countyKey) {
   })
 
   if (parsed.errors.length > 0) {
-    console.warn(`Parse warnings (first 3): ${parsed.errors.slice(0, 3).map(e => e.message).join('; ')}`)
+    console.warn(`  Parse warnings: ${parsed.errors.slice(0, 3).map((e) => e.message).join('; ')}`)
   }
 
-  const rows = parsed.data
-  console.log(`Parsed ${rows.length} rows`)
+  const allRows = parsed.data
+  const rows    = rowLimit ? allRows.slice(0, rowLimit) : allRows
+  console.log(`  Parsed ${rows.length} rows${rowLimit ? ` (limited from ${allRows.length})` : ''}.`)
 
-  let processed = 0
-  let upserted = 0
-  let skipped = 0
-  let errors = 0
+  let processed    = 0
+  let upserted     = 0
+  let skipped      = 0
+  let errors       = 0
+  let lastProgress = 0
 
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {
     const rawBatch = rows.slice(i, i + BATCH_SIZE)
+    const mapped   = []
 
-    const mapped = []
     for (const row of rawBatch) {
       try {
         const record = config.mapRow(row)
-        if (record) {
-          mapped.push(record)
-        } else {
-          skipped++
-        }
-      } catch (err) {
+        if (record) mapped.push(record)
+        else skipped++
+      } catch {
         skipped++
       }
     }
 
     processed += rawBatch.length
 
-    if (mapped.length === 0) {
-      process.stdout.write(`\r  Processed ${processed} / ${rows.length} rows  (${skipped} skipped)`)
-      continue
+    if (mapped.length > 0) {
+      const { error } = await supabase
+        .from('properties')
+        .upsert(mapped, { onConflict: 'id' })
+
+      if (error) {
+        errors++
+        console.error(`\n  ✗ Batch error at row ${i}: ${error.message}`)
+      } else {
+        upserted += mapped.length
+      }
     }
 
-    const { error } = await supabase
-      .from('properties')
-      .upsert(mapped, { onConflict: 'id' })
-
-    if (error) {
-      errors++
-      console.error(`\n  Batch error at row ${i}: ${error.message}`)
-    } else {
-      upserted += mapped.length
+    // Progress every PROGRESS_EVERY rows
+    if (processed - lastProgress >= PROGRESS_EVERY || processed === rows.length) {
+      console.log(
+        `  ── ${processed} / ${rows.length} | upserted ${upserted} | skipped ${skipped} | errors ${errors}`
+      )
+      lastProgress = processed
     }
-
-    process.stdout.write(
-      `\r  Processed ${processed} / ${rows.length} rows  |  upserted ${upserted}  |  skipped ${skipped}  |  errors ${errors}`
-    )
   }
 
-  console.log(`\n\nDone — ${upserted} upserted, ${skipped} skipped, ${errors} batch errors`)
+  console.log(`\n✓ Done — ${upserted} upserted, ${skipped} skipped, ${errors} errors`)
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ── Main dispatcher ───────────────────────────────────────────────────────────
+
+async function processCounty(countyKey, rowLimit) {
+  const config = COUNTIES[countyKey]
+  if (!config) {
+    console.error(`✗ Unknown county: "${countyKey}". Available: ${Object.keys(COUNTIES).join(', ')}`)
+    return
+  }
+
+  if (config.isZip) {
+    console.warn(
+      `\n⚠  ${config.label}: source is a ZIP file — auto-extraction not implemented.\n` +
+      `   Extract the CSV manually and update COUNTIES.${countyKey}.url to point to the CSV.`
+    )
+    return
+  }
+
+  if (config.url.includes('YOUR_DATASET_ID_HERE')) {
+    console.warn(
+      `\n⚠  ${config.label}: URL not configured.\n` +
+      `   Update COUNTIES.${countyKey}.url with a direct download link.`
+    )
+    return
+  }
+
+  if (config.useSocrata) {
+    await processCountySocrata(countyKey, rowLimit)
+  } else {
+    await processCountyCSV(countyKey, rowLimit)
+  }
+}
+
+// ── CLI entry ─────────────────────────────────────────────────────────────────
 
 async function main() {
-  const arg = process.argv[2]
+  const args = process.argv.slice(2)
 
-  if (!arg) {
-    console.error(`Usage: node scripts/download-county-data.js <county|all>`)
-    console.error(`Available: ${Object.keys(COUNTIES).join(', ')}, all`)
+  // Parse --limit N
+  const limitIdx = args.indexOf('--limit')
+  const rowLimit = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : null
+  if (rowLimit !== null && (isNaN(rowLimit) || rowLimit < 1)) {
+    console.error('✗ --limit must be a positive integer')
     process.exit(1)
   }
 
-  const targets = arg === 'all' ? Object.keys(COUNTIES) : [arg]
+  // First positional arg (not a flag)
+  const target = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--limit')
+
+  if (!target) {
+    console.error(`Usage: node scripts/download-county-data.js <county|all> [--limit N]`)
+    console.error(`Available counties: ${Object.keys(COUNTIES).join(', ')}`)
+    process.exit(1)
+  }
+
+  const targets = target === 'all' ? Object.keys(COUNTIES) : [target]
 
   for (const county of targets) {
-    await processCounty(county)
+    await processCounty(county, rowLimit ?? null)
   }
 
   console.log('\nAll done.')
