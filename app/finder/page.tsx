@@ -152,9 +152,17 @@ export default function FinderPage() {
   const [searchLeadType, setSearchLeadType] = useState('')
   const [searchMaxResults, setSearchMaxResults] = useState(50)
 
-  // Dynamic city list from Supabase
+  // Dynamic city list from Supabase + preferred city restore
   const [cityOptions, setCityOptions] = useState<string[]>(DEFAULT_CITIES)
   useEffect(() => {
+    try {
+      const preferred = localStorage.getItem('pshq-preferred-city')
+      if (preferred) {
+        setSearchCity(preferred)
+        setWelcomeBackCity(preferred)
+      }
+    } catch { /* ignore */ }
+
     fetch('/api/cities')
       .then((r) => r.json())
       .then((data: { cities?: { city: string }[] }) => {
@@ -171,6 +179,9 @@ export default function FinderPage() {
 
   const resultsRef = useRef<HTMLDivElement>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [showCityGrid, setShowCityGrid] = useState(false)
+  const [showCityDropdown, setShowCityDropdown] = useState(false)
+  const [welcomeBackCity, setWelcomeBackCity] = useState<string | null>(null)
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 300)
@@ -463,7 +474,8 @@ export default function FinderPage() {
 
   const runSearch = () => {
     posthog.capture('signal_finder_searched', { city: searchCity, lead_type: searchLeadType })
-    // Scroll to loading indicator immediately so user sees feedback
+    try { localStorage.setItem('pshq-preferred-city', searchCity) } catch { /* ignore */ }
+    setWelcomeBackCity(null)
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
@@ -488,9 +500,18 @@ export default function FinderPage() {
   }
 
   const handlePopularCity = (city: string) => {
+    try { localStorage.setItem('pshq-preferred-city', city) } catch { /* ignore */ }
+    setWelcomeBackCity(null)
     setSearchCity(city)
     fetchPage(1, { city, lead_type: searchLeadType, limit: searchMaxResults })
   }
+
+  const filteredCityOptions = useMemo(() => {
+    const all = cityOptions.filter((c) => c)
+    if (!searchCity) return all.slice(0, 10)
+    const q = searchCity.toLowerCase()
+    return all.filter((c) => c.toLowerCase().includes(q)).slice(0, 10)
+  }, [searchCity, cityOptions])
 
   const favoritesAsProperty = favorites as unknown as Property[]
   const displayedResults = showSavedOnly
@@ -530,7 +551,7 @@ export default function FinderPage() {
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <div>
             <h1 className={`font-display text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Updated daily across 35 markets</p>
+            <p className="text-xs text-gray-500 mt-0.5">Updated daily · 50,200+ signals across 86 cities</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {favorites.length > 0 && (
@@ -562,86 +583,104 @@ export default function FinderPage() {
           </div>
         </div>
 
-        {/* Market Overview */}
-        <MarketOverview />
-
-        {/* Top Leads */}
-        <TopLeads onRowClick={setSelectedProperty} />
-
-        {/* Popular Cities */}
-        <PopularCities onCityClick={handlePopularCity} />
-
-        {/* Guided Search Card */}
-        <div className={`${card} p-6 mb-8`}>
-          <h2 className={`text-base font-bold mb-4 ${textPrimary}`}>Find Property Signals</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-            <div>
-              <label className={labelClass}>City</label>
-              <select
-                value={searchCity}
-                onChange={(e) => setSearchCity(e.target.value)}
-                className={selectClass}
-              >
-                {cityOptions.map((c) => (
-                  <option key={c} value={c}>
-                    {c === '' ? 'All Cities' : c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Signal Type</label>
-              <select
-                value={searchLeadType}
-                onChange={(e) => setSearchLeadType(e.target.value)}
-                className={selectClass}
-              >
-                {LEAD_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Strategy</label>
-              <select className={selectClass} defaultValue="All Strategies">
-                {STRATEGIES.map((s) => (
-                  <option key={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Per Page</label>
-              <select
-                value={searchMaxResults}
-                onChange={(e) => setSearchMaxResults(Number(e.target.value))}
-                className={selectClass}
-              >
-                {MAX_RESULTS.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
+        {/* Welcome back banner */}
+        {welcomeBackCity && !searched && (
+          <div className="mb-5 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-sm text-blue-300">
+            <svg className="h-4 w-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Welcome back — showing leads for{' '}
+            <span className="font-semibold text-blue-200">{welcomeBackCity}</span>
           </div>
-          <div className="flex items-center gap-3">
+        )}
+
+        {/* City-first search hero */}
+        <div className={`${card} p-6 mb-6`}>
+          <h2 className="text-xl font-bold text-white mb-1">Where are you investing?</h2>
+          <p className="text-sm text-gray-500 mb-5">
+            Search 50,200+ distressed property signals across{' '}
+            {cityOptions.length > 1 ? cityOptions.length - 1 : 86} cities.
+          </p>
+
+          {/* Main search row */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            {/* City typeahead */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchCity}
+                onChange={(e) => { setSearchCity(e.target.value); setShowCityDropdown(true) }}
+                onFocus={() => setShowCityDropdown(true)}
+                onBlur={() => setTimeout(() => setShowCityDropdown(false), 150)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { setShowCityDropdown(false); runSearch() } }}
+                placeholder="City or market — e.g. Phoenix"
+                className="w-full border border-white/10 rounded-lg px-4 py-3 text-sm bg-[#0f172a] text-gray-200 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              />
+              {showCityDropdown && filteredCityOptions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0f1e] border border-white/10 rounded-xl shadow-2xl z-30 max-h-56 overflow-y-auto">
+                  {filteredCityOptions.map((c) => (
+                    <button
+                      key={c}
+                      onMouseDown={() => { setSearchCity(c); setShowCityDropdown(false) }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Signal type */}
+            <select
+              value={searchLeadType}
+              onChange={(e) => setSearchLeadType(e.target.value)}
+              className="sm:w-52 border border-white/10 rounded-lg px-4 py-3 text-sm bg-[#0f172a] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {LEAD_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+
+            {/* Generate Leads */}
             <button
               onClick={runSearch}
               disabled={isLoading}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-8 py-2.5 rounded-lg text-sm transition-colors shadow-lg shadow-blue-600/25"
+              className="sm:w-auto bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-8 py-3 rounded-lg text-sm transition-colors shadow-lg shadow-blue-600/25 whitespace-nowrap"
             >
               {isLoading ? 'Loading…' : 'Generate Leads'}
             </button>
+          </div>
+
+          {/* Popular city pills */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="text-xs text-gray-600 mr-1">Popular:</span>
+            {['Phoenix', 'Miami', 'Dallas', 'Atlanta', 'Chicago', 'Charlotte'].map((c) => (
+              <button
+                key={c}
+                onClick={() => handlePopularCity(c)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  searchCity === c
+                    ? 'bg-blue-600/20 border-blue-500/40 text-blue-300'
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-blue-600/10 hover:border-blue-500/20'
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+
+          {/* Action bar */}
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-white/10">
             <button
               onClick={handleSaveSearch}
-              title="Save current filters as a saved search"
-              className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-blue-600/40"
+              className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border transition-colors bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-blue-600/40"
             >
               <span>＋</span> Save Search
             </button>
             <button
               onClick={() => setShowAdvancedFilters((v) => !v)}
-              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border transition-colors ${
                 showAdvancedFilters
                   ? 'bg-blue-900/30 border-blue-700 text-blue-400'
                   : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
@@ -654,22 +693,38 @@ export default function FinderPage() {
                 </span>
               )}
             </button>
+            <select
+              value={searchMaxResults}
+              onChange={(e) => setSearchMaxResults(Number(e.target.value))}
+              className="border border-white/10 rounded-lg px-3 py-1.5 text-xs bg-[#0f172a] text-gray-400 focus:outline-none"
+            >
+              {MAX_RESULTS.map((n) => (
+                <option key={n} value={n}>{n} per page</option>
+              ))}
+            </select>
+            <button
+              onClick={() => setShowCityGrid((v) => !v)}
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors ml-auto"
+            >
+              {showCityGrid
+                ? '▲ Hide cities'
+                : `Browse all ${cityOptions.length > 1 ? cityOptions.length - 1 : 86} cities →`}
+            </button>
           </div>
 
           {/* Advanced filter panel */}
           {showAdvancedFilters && (
             <div className="mt-4 pt-4 border-t border-white/10">
               <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${textSecondary}`}>
-                Advanced Filters <span className={`font-normal normal-case ${textMuted}`}>(applied client-side to current results)</span>
+                Advanced Filters{' '}
+                <span className={`font-normal normal-case ${textMuted}`}>
+                  (applied client-side to current results)
+                </span>
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className={labelClass}>Min Opportunity Score</label>
-                  <select
-                    value={advMinScore}
-                    onChange={(e) => setAdvMinScore(Number(e.target.value))}
-                    className={selectClass}
-                  >
+                  <select value={advMinScore} onChange={(e) => setAdvMinScore(Number(e.target.value))} className={selectClass}>
                     <option value={0}>Any score</option>
                     <option value={40}>40+ (Moderate)</option>
                     <option value={60}>60+ (Strong)</option>
@@ -678,11 +733,7 @@ export default function FinderPage() {
                 </div>
                 <div>
                   <label className={labelClass}>Max Days on Market</label>
-                  <select
-                    value={advMaxDOM}
-                    onChange={(e) => setAdvMaxDOM(Number(e.target.value))}
-                    className={selectClass}
-                  >
+                  <select value={advMaxDOM} onChange={(e) => setAdvMaxDOM(Number(e.target.value))} className={selectClass}>
                     <option value={0}>Any</option>
                     <option value={30}>≤ 30 days</option>
                     <option value={60}>≤ 60 days</option>
@@ -692,11 +743,7 @@ export default function FinderPage() {
                 </div>
                 <div>
                   <label className={labelClass}>Min Est. Equity</label>
-                  <select
-                    value={advMinEquity}
-                    onChange={(e) => setAdvMinEquity(Number(e.target.value))}
-                    className={selectClass}
-                  >
+                  <select value={advMinEquity} onChange={(e) => setAdvMinEquity(Number(e.target.value))} className={selectClass}>
                     <option value={0}>Any</option>
                     <option value={50000}>$50k+</option>
                     <option value={100000}>$100k+</option>
@@ -715,6 +762,13 @@ export default function FinderPage() {
               )}
             </div>
           )}
+
+          {/* Collapsible city grid */}
+          {showCityGrid && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <MarketOverview />
+            </div>
+          )}
         </div>
 
         {/* Saved Searches */}
@@ -728,147 +782,10 @@ export default function FinderPage() {
         {/* Best Deal Today Banner */}
         <BestDealBanner isDark={isDark} />
 
-        {/* Anchor Nav */}
-        <nav className="sticky top-0 z-30 -mx-4 px-4 py-2 mb-4 bg-[#020617]/90 backdrop-blur-md border-b border-white/5">
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
-            {[
-              { id: 'section-portfolio', label: 'Portfolio Summary' },
-              { id: 'section-recent-deals', label: 'Recent Deals' },
-              { id: 'section-alerts', label: 'Opportunity Alerts' },
-              { id: 'section-market-overview', label: 'Market Overview' },
-              { id: 'results-section', label: 'Results' },
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        {/* Investor Signup Banner */}
-        <InvestorSignupBanner isDark={isDark} />
-
-        {/* Investor Trust Banner */}
-        <InvestorTrustBanner isDark={isDark} />
-
-        {/* Portfolio Summary — user's saved + pipeline deal counts */}
-        <div id="section-portfolio">
-        <PortfolioSummary isDark={isDark} savedAnalysesCount={savedAnalysesCount} />
-        </div>
-
-        {/* Recent Deals You Saved — pro only */}
-        <div id="section-recent-deals"></div>
-        {isPro && (
-          <div className="rounded-xl border mb-5 overflow-hidden bg-[#0f172a] border-white/10">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="text-base">🔖</span>
-                <div>
-                  <h2 className="text-sm font-bold uppercase tracking-wide text-white">
-                    Recent Deals You Saved
-                  </h2>
-                  <p className="text-xs text-gray-400">
-                    Your latest analyzed opportunities
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="/saved-deals"
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                View all saved deals →
-              </Link>
-            </div>
-
-            <div className="p-4">
-              {recentDeals.length === 0 ? (
-                /* Empty state */
-                <div className="text-center py-6">
-                  <p className="text-sm font-medium mb-1 text-gray-300">
-                    No saved deals yet
-                  </p>
-                  <p className="text-xs mb-4 text-gray-500">
-                    Analyze a property to start tracking opportunities.
-                  </p>
-                  <Link
-                    href="/analyze"
-                    className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
-                  >
-                    + Analyze Your First Deal
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {recentDeals.map((deal) => (
-                    <div
-                      key={deal.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 border-white/10 bg-white/5"
-                    >
-                      <p className="text-sm font-medium truncate capitalize text-gray-200">
-                        {deal.address}
-                      </p>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className={`text-sm font-bold ${
-                          deal.score >= 70 ? 'text-emerald-400' :
-                          deal.score >= 40 ? 'text-yellow-400' :
-                          'text-red-400'
-                        }`}>
-                          {deal.score}
-                        </span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
-                          deal.confidence === 'High'
-                            ? 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20'
-                            : deal.confidence === 'Medium'
-                            ? 'bg-yellow-600/10 text-yellow-400 border-yellow-600/20'
-                            : 'bg-gray-600/10 text-gray-400 border-gray-600/20'
-                        }`}>
-                          {deal.confidence}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Portfolio Summary — logged-in users only */}
+        {isLoggedIn && (
+          <PortfolioSummary isDark={isDark} savedAnalysesCount={savedAnalysesCount} />
         )}
-
-        {/* Dashboard Summary */}
-        <DashboardSummary isDark={isDark} />
-
-        {/* Pipeline Summary */}
-        <PipelineSummary isDark={isDark} />
-
-        {/* Saved Deals Panel */}
-        <SavedDealsPanel isDark={isDark} />
-
-        {/* Opportunity Alerts */}
-        <div id="section-alerts">
-        <OpportunityAlerts isDark={isDark} />
-        </div>
-
-        {/* ── Section: Market Overview ──────────────────────────── */}
-        <div id="section-market-overview"></div>
-        <SectionDivider label="Market Overview" isDark={isDark} />
-        <InvestorStats isDark={isDark} />
-        <MarketLeaderboard isDark={isDark} />
-        <MarketTrendCards isDark={isDark} />
-
-        {/* ── Section: Today's Opportunities ───────────────────── */}
-        <SectionDivider label="Today's Opportunities" isDark={isDark} />
-        <DailyOpportunities isDark={isDark} onRowClick={setSelectedProperty} />
-
-        {/* Deal Pipeline Panel */}
-        <DealPipelinePanel isDark={isDark} onRowClick={setSelectedProperty} />
-
-        {/* ── Section: High Score Deals ─────────────────────────── */}
-        <SectionDivider label="High Score Deals" isDark={isDark} />
-        <HotDeals isDark={isDark} />
 
         {/* Loading / Results anchor */}
         <div id="results-section" ref={resultsRef} />
@@ -1204,6 +1121,77 @@ export default function FinderPage() {
             )}
           </div>
         )}
+
+        {/* ── Below-fold sections ─────────────────────────────────── */}
+
+        {/* Recent Deals You Saved — pro only */}
+        {isPro && (
+          <div className="rounded-xl border mb-5 mt-8 overflow-hidden bg-[#0f172a] border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🔖</span>
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-white">Recent Deals You Saved</h2>
+                  <p className="text-xs text-gray-400">Your latest analyzed opportunities</p>
+                </div>
+              </div>
+              <Link href="/saved-deals" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                View all saved deals →
+              </Link>
+            </div>
+            <div className="p-4">
+              {recentDeals.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-sm font-medium mb-1 text-gray-300">No saved deals yet</p>
+                  <p className="text-xs mb-4 text-gray-500">Analyze a property to start tracking opportunities.</p>
+                  <Link href="/analyze" className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors">
+                    + Analyze Your First Deal
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {recentDeals.map((deal) => (
+                    <div key={deal.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 border-white/10 bg-white/5">
+                      <p className="text-sm font-medium truncate capitalize text-gray-200">{deal.address}</p>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-sm font-bold ${deal.score >= 70 ? 'text-emerald-400' : deal.score >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
+                          {deal.score}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
+                          deal.confidence === 'High' ? 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20'
+                          : deal.confidence === 'Medium' ? 'bg-yellow-600/10 text-yellow-400 border-yellow-600/20'
+                          : 'bg-gray-600/10 text-gray-400 border-gray-600/20'
+                        }`}>
+                          {deal.confidence}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <DashboardSummary isDark={isDark} />
+        <PipelineSummary isDark={isDark} />
+        <SavedDealsPanel isDark={isDark} />
+        <OpportunityAlerts isDark={isDark} />
+
+        <SectionDivider label="Market Overview" isDark={isDark} />
+        <InvestorStats isDark={isDark} />
+        <MarketLeaderboard isDark={isDark} />
+        <MarketTrendCards isDark={isDark} />
+
+        <SectionDivider label="Today's Opportunities" isDark={isDark} />
+        <DailyOpportunities isDark={isDark} onRowClick={setSelectedProperty} />
+        <DealPipelinePanel isDark={isDark} onRowClick={setSelectedProperty} />
+
+        <SectionDivider label="High Score Deals" isDark={isDark} />
+        <HotDeals isDark={isDark} />
+
+        <InvestorSignupBanner isDark={isDark} />
+        <InvestorTrustBanner isDark={isDark} />
 
         {/* Signal detail drawer */}
         <SignalDetailDrawer

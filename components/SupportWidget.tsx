@@ -60,7 +60,7 @@ function getReply(input: string, isPro: boolean): string | null {
     return 'With Pro you get: off-market property signals scored 0–100, full owner contact info (phone + email), equity data, coverage across 60+ cities in all 50 states, and weekly updated leads.'
   }
   if (text.includes('how') && (text.includes('work') || text.includes('signal'))) {
-    return 'We analyze 40,000+ property signals across 60+ cities in all 50 states and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
+    return 'We analyze 50,000+ property signals across 60+ cities in all 50 states and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
   }
   if (text.includes('worth') || text.includes('should i') || text.includes('good') || text.includes('better')) {
     return isPro
@@ -179,7 +179,7 @@ function HowItWorksScreen({ onBack, onClose }: { onBack: () => void; onClose: ()
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
-        We analyze <span className="font-semibold text-white">40,000+</span> property signals across{' '}
+        We analyze <span className="font-semibold text-white">50,000+</span> property signals across{' '}
         <span className="font-semibold text-white">60+ cities in all 50 states</span> and score each
         property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.
         <br /><br />
