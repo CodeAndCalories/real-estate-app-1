@@ -2,22 +2,21 @@ name: Zillow Market Data Enrichment
 
 on:
   schedule:
-    - cron: '0 6 * * 0' # Every Sunday at 6am UTC
-  workflow_dispatch: # Allow manual trigger
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
 
 jobs:
   enrich:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
