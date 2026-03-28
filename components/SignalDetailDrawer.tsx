@@ -109,7 +109,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
       : null
   const rentRatio =
     p.rent_estimate != null && p.estimated_value != null && p.estimated_value > 0
-      ? ((p.rent_estimate / p.estimated_value) * 100).toFixed(2) + '%'
+      ? ((p.rent_estimate * 12 / p.estimated_value) * 100).toFixed(2) + '%'
       : null
   const explanations = explainSignal(p)
   const scoreLabel = getScoreLabel(score)
@@ -332,7 +332,7 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
                 isDark={isDark}
               />
               {rentRatio && (
-                <Row label="Rent Yield" value={rentRatio} isDark={isDark} highlight="green" />
+                <Row label="Annual Rent Yield" value={rentRatio} isDark={isDark} highlight="green" />
               )}
               <Row label="Owner" value={p.owner_name ?? '—'} isDark={isDark} />
               <Row label="Agent" value={p.agent_name ?? '—'} isDark={isDark} />
