@@ -360,8 +360,15 @@ export default function FinderPage() {
     })
   }
 
-  // Export All state
+  // Export state
   const [isExportingAll, setIsExportingAll] = useState(false)
+  const [showExportModal, setShowExportModal] = useState(false)
+
+  function buildExportFilename(label: string) {
+    const city = searchCity.trim().toLowerCase().replace(/\s+/g, '-') || 'all'
+    const date = new Date().toISOString().split('T')[0]
+    return `propertysignalhq-leads-${city}-${label}-${date}.csv`
+  }
 
   const totalPages = searchMaxResults > 0 ? Math.ceil(totalMatched / searchMaxResults) : 1
 
@@ -442,14 +449,15 @@ export default function FinderPage() {
   }
 
   const exportAll = async () => {
+    if (!isPro) { setShowExportModal(true); return }
     setIsExportingAll(true)
     try {
       const { signals } = await fetchSignals({
         city: searchCity || undefined,
         lead_type: searchLeadType || undefined,
-        limit: 9999,
+        limit: 1000,
       })
-      exportToCSV(signals as Property[], 'all-signals.csv')
+      exportToCSV(signals as Property[], buildExportFilename('all'))
     } catch {
       // silently ignore
     } finally {
@@ -1026,21 +1034,24 @@ export default function FinderPage() {
                     {isLoggedIn ? (
                       <>
                         <button
-                          onClick={() => exportToCSV(displayedResults, 'signals-page.csv')}
+                          onClick={() => {
+                            if (!isPro) { setShowExportModal(true); return }
+                            exportToCSV(displayedResults, buildExportFilename('page'))
+                          }}
                           className={`text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors ${
                             isDark
                               ? 'bg-gray-700 border-green-700 text-green-400 hover:bg-gray-600'
                               : 'bg-white border-green-600 text-green-700 hover:bg-green-50'
                           }`}
                         >
-                          Export Page
+                          {isPro ? 'Export Page' : '🔒 Export Page'}
                         </button>
                         <button
                           onClick={exportAll}
                           disabled={isExportingAll}
                           className="bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
                         >
-                          {isExportingAll ? 'Exporting…' : 'Export All'}
+                          {isExportingAll ? 'Exporting…' : isPro ? 'Export All' : '🔒 Export All'}
                         </button>
                       </>
                     ) : (
@@ -1196,6 +1207,43 @@ export default function FinderPage() {
           </p>
         </div>
       </div>
+
+      {/* Export upgrade modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative w-full max-w-sm mx-4 rounded-2xl bg-gray-900 border border-white/10 p-8 shadow-2xl text-center">
+            <button
+              onClick={() => setShowExportModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-600/20 mx-auto mb-4">
+              <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold text-white mb-2">Export is a Pro Feature</h2>
+            <p className="text-sm text-gray-400 mb-6">Upgrade to Pro to download leads as CSV — up to 1,000 records per export with owner contact info included.</p>
+            <Link
+              href="/pricing"
+              className="block w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+              onClick={() => setShowExportModal(false)}
+            >
+              Upgrade to Download
+            </Link>
+            <button
+              onClick={() => setShowExportModal(false)}
+              className="mt-3 text-xs text-gray-500 hover:text-gray-400 transition-colors"
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Floating scroll-to-top button */}
       {showScrollTop && (
