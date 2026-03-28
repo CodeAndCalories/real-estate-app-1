@@ -8,6 +8,21 @@ type MarketRow = {
   market_temp_index: number | null
 }
 
+// Module-level cache for Zillow market data — avoids a DB round-trip on every request
+let zillowCache: MarketRow[] | null = null
+let zillowCacheExpiry = 0
+const ZILLOW_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+async function getMarketData(): Promise<MarketRow[]> {
+  if (zillowCache && Date.now() < zillowCacheExpiry) return zillowCache
+  const { data } = await supabaseAdmin.from('zillow_market_data').select('*')
+  zillowCache = (data ?? []) as MarketRow[]
+  zillowCacheExpiry = Date.now() + ZILLOW_CACHE_TTL
+  return zillowCache
+}
+
+const DEFAULT_LIMIT = 50
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city') ?? undefined
@@ -17,14 +32,9 @@ export async function GET(request: NextRequest) {
   const limitParam = searchParams.get('limit')
   const sortParam = searchParams.get('sort')
 
-  const page = pageParam ? parseInt(pageParam, 10) : 1
-
-  // Default limit of 100 when no filters are provided to prevent large payloads
-  const limit = limitParam
-    ? parseInt(limitParam, 10)
-    : !city && !lead_type
-    ? 100
-    : undefined
+  const page = Math.max(1, pageParam ? parseInt(pageParam, 10) : 1)
+  const limit = limitParam ? parseInt(limitParam, 10) : DEFAULT_LIMIT
+  const offset = (page - 1) * limit
 
   // Use admin client to bypass RLS for public property reads
   let query = supabaseAdmin
@@ -51,14 +61,11 @@ export async function GET(request: NextRequest) {
   // Secondary sort for deterministic ordering
   query = query.order('id', { ascending: true })
 
-  if (limit !== undefined) {
-    const offset = (page - 1) * limit
-    query = query.range(offset, offset + limit - 1)
-  }
+  query = query.range(offset, offset + limit - 1)
 
-  const [propertyResult, marketResult] = await Promise.all([
+  const [propertyResult, marketRows] = await Promise.all([
     query,
-    supabaseAdmin.from('zillow_market_data').select('*'),
+    getMarketData(),
   ])
 
   if (propertyResult.error) {
@@ -67,7 +74,7 @@ export async function GET(request: NextRequest) {
 
   // Build city → market data lookup
   const marketMap = new Map<string, MarketRow>()
-  for (const row of (marketResult.data ?? []) as MarketRow[]) {
+  for (const row of marketRows) {
     marketMap.set(row.metro_name, row)
   }
 
@@ -83,10 +90,10 @@ export async function GET(request: NextRequest) {
   })
 
   return NextResponse.json(
-    { total: propertyResult.count ?? signals.length, page, limit: limit ?? null, signals },
+    { total: propertyResult.count ?? signals.length, page, limit, signals },
     {
       headers: {
-        'Cache-Control': 'public, max-age=60',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
       },
     }
   )

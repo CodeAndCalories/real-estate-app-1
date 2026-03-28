@@ -64,7 +64,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Pre-header eyebrow */}
         <p className="text-blue-400/80 text-xs font-mono uppercase tracking-[0.2em] mb-6">
-          Search 60+ Cities · 35,200+ Signals
+          Search 60+ Cities · 40,000+ Signals
         </p>
 
         {/* Main heading */}
@@ -78,7 +78,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300">
-          Access 35,200+ distressed property signals across 60+ cities in all 50 states, powered by real Zillow market data. Find motivated sellers before anyone else.
+          Access 40,000+ distressed property signals across 60+ cities in all 50 states, powered by real Zillow market data. Find motivated sellers before anyone else.
         </p>
 
         {/* CTA row */}
@@ -99,13 +99,13 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Below-CTA count line */}
         <p className="text-gray-400 text-sm mt-4">
-          35,200+ properties analyzed across 60+ cities in all 50 states
+          40,000+ properties analyzed across 60+ cities in all 50 states
         </p>
 
         {/* Trust credibility bar */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           {[
-            { text: '35,200+ Properties' },
+            { text: '40,000+ Properties' },
             { text: '60+ Cities' },
             { text: 'Real Zillow Data' },
             { text: 'Weekly Updates' },

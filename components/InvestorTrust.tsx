@@ -117,7 +117,7 @@ export default function InvestorTrust({ isDark }: Props) {
         {/* Stats row */}
         <div className="rounded-xl border border-white/10 bg-[#0f172a] px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
-            { value: '35,200+', label: 'Property signals',     icon: '📊' },
+            { value: '40,000+', label: 'Property signals',     icon: '📊' },
             { value: '60+',    label: 'Cities · all 50 states', icon: '🏙️' },
             { value: 'Zillow', label: 'Powered market data',  icon: '🎯' },
             { value: 'Weekly', label: 'Data updates',         icon: '🔄' },

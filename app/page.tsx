@@ -70,7 +70,7 @@ export default function HomePage() {
             Start Finding Property Leads Today
           </h2>
           <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
-            Access 35,200+ pre-scored property signals across 60+ cities in all 50 states.
+            Access 40,000+ pre-scored property signals across 60+ cities in all 50 states.
           </p>
           <a
             href="/finder"
