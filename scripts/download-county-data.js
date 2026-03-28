@@ -92,51 +92,47 @@ const COUNTIES = {
   // Socrata endpoint: /resource/<dataset-id>.json?$limit=N&$offset=N
   cook: {
     label:       'Cook County, IL',
-    url:         'https://datacatalog.cookcountyil.gov/api/views/nj4t-kc8j/rows.csv?accessType=DOWNLOAD',
-    socrataUrl:  'https://datacatalog.cookcountyil.gov/resource/nj4t-kc8j.json',
-    useSocrata:  true,  // prefer paginated JSON API over giant CSV
+    // Dataset: Assessor - Parcel Sales (5pge-nu6u)
+    // Fields confirmed: addr, sale_price, est_land, est_bldg, zip_code (not present — derived)
+    url:         'https://datacatalog.cookcountyil.gov/api/views/5pge-nu6u/rows.csv?accessType=DOWNLOAD',
+    socrataUrl:  'https://datacatalog.cookcountyil.gov/resource/5pge-nu6u.json',
+    useSocrata:  true,
     state:       'IL',
     mapRow(r) {
-      const address = safeStr(
-        r['address'] ?? r['Address'] ?? r['PROP_ADDRESS'] ?? r['prop_address']
-      )
-      const city = safeStr(
-        r['city'] ?? r['City'] ?? r['CITY'] ?? r['township_name'] ?? r['Township']
-      )
-      const zip = safeStr(r['zip_code'] ?? r['zip'] ?? r['Zip'] ?? r['ZIP'])
+      // Confirmed field name from API: 'addr'
+      const address = safeStr(r['addr'] ?? r['address'] ?? r['Address'])
+      if (!address) return null
 
-      if (!address || !city) return null
+      // This dataset has no city column — default to Chicago (dominant Cook County city)
+      const city = 'Chicago'
 
-      const salePrice = safeNum(
-        r['sale_price'] ?? r['Sale Price'] ?? r['SALE_PRICE'] ?? r['sale_amt']
-      )
-      const assessedValue = safeNum(
-        r['assessed_value'] ?? r['Assessed Value'] ?? r['tot_assess'] ?? r['mktval']
-      )
+      // Sale price is the primary value; fall back to land + building estimate
+      const salePrice = safeNum(r['sale_price'])
+      const estLand   = safeNum(r['est_land'])
+      const estBldg   = safeNum(r['est_bldg'])
+      const assessedValue = (estLand != null && estBldg != null) ? estLand + estBldg : null
       const estimatedValue = salePrice ?? assessedValue
-      if (!estimatedValue) return null
+      if (!estimatedValue || estimatedValue <= 0) return null
 
-      const ownerName = safeStr(
-        r['taxpayer_name'] ?? r['owner_name'] ?? r['Owner Name'] ?? r['taxpayer1']
-      )
-      const taxDelinqRaw = safeStr(r['tax_delinquent'] ?? r['Tax Delinquent'] ?? '')
-      const taxDelinquent = taxDelinqRaw
-        ? taxDelinqRaw.toLowerCase() === 'true' || taxDelinqRaw === '1'
-        : null
+      // Square footage for price/sqft
+      const sqft = safeNum(r['hd_sf'])
+      const pricePerSqft = sqft && sqft > 0
+        ? Math.round((estimatedValue / sqft) * 100) / 100 : null
 
       const addr = `${address}, ${city}, IL`
       return {
         id: computeId(addr, city),
         address, city,
         state: 'IL',
-        zip: zip ?? '',
+        zip: '',
         estimated_value: estimatedValue,
-        owner_name: ownerName,
-        tax_delinquent: taxDelinquent,
+        price_per_sqft: pricePerSqft,
+        owner_name: null,
+        tax_delinquent: null,
         lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
         loan_balance_estimate: null, days_in_default: null, days_on_market: null,
-        previous_listing_price: null, price_drop_percent: null, price_per_sqft: null,
+        previous_listing_price: null, price_drop_percent: null,
         market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
         agent_name: null, owner_phone: null, owner_mailing_address: null,
         owner_state: null, years_owned: null,
