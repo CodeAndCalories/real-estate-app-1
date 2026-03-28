@@ -38,7 +38,7 @@ export default function StickyCTA({ isDark }: Props) {
           Find Investment Deals
         </a>
         <p className={`text-center text-[10px] mt-2 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-          Free demo · No account needed
+          Free to explore · No account needed
         </p>
       </div>
     </div>

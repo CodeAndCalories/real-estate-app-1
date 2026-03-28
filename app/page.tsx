@@ -70,7 +70,7 @@ export default function HomePage() {
             Start Finding Property Leads Today
           </h2>
           <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
-            Browse 18,000+ pre-scored leads across 30+ major US markets.
+            Access 18,900+ pre-scored property signals across 30 major US markets.
           </p>
           <a
             href="/finder"
@@ -79,7 +79,7 @@ export default function HomePage() {
             Search Leads Now
           </a>
           <p className="text-xs mt-4 text-gray-600">
-            Free demo · No account needed
+            Free to explore · No account needed
           </p>
         </div>
       </section>

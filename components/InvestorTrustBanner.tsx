@@ -5,9 +5,9 @@ type Props = {
 }
 
 const POINTS = [
-  { icon: '🏙️', text: '30+ real estate markets tracked' },
-  { icon: '📊', text: '18,000+ property signals analyzed' },
-  { icon: '⚡', text: 'Daily opportunity scoring engine' },
+  { icon: '🏙️', text: '30 real estate markets covered' },
+  { icon: '📊', text: '18,900+ property signals analyzed' },
+  { icon: '🌡️', text: 'Zillow-powered market data' },
 ]
 
 export default function InvestorTrustBanner({ isDark }: Props) {

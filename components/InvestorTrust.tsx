@@ -64,23 +64,23 @@ export default function InvestorTrust({ isDark }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
               <div className="text-2xl mb-3">📉</div>
-              <h3 className="text-white font-semibold text-lg mb-2">Find Distressed Owners Early</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Signal Scoring 0–100</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Surface pre-foreclosure, tax-delinquent, and vacant properties before they hit the market.
+                Every property is scored on price drops, equity, distress signals, and rental yield so you focus on the best deals first.
               </p>
             </div>
             <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
-              <div className="text-2xl mb-3">💰</div>
-              <h3 className="text-white font-semibold text-lg mb-2">Identify Underpriced Properties</h3>
+              <div className="text-2xl mb-3">🌡️</div>
+              <h3 className="text-white font-semibold text-lg mb-2">Zillow Market Temperature</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Our signal engine scores every property 0–100 based on price, equity, and market position.
+                See real-time market heat, median home values, and typical rents powered by Zillow Research data updated weekly.
               </p>
             </div>
             <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300">
               <div className="text-2xl mb-3">⚡</div>
-              <h3 className="text-white font-semibold text-lg mb-2">Act Before the Competition</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Owner Contact &amp; CSV Export</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Get owner contact info and deal data instantly — no MLS access required.
+                Get skip-traced owner contact info, analyze any deal instantly, and export leads to CSV for your dialer or CRM.
               </p>
             </div>
           </div>
@@ -117,10 +117,10 @@ export default function InvestorTrust({ isDark }: Props) {
         {/* Stats row */}
         <div className="rounded-xl border border-white/10 bg-[#0f172a] px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
-            { value: '18,000+', label: 'Signals analyzed', icon: '📊' },
-            { value: '20',      label: 'Markets covered',  icon: '🏙️' },
-            { value: '3',    label: 'Lead types tracked', icon: '🎯' },
-            { value: '100%', label: 'Free to explore',  icon: '🆓' },
+            { value: '18,900+', label: 'Property signals',     icon: '📊' },
+            { value: '30',     label: 'Markets covered',      icon: '🏙️' },
+            { value: 'Zillow', label: 'Powered market data',  icon: '🎯' },
+            { value: 'Weekly', label: 'Data updates',         icon: '🔄' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-2xl mb-1 leading-none">{stat.icon}</div>

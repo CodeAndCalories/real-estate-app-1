@@ -78,7 +78,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300">
-          Discover distressed owners, price drops, and high-equity opportunities across major markets.
+          Access 18,900+ distressed property signals across 30 markets, powered by real Zillow market data. Find motivated sellers before anyone else.
         </p>
 
         {/* CTA row */}
@@ -105,9 +105,10 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         {/* Trust credibility bar */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           {[
-            { text: '30+ markets tracked' },
-            { text: '18,000+ signals' },
-            { text: 'Built for investors' },
+            { text: '18,900+ Properties' },
+            { text: '30 Markets' },
+            { text: 'Real Zillow Data' },
+            { text: 'Weekly Updates' },
           ].map((item) => (
             <div key={item.text} className="flex items-center gap-1.5">
               <span className="text-blue-400 font-bold text-xs">✓</span>
@@ -118,7 +119,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Proof line */}
         <p className="text-xs text-gray-400 text-center mt-3">
-          🔥 4,300+ high-score deals identified across 30+ markets
+          Updated weekly with fresh Zillow-powered market data
         </p>
 
         {/* FOMO live feed */}

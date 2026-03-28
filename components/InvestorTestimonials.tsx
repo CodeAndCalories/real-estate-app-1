@@ -131,10 +131,10 @@ export default function InvestorTestimonials({ isDark }: Props) {
             : 'bg-blue-50 border-blue-200'
         }`}>
           {[
-            { value: '18,000+', label: 'Signals analyzed' },
-            { value: '20',      label: 'Markets covered' },
-            { value: '3',    label: 'Lead types tracked' },
-            { value: '100%', label: 'Free to explore' },
+            { value: '18,900+', label: 'Property signals' },
+            { value: '30',     label: 'Markets covered' },
+            { value: 'Zillow', label: 'Powered market data' },
+            { value: 'Weekly', label: 'Data updates' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className={`text-3xl font-black leading-none ${

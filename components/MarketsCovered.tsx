@@ -1,47 +1,61 @@
 'use client'
 
-import propertiesData from '@/lib/data/properties.json'
-import type { RawProperty } from '@/lib/types/property'
+import { useEffect, useState } from 'react'
 
 type Props = {
   isDark: boolean
 }
 
+type CityCount = { city: string; count: number }
+
 const CITY_META: Record<string, { emoji: string; state: string }> = {
-  'Miami':         { emoji: '🌴', state: 'FL' },
-  'Dallas':        { emoji: '⭐', state: 'TX' },
-  'Phoenix':       { emoji: '☀️', state: 'AZ' },
-  'Atlanta':       { emoji: '🍑', state: 'GA' },
-  'Chicago':       { emoji: '🌬️', state: 'IL' },
-  'Cleveland':     { emoji: '🏙️', state: 'OH' },
-  'Los Angeles':   { emoji: '🎬', state: 'CA' },
-  'New York':      { emoji: '🗽', state: 'NY' },
-  'Tampa':         { emoji: '🌊', state: 'FL' },
-  'Nashville':     { emoji: '🎸', state: 'TN' },
-  'Jacksonville':  { emoji: '🏖️', state: 'FL' },
-  'Denver':        { emoji: '🏔️', state: 'CO' },
-  'Houston':       { emoji: '🚀', state: 'TX' },
-  'San Antonio':   { emoji: '🌵', state: 'TX' },
+  'Miami':           { emoji: '🌴', state: 'FL' },
+  'Dallas':          { emoji: '⭐', state: 'TX' },
+  'Phoenix':         { emoji: '☀️', state: 'AZ' },
+  'Atlanta':         { emoji: '🍑', state: 'GA' },
+  'Chicago':         { emoji: '🌬️', state: 'IL' },
+  'Cleveland':       { emoji: '🏙️', state: 'OH' },
+  'Los Angeles':     { emoji: '🎬', state: 'CA' },
+  'New York':        { emoji: '🗽', state: 'NY' },
+  'Tampa':           { emoji: '🌊', state: 'FL' },
+  'Nashville':       { emoji: '🎸', state: 'TN' },
+  'Jacksonville':    { emoji: '🏖️', state: 'FL' },
+  'Denver':          { emoji: '🏔️', state: 'CO' },
+  'Houston':         { emoji: '🚀', state: 'TX' },
+  'San Antonio':     { emoji: '🌵', state: 'TX' },
+  'Austin':          { emoji: '🎵', state: 'TX' },
+  'Seattle':         { emoji: '☕', state: 'WA' },
+  'Charlotte':       { emoji: '🏦', state: 'NC' },
+  'Indianapolis':    { emoji: '🏎️', state: 'IN' },
+  'Columbus':        { emoji: '🏙️', state: 'OH' },
+  'Baltimore':       { emoji: '🦀', state: 'MD' },
+  'Memphis':         { emoji: '🎵', state: 'TN' },
+  'Raleigh':         { emoji: '🌲', state: 'NC' },
+  'Pittsburgh':      { emoji: '🌉', state: 'PA' },
+  'Las Vegas':       { emoji: '🎰', state: 'NV' },
+  'Salt Lake City':  { emoji: '🏔️', state: 'UT' },
+  'Kansas City':     { emoji: '🥩', state: 'MO' },
+  'Detroit':         { emoji: '🚗', state: 'MI' },
+  'Minneapolis':     { emoji: '❄️', state: 'MN' },
+  'Portland':        { emoji: '🌿', state: 'OR' },
+  'New Orleans':     { emoji: '🎺', state: 'LA' },
 }
 
-const CITY_ORDER = [
-  'Miami', 'Dallas', 'Phoenix', 'Atlanta', 'Chicago', 'Cleveland', 'Los Angeles', 'New York',
-  'Tampa', 'Nashville', 'Jacksonville', 'Denver', 'Houston', 'San Antonio',
-]
-
 export default function MarketsCovered({ isDark }: Props) {
-  const data = propertiesData as unknown as RawProperty[]
+  const [cities, setCities] = useState<CityCount[]>([])
+  const [total, setTotal] = useState(0)
 
-  const cities = CITY_ORDER.map((city) => {
-    const count = data.filter((p) => p.city.toLowerCase() === city.toLowerCase()).length
-    const hotLeads = data
-      .filter((p) => p.city.toLowerCase() === city.toLowerCase())
-      .filter((p) => (p.days_on_market ?? 0) > 90).length
-    const meta = CITY_META[city] || { emoji: '🏙️', state: '' }
-    return { city, count, hotLeads, ...meta }
-  })
+  useEffect(() => {
+    fetch('/api/cities')
+      .then((r) => r.json())
+      .then((data: { total: number; cities: CityCount[] }) => {
+        setCities(data.cities ?? [])
+        setTotal(data.total ?? 0)
+      })
+      .catch(() => {})
+  }, [])
 
-  const totalLeads = cities.reduce((sum, c) => sum + c.count, 0)
+  if (cities.length === 0) return null
 
   return (
     <section className="py-20 px-6 bg-[#020617]">
@@ -53,51 +67,49 @@ export default function MarketsCovered({ isDark }: Props) {
             Markets Covered
           </span>
           <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Active Leads Across 30+ Major US Markets
+            Active Leads Across {cities.length} Major US Markets
           </h2>
           <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            Fresh leads updated regularly across every major region.
+            Updated weekly with Zillow-powered market data across every major region.
           </p>
         </div>
 
         {/* Summary stat */}
         <div className="text-center mb-10">
           <span className={`inline-block text-2xl font-black tabular-nums ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-            {totalLeads.toLocaleString()}+
+            {total.toLocaleString()}+
           </span>
           <span className={`ml-2 text-base font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            active leads across 30+ major US markets
+            active leads across {cities.length} major US markets
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          {cities.map(({ city, count, hotLeads, emoji, state }) => (
-            <div
-              key={city}
-              className={`rounded-xl border p-5 transition-all duration-300 hover:-translate-y-1 ${
-                isDark
-                  ? 'bg-gray-800 border-gray-700 shadow-lg shadow-black/30 hover:shadow-xl hover:shadow-blue-950/50 hover:border-blue-800'
-                  : 'bg-gray-50 border-gray-100 shadow-md shadow-gray-200/80 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-200'
-              }`}
-            >
-              <div className="text-2xl mb-2">{emoji}</div>
-              <div className={`text-base font-bold mb-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                {city}
-              </div>
-              <div className={`text-xs mb-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{state}</div>
-              <div className={`text-2xl font-black tabular-nums ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                {count}
-              </div>
-              <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                leads available
-              </div>
-              {hotLeads > 0 && (
-                <div className={`mt-2 text-xs font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>
-                  🔥 {hotLeads} hot lead{hotLeads !== 1 ? 's' : ''}
+          {cities.map(({ city, count }) => {
+            const meta = CITY_META[city] ?? { emoji: '🏙️', state: '' }
+            return (
+              <div
+                key={city}
+                className={`rounded-xl border p-5 transition-all duration-300 hover:-translate-y-1 ${
+                  isDark
+                    ? 'bg-gray-800 border-gray-700 shadow-lg shadow-black/30 hover:shadow-xl hover:shadow-blue-950/50 hover:border-blue-800'
+                    : 'bg-gray-50 border-gray-100 shadow-md shadow-gray-200/80 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-200'
+                }`}
+              >
+                <div className="text-2xl mb-2">{meta.emoji}</div>
+                <div className={`text-base font-bold mb-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {city}
                 </div>
-              )}
-            </div>
-          ))}
+                <div className={`text-xs mb-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{meta.state}</div>
+                <div className={`text-2xl font-black tabular-nums ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                  {count.toLocaleString()}
+                </div>
+                <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  leads available
+                </div>
+              </div>
+            )
+          })}
         </div>
 
         <div className="mt-8 text-center">

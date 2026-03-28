@@ -103,14 +103,14 @@ export default function PricingSection({ isDark }: Props) {
                   Unlock Owner Contacts →
                 </a>
 
-                {/* Sample CSV download */}
+                {/* Preview CSV download */}
                 <div className="text-center mt-2">
                   <a
                     href="/sample-leads.csv"
                     download
                     className="text-sm text-gray-400 hover:text-gray-300 underline transition-colors"
                   >
-                    ⬇ Download Sample Leads (CSV)
+                    ⬇ Download Preview Leads (CSV)
                   </a>
                 </div>
               </>
