@@ -333,7 +333,9 @@ export default function FinderPage() {
       })
   }, [isPro, user?.email])
 
-  const handleSaveSearch = () => {
+  const [saveSearchToast, setSaveSearchToast] = useState<string | null>(null)
+
+  const handleSaveSearch = async () => {
     const next = {
       ...(searchCity ? { city: searchCity } : {}),
       ...(advMinScore > 0 ? { minScore: advMinScore } : {}),
@@ -341,6 +343,26 @@ export default function FinderPage() {
       ...(advMaxDOM > 0 ? { maxDaysOnMarket: advMaxDOM } : {}),
     }
     setSavedSearches((prev) => saveSearch(prev, next))
+
+    // Persist to Supabase for logged-in users (enables email alerts)
+    if (isLoggedIn) {
+      try {
+        const { data: { session } } = await supabaseBrowser.auth.getSession()
+        if (session?.access_token) {
+          await fetch('/api/saved-searches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+            body: JSON.stringify({
+              city: searchCity || null,
+              lead_type: searchLeadType || null,
+              min_score: advMinScore || 0,
+            }),
+          })
+          setSaveSearchToast('Search saved — you\'ll get daily alerts when new deals match.')
+          setTimeout(() => setSaveSearchToast(null), 4000)
+        }
+      } catch { /* silent — localStorage save already succeeded */ }
+    }
   }
 
   const handleApplySearch = (filters: SavedSearch) => {
@@ -1242,6 +1264,13 @@ export default function FinderPage() {
               Maybe later
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Save search toast */}
+      {saveSearchToast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-medium shadow-lg shadow-emerald-600/30 animate-fade-in">
+          {saveSearchToast}
         </div>
       )}
 

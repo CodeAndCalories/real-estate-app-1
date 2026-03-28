@@ -157,6 +157,13 @@ export default function Navbar() {
                       <span>⭐</span> Favorites
                     </Link>
                   )}
+                  <Link
+                    href="/alerts"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
+                  >
+                    <span>🔔</span> Alerts
+                  </Link>
                   {isPro && (
                     <button
                       onClick={handleManageSubscription}
