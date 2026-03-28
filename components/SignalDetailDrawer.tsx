@@ -338,6 +338,47 @@ export default function SignalDetailDrawer({ property, onClose, isSaved, onToggl
               <Row label="Agent" value={p.agent_name ?? '—'} isDark={isDark} />
             </div>
           </div>
+
+          {/* Market Context */}
+          {(p.market_temp != null || p.market_typical_rent != null || p.market_median_value != null) && (
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
+              Market Context
+            </p>
+            <div className="rounded-lg border divide-y text-sm overflow-hidden border-white/10 divide-white/10">
+              {p.market_temp != null && (
+                <Row
+                  label="Market Temp"
+                  value={`${Math.round(p.market_temp)}/100 ${p.market_temp > 60 ? '\uD83D\uDD25' : p.market_temp >= 40 ? '\u2600\uFE0F' : '\u2744\uFE0F'}`}
+                  isDark={isDark}
+                  highlight={p.market_temp > 60 ? 'red' : undefined}
+                />
+              )}
+              {p.market_typical_rent != null && (
+                <Row
+                  label="Market Rent"
+                  value={`${fmt(Math.round(p.market_typical_rent), '$')}/mo`}
+                  isDark={isDark}
+                />
+              )}
+              {p.market_median_value != null && p.estimated_value != null && p.estimated_value > 0 && (
+                <Row
+                  label="Your Value vs Market"
+                  value={(() => {
+                    const diff = ((p.estimated_value - p.market_median_value) / p.market_median_value) * 100
+                    const sign = diff >= 0 ? '+' : ''
+                    return `${sign}${diff.toFixed(0)}% ${diff >= 0 ? 'above' : 'below'} median`
+                  })()}
+                  isDark={isDark}
+                  highlight={(() => {
+                    const diff = ((p.estimated_value - p.market_median_value!) / p.market_median_value!) * 100
+                    return diff >= 0 ? 'green' : 'red'
+                  })()}
+                />
+              )}
+            </div>
+          </div>
+          )}
         </div>
 
         {/* Footer */}

@@ -71,6 +71,10 @@ export type Property = {
   vacancy_signal: boolean | null
   inherited: boolean | null
   absentee_owner: boolean | null
+  // Zillow market context (enriched by API)
+  market_median_value?: number | null
+  market_typical_rent?: number | null
+  market_temp?: number | null
 }
 
 export type Filters = {

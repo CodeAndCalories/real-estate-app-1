@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+type MarketRow = {
+  metro_name: string
+  median_home_value: number | null
+  typical_rent: number | null
+  market_temp_index: number | null
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city') ?? undefined
@@ -49,17 +56,34 @@ export async function GET(request: NextRequest) {
     query = query.range(offset, offset + limit - 1)
   }
 
-  const { data, count, error } = await query
+  const [propertyResult, marketResult] = await Promise.all([
+    query,
+    supabaseAdmin.from('zillow_market_data').select('*'),
+  ])
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  if (propertyResult.error) {
+    return NextResponse.json({ error: propertyResult.error.message }, { status: 500 })
   }
 
-  // Strip created_at so the response shape matches the Signal type
-  const signals = (data ?? []).map(({ created_at: _, ...rest }) => rest)
+  // Build city → market data lookup
+  const marketMap = new Map<string, MarketRow>()
+  for (const row of (marketResult.data ?? []) as MarketRow[]) {
+    marketMap.set(row.metro_name, row)
+  }
+
+  // Enrich each property with market data
+  const signals = (propertyResult.data ?? []).map(({ created_at: _, ...rest }) => {
+    const market = marketMap.get(rest.city as string)
+    return {
+      ...rest,
+      market_median_value: market?.median_home_value ?? null,
+      market_typical_rent: market?.typical_rent ?? null,
+      market_temp: market?.market_temp_index ?? null,
+    }
+  })
 
   return NextResponse.json(
-    { total: count ?? signals.length, page, limit: limit ?? null, signals },
+    { total: propertyResult.count ?? signals.length, page, limit: limit ?? null, signals },
     {
       headers: {
         'Cache-Control': 'public, max-age=60',
