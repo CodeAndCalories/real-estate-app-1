@@ -253,8 +253,9 @@ export default function AnalyzePage() {
 
   const handleShare = async () => {
     if (!result) return
-    const city = cityFromAddress(address)
-    const text = `Just found a ${result.score}/100 signal score deal in ${city} 🔥\nAnalyzed on PropertySignalHQ\npropertysignalhq.com/analyze`
+    const rawCity = extractCityName(address)
+    const city = rawCity && rawCity !== address.trim() ? rawCity : 'my market'
+    const text = `Just found a ${result.score}/100 signal score deal in ${city} 🔥\nAnalyzed on PropertySignalHQ — 40,000+ distressed property signals across all 50 states.\npropertysignalhq.com/analyze`
     try {
       await navigator.clipboard.writeText(text)
     } catch { /* ignore — clipboard may be unavailable */ }
