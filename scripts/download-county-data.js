@@ -27,7 +27,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-const BATCH_SIZE       = 500
+const BATCH_SIZE       = 100
 const FETCH_TIMEOUT_MS = 30_000  // 30 seconds per request
 const PROGRESS_EVERY   = 1000    // log a line every N rows processed
 
@@ -106,6 +106,14 @@ const COUNTIES = {
       // This dataset has no city column — default to Chicago (dominant Cook County city)
       const city = 'Chicago'
 
+      // Use Cook County parcel number (pin / pin14) as the unique ID.
+      // It is already unique per parcel so it avoids intra-batch hash collisions.
+      // Fall back to hash of address+zip if the pin field is missing.
+      const rawPin = safeStr(r['pin'] ?? r['pin14'] ?? r['PIN'] ?? r['PIN14'])
+      const id = rawPin
+        ? `cook-${rawPin.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, IL`, city)
+
       // Sale price is the primary value; fall back to land + building estimate
       const salePrice = safeNum(r['sale_price'])
       const estLand   = safeNum(r['est_land'])
@@ -119,9 +127,8 @@ const COUNTIES = {
       const pricePerSqft = sqft && sqft > 0
         ? Math.round(estimatedValue / sqft) : null
 
-      const addr = `${address}, ${city}, IL`
       return {
-        id: computeId(addr, city),
+        id,
         address, city,
         zip: '',
         estimated_value: Math.round(estimatedValue),
@@ -230,7 +237,7 @@ const COUNTIES = {
 
 async function processCountySocrata(countyKey, rowLimit) {
   const config    = COUNTIES[countyKey]
-  const PAGE_SIZE = 1000
+  const PAGE_SIZE = 100
   let offset         = 0
   let totalFetched   = 0
   let totalUpserted  = 0
