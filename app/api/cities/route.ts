@@ -13,6 +13,6 @@ export async function GET() {
 
   return NextResponse.json(
     { total, cities },
-    { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' } }
+    { headers: { 'Cache-Control': 'no-store' } }
   )
 }
