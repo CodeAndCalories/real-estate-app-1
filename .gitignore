@@ -22,3 +22,6 @@ coverage
 
 # logs
 *.log
+
+# Large generated data files (data lives in Supabase)
+lib/data/generated-signals.json
