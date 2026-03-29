@@ -12,13 +12,14 @@ function initials(email: string): string {
   return email.charAt(0).toUpperCase()
 }
 
-const NAV_LINKS = [
-  { href: '/#how-it-works', label: 'How It Works'  },
-  { href: '/#pricing',      label: 'Pricing'       },
-  { href: '/cities',        label: 'Markets'       },
-  { href: '/analyze',       label: 'Analyze Deal'  },
-  { href: '/#faq',          label: 'FAQ'           },
-  { href: '/contact',       label: 'Contact'       },
+const NAV_LINKS: { href: string; label: string; highlight?: boolean }[] = [
+  { href: '/#how-it-works',  label: 'How It Works'  },
+  { href: '/#pricing',       label: 'Pricing'       },
+  { href: '/cities',         label: 'Markets'       },
+  { href: '/analyze',        label: 'Analyze Deal'  },
+  { href: '/market-report',  label: 'Free Report',  highlight: true },
+  { href: '/#faq',           label: 'FAQ'           },
+  { href: '/contact',        label: 'Contact'       },
 ]
 
 export default function Navbar() {
@@ -87,7 +88,11 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm text-gray-400 hover:text-white transition-colors duration-150"
+              className={
+                l.highlight
+                  ? 'text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors duration-150'
+                  : 'text-sm text-gray-400 hover:text-white transition-colors duration-150'
+              }
             >
               {l.label}
             </Link>

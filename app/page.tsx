@@ -11,6 +11,7 @@ import SiteFooter from '@/components/SiteFooter'
 import InvestorTestimonials from '@/components/InvestorTestimonials'
 import InvestorTrust from '@/components/InvestorTrust'
 import StickyCTA from '@/components/StickyCTA'
+import FreeReportSection from '@/components/FreeReportSection'
 
 export default function HomePage() {
   const { isDark } = useThemeMode()
@@ -53,17 +54,22 @@ export default function HomePage() {
         <InvestorTestimonials isDark={isDark} />
       </div>
 
-      {/* 7. Pricing */}
+      {/* 7. Free Report CTA */}
+      <div className="border-t border-white/5">
+        <FreeReportSection />
+      </div>
+
+      {/* 8. Pricing */}
       <div className="border-t border-white/5" id="pricing">
         <PricingSection isDark={isDark} />
       </div>
 
-      {/* 8. FAQ */}
+      {/* 9. FAQ */}
       <div className="border-t border-white/5">
         <FAQSection isDark={isDark} />
       </div>
 
-      {/* 9. Final CTA */}
+      {/* 10. Final CTA */}
       <section className="border-t border-white/5 py-12 md:py-20 px-4 sm:px-6 text-center bg-[#0a0f1e]">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
