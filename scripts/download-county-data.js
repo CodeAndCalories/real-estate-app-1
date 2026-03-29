@@ -27,7 +27,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-const BATCH_SIZE       = 100
+const BATCH_SIZE       = 50
 const FETCH_TIMEOUT_MS = 30_000  // 30 seconds per request
 const PROGRESS_EVERY   = 1000    // log a line every N rows processed
 
@@ -301,17 +301,29 @@ async function processCountySocrata(countyKey, rowLimit) {
     totalFetched += page.length
     offset       += page.length
 
+    // Deduplicate by ID within this batch before upserting
+    const unique = [...new Map(batch.map(r => [r.id, r])).values()]
+    const dupeCount = batch.length - unique.length
+    if (dupeCount > 0) {
+      totalSkipped += dupeCount
+    }
+
+    // Debug: show sample IDs from the very first batch
+    if (offset === unique.length || offset === page.length) {
+      console.log('  Sample IDs:', unique.slice(0, 3).map(r => r.id))
+    }
+
     // Upsert to Supabase
-    if (batch.length > 0) {
+    if (unique.length > 0) {
       const { error } = await supabase
         .from('properties')
-        .upsert(batch, { onConflict: 'id' })
+        .upsert(unique, { onConflict: 'id' })
 
       if (error) {
         totalErrors++
         console.error(`  ✗ Upsert error: ${error.message}`)
       } else {
-        totalUpserted += batch.length
+        totalUpserted += unique.length
       }
     }
 
