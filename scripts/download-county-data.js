@@ -69,6 +69,24 @@ function safeStr(val) {
   return s === '' ? null : s
 }
 
+/**
+ * Resolves an ArcGIS Hub slug to a FeatureServer /query URL by calling the
+ * opendata.arcgis.com v3 datasets API. Used when the exact org/service URL
+ * is not known ahead of time.
+ */
+async function resolveArcGISHubFeatureServer(slug) {
+  const apiUrl = `https://opendata.arcgis.com/api/v3/datasets?filter[slug]=${encodeURIComponent(slug)}`
+  const res = await fetchWithTimeout(apiUrl, ARCGIS_TIMEOUT_MS)
+  if (!res.ok) throw new Error(`ArcGIS Hub API returned HTTP ${res.status} for slug: ${slug}`)
+  const data = await res.json()
+  const item = data?.data?.[0]
+  if (!item) throw new Error(`No dataset found in ArcGIS Hub for slug: ${slug}`)
+  const serviceUrl = item?.attributes?.url
+  if (!serviceUrl) throw new Error(`ArcGIS Hub response missing service URL for slug: ${slug}`)
+  // attributes.url is the FeatureServer layer URL (e.g. .../FeatureServer/0)
+  return serviceUrl.endsWith('/query') ? serviceUrl : `${serviceUrl}/query`
+}
+
 /** fetch() with an AbortController timeout. Throws descriptive errors. */
 async function fetchWithTimeout(url, timeoutMs = FETCH_TIMEOUT_MS) {
   const controller = new AbortController()
@@ -143,12 +161,13 @@ const COUNTIES = {
   },
 
   // ── Dallas County, TX ────────────────────────────────────────────────────────
-  // Socrata JSON API — Dallas Tax Parcels (y9i7-p37p), ~497K records
-  // Note: Dallas CAD does not publish assessed values via public API.
-  // This dataset has owner name, address, and parcel ID.
+  // Socrata JSON API — Dallas Open Data (v9bs-epjb). Data may be stale.
+  // Note: DCAD ZIP files at dcad.org/data have fresher assessed values but require
+  // manual download. This Socrata endpoint is the only non-ZIP public option.
+  // Previous endpoint y9i7-p37p is now superseded by v9bs-epjb.
   dallas: {
     label:      'Dallas County, TX',
-    socrataUrl: 'https://www.dallasopendata.com/resource/y9i7-p37p.json',
+    socrataUrl: 'https://www.dallasopendata.com/resource/v9bs-epjb.json',
     useSocrata: true,
     state:      'TX',
     mapRow(r) {
@@ -189,37 +208,37 @@ const COUNTIES = {
   },
 
   // ── Maricopa County, AZ ──────────────────────────────────────────────────────
-  // ArcGIS REST — Maricopa County Assessor, ~1.75M parcels
-  // Endpoint: gis.mcassessor.maricopa.gov — confirmed live, fields verified
+  // ArcGIS FeatureServer — Secured Master dataset, ~1.75M parcels
+  // Hub: https://data-maricopa.opendata.arcgis.com/datasets/936bbba512bf4c368618cc6e79e64668
   maricopa: {
     label:       'Maricopa County, AZ',
-    arcgisUrl:   'https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query',
-    arcgisFields: 'APN,OWNER_NAME,PHYSICAL_ADDRESS,PHYSICAL_CITY,PHYSICAL_ZIP,FCV_CUR,LPV_CUR',
+    arcgisUrl:   'https://services1.arcgis.com/mpVYz37anSdrK4d8/arcgis/rest/services/Secured_Master/FeatureServer/0/query',
+    arcgisFields: 'PARCEL,OWNER_NAME,SITUS_ADDRESS,SITUS_CITY,SITUS_ZIP,FULL_CASH_VALUE,ASSESSED_VALUE,LIVING_AREA',
     useArcGIS:   true,
     state:       'AZ',
     mapRow(r) {
-      const address = safeStr(r['PHYSICAL_ADDRESS'])
-      const city    = safeStr(r['PHYSICAL_CITY'])
-      const zip     = safeStr(r['PHYSICAL_ZIP'])
+      const address = safeStr(r['SITUS_ADDRESS'])
+      const city    = safeStr(r['SITUS_CITY'])
+      const zip     = safeStr(r['SITUS_ZIP'])
       if (!address || !city) return null
 
       // Full Cash Value is the primary market value indicator
-      const fcv = safeNum(r['FCV_CUR'])
-      const lpv = safeNum(r['LPV_CUR'])
-      const assessedValue = fcv ?? lpv
-      if (!assessedValue || assessedValue <= 0) return null
+      const fcv = safeNum(r['FULL_CASH_VALUE'])
+      const acv = safeNum(r['ASSESSED_VALUE'])
+      const estimatedValue = fcv ?? acv
+      if (!estimatedValue || estimatedValue <= 0) return null
 
       const ownerName = safeStr(r['OWNER_NAME'])
-      const apn       = safeStr(r['APN'])
-      const id = apn
-        ? `maricopa-${apn.replace(/[^a-zA-Z0-9]/g, '')}`
+      const parcel    = safeStr(r['PARCEL'])
+      const id = parcel
+        ? `maricopa-${parcel.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, AZ`, city)
 
       return {
         id,
         address, city,
         zip: zip ?? '',
-        estimated_value: Math.round(assessedValue),
+        estimated_value: Math.round(estimatedValue),
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
         tax_delinquent: null, lead_type: 'county_record',
@@ -274,26 +293,26 @@ const COUNTIES = {
   },
 
   // ── Fulton County, GA (Atlanta) ──────────────────────────────────────────────
-  // ArcGIS MapServer — Fulton County PropertyMapViewer, ~372K parcels
-  // Note: city/zip not in this layer; defaults to 'Atlanta'
+  // ArcGIS Hub — Tax Parcels 2025, ~372K parcels
+  // Hub: https://gisdata.fultoncountyga.gov/datasets/fulcogis::tax-parcels-2025/about
+  // Feature server URL is resolved dynamically from the Hub slug at runtime.
   fulton: {
     label:        'Fulton County, GA',
-    arcgisUrl:    'https://gismaps.fultoncountyga.gov/arcgispub2/rest/services/PropertyMapViewer/PropertyMapViewer/MapServer/11/query',
-    arcgisFields: 'ParcelID,Address,Owner,TotAppr,TotAssess',
+    hubSlug:      'fulcogis::tax-parcels-2025',
+    arcgisFields: 'PARCEL_ID,OWNER,SITUS_ADDR,SITUS_CITY,SITUS_ZIP,APPRAISED_VALUE,ASSESSED_VALUE',
     useArcGIS:    true,
     state:        'GA',
     mapRow(r) {
-      const address = safeStr(r['Address'])
+      const address = safeStr(r['SITUS_ADDR'])
+      const city    = safeStr(r['SITUS_CITY']) ?? 'Atlanta'
+      const zip     = safeStr(r['SITUS_ZIP'])
       if (!address) return null
 
-      // City/ZIP not available in this layer — Fulton County is primarily Atlanta
-      const city = 'Atlanta'
-
-      const appraisedValue = safeNum(r['TotAppr']) ?? safeNum(r['TotAssess'])
+      const appraisedValue = safeNum(r['APPRAISED_VALUE']) ?? safeNum(r['ASSESSED_VALUE'])
       if (!appraisedValue || appraisedValue <= 0) return null
 
-      const ownerName = safeStr(r['Owner'])
-      const parcelId  = safeStr(r['ParcelID'])
+      const ownerName = safeStr(r['OWNER'])
+      const parcelId  = safeStr(r['PARCEL_ID'])
       const id = parcelId
         ? `fulton-${parcelId.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, GA`, city)
@@ -301,7 +320,7 @@ const COUNTIES = {
       return {
         id,
         address, city,
-        zip: '',
+        zip: zip ?? '',
         estimated_value: Math.round(appraisedValue),
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
@@ -316,26 +335,25 @@ const COUNTIES = {
   },
 
   // ── King County, WA (Seattle) ────────────────────────────────────────────────
-  // ArcGIS MapServer — King County parcel address + property info, ~635K parcels
+  // Socrata JSON API — King County Parcel + Value (2kfd-2c3u), ~635K parcels
   // Note: owner name withheld per WA RCW 42.56.070(9) privacy policy
   king: {
     label:        'King County, WA',
-    arcgisUrl:    'https://gisdata.kingcounty.gov/arcgis/rest/services/OpenDataPortal/property__parcel_address_area/MapServer/1722/query',
-    arcgisFields: 'PIN,ADDR_FULL,CTYNAME,ZIP5,TAX_LNDVAL,TAX_IMPR',
-    useArcGIS:    true,
+    socrataUrl:   'https://data.kingcounty.gov/resource/2kfd-2c3u.json',
+    useSocrata:   true,
     state:        'WA',
     mapRow(r) {
-      const address = safeStr(r['ADDR_FULL'])
-      const city    = safeStr(r['CTYNAME'])
-      const zip     = safeStr(r['ZIP5'])
+      const address = safeStr(r['addr_full'])
+      const city    = safeStr(r['ctyname'])
+      const zip     = safeStr(r['zip5'])
       if (!address || !city) return null
 
-      const landVal = safeNum(r['TAX_LNDVAL']) ?? 0
-      const imprVal = safeNum(r['TAX_IMPR'])   ?? 0
+      const landVal = safeNum(r['tax_lndval']) ?? 0
+      const imprVal = safeNum(r['tax_impr'])   ?? 0
       const totalVal = landVal + imprVal
       if (totalVal <= 0) return null
 
-      const pin = safeStr(r['PIN'])
+      const pin = safeStr(r['pin'])
       const id  = pin
         ? `king-${pin.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, WA`, city)
@@ -563,12 +581,26 @@ async function processCountyArcGIS(countyKey, rowLimit) {
   let lastProgressAt = 0
 
   const effectiveLimit = rowLimit ?? Infinity
-  const baseUrl        = config.arcgisUrl
   const fields         = config.arcgisFields ?? '*'
 
-  console.log(`\n── ${config.label} (ArcGIS REST) ${'─'.repeat(20)}`)
-  if (rowLimit) console.log(`  Row limit: ${rowLimit}`)
-  console.log(`  Endpoint: ${baseUrl}`)
+  // Resolve the feature server URL — either from config or by looking up the Hub slug
+  let baseUrl = config.arcgisUrl
+  if (!baseUrl && config.hubSlug) {
+    console.log(`\n── ${config.label} (ArcGIS REST) ${'─'.repeat(20)}`)
+    if (rowLimit) console.log(`  Row limit: ${rowLimit}`)
+    console.log(`  Resolving feature server URL from ArcGIS Hub slug: ${config.hubSlug}`)
+    try {
+      baseUrl = await resolveArcGISHubFeatureServer(config.hubSlug)
+      console.log(`  Resolved: ${baseUrl}`)
+    } catch (err) {
+      console.error(`✗ Could not resolve Hub slug "${config.hubSlug}": ${err.message}`)
+      return
+    }
+  } else {
+    console.log(`\n── ${config.label} (ArcGIS REST) ${'─'.repeat(20)}`)
+    if (rowLimit) console.log(`  Row limit: ${rowLimit}`)
+    console.log(`  Endpoint: ${baseUrl}`)
+  }
 
   while (totalFetched < effectiveLimit) {
     const thisPage = Math.min(PAGE_SIZE, effectiveLimit - totalFetched)
