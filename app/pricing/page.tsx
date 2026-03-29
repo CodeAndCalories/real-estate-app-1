@@ -24,20 +24,25 @@ const FREE_FEATURES = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-[#020617]">
 
       {/* Top bar */}
-      <div className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
+      <div className="border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-sm shadow-blue-200 group-hover:bg-blue-700 transition-colors">
-              P
-            </span>
-            <span className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-              PropertySignal<span className="text-blue-600">HQ</span>
+            <svg
+              width="32" height="32" viewBox="0 0 40 40" fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="group-hover:opacity-80 transition-opacity"
+            >
+              <path d="M12 32V8H22C26.4183 8 30 11.5817 30 16C30 20.4183 26.4183 24 22 24H18.5L12 32Z" fill="white"/>
+              <path d="M10 26L18 18" stroke="#020617" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+            <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+              PropertySignal<span className="text-blue-400">HQ</span>
             </span>
           </Link>
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
             ← Back
           </Link>
         </div>
@@ -47,13 +52,13 @@ export default function PricingPage() {
 
         {/* Heading */}
         <div className="text-center mb-16">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-blue-50 text-blue-600">
+          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">
             Pricing
           </span>
-          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4 leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
             Find More Deals.<br className="hidden sm:block" /> Pay Less Than One Deal Is Worth.
           </h1>
-          <p className="text-lg text-gray-500 max-w-xl mx-auto">
+          <p className="text-lg text-gray-400 max-w-xl mx-auto">
             One flat plan. Everything you need to find, analyze, and close off-market opportunities.
           </p>
         </div>
@@ -62,33 +67,33 @@ export default function PricingPage() {
         <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
 
           {/* Free card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-8 flex flex-col">
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Free</p>
+          <div className="rounded-2xl border border-white/10 bg-[#0a0f1e] p-8 flex flex-col">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Free</p>
             <div className="flex items-end gap-1.5 mb-2">
-              <span className="text-4xl font-black text-gray-900 leading-none">$0</span>
-              <span className="text-sm text-gray-400 mb-1.5">/ forever</span>
+              <span className="text-4xl font-black text-white leading-none">$0</span>
+              <span className="text-sm text-gray-500 mb-1.5">/ forever</span>
             </div>
             <p className="text-sm text-gray-500 mb-7">Explore the platform with no commitment.</p>
 
             <ul className="space-y-2.5 mb-8 flex-1">
               {FREE_FEATURES.map((f) => (
                 <li key={f} className="flex items-start gap-2.5">
-                  <span className="text-gray-400 mt-0.5 shrink-0">✓</span>
-                  <span className="text-sm text-gray-600">{f}</span>
+                  <span className="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                  <span className="text-sm text-gray-400">{f}</span>
                 </li>
               ))}
             </ul>
 
             <Link
               href="/finder"
-              className="block w-full text-center font-bold text-sm py-3 rounded-xl border border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all"
+              className="block w-full text-center font-bold text-sm py-3 rounded-xl border border-white/10 text-gray-300 hover:border-white/20 hover:bg-white/5 transition-all"
             >
               Browse Free
             </Link>
           </div>
 
           {/* Pro card */}
-          <div className="rounded-2xl border border-blue-500 bg-blue-600 p-8 flex flex-col relative shadow-2xl shadow-blue-300/40">
+          <div className="rounded-2xl border border-blue-500 bg-blue-600 p-8 flex flex-col relative shadow-2xl shadow-blue-500/20">
             {/* Badge */}
             <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blue-600 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
               Most Popular
@@ -133,32 +138,42 @@ export default function PricingPage() {
         {/* Trust row */}
         <div className="mt-14 flex flex-wrap justify-center gap-8 text-center">
           {[
-            { icon: '🔒', label: 'Secure checkout', sub: 'Powered by Lemon Squeezy' },
-            { icon: '↩️', label: '14-day refund policy', sub: 'No questions asked' },
-            { icon: '⚡', label: 'Instant access', sub: 'Start in seconds' },
+            { icon: '🔒', label: 'Secure checkout',     sub: 'Powered by Stripe' },
+            { icon: '↩️', label: 'No contracts, cancel anytime', sub: 'Cancel your subscription at any time' },
+            { icon: '⚡', label: 'Instant access',       sub: 'Start in seconds'   },
           ].map((t) => (
             <div key={t.label} className="flex flex-col items-center gap-1">
               <span className="text-2xl">{t.icon}</span>
-              <p className="text-sm font-semibold text-gray-800">{t.label}</p>
-              <p className="text-xs text-gray-400">{t.sub}</p>
+              <p className="text-sm font-semibold text-gray-300">{t.label}</p>
+              <p className="text-xs text-gray-500">{t.sub}</p>
             </div>
           ))}
         </div>
 
         {/* FAQ strip */}
-        <div className="mt-16 max-w-xl mx-auto space-y-5">
-          <h2 className="text-lg font-black text-gray-900 text-center mb-6">Common questions</h2>
+        <div className="mt-16 max-w-xl mx-auto space-y-4">
+          <h2 className="text-lg font-black text-white text-center mb-6">Common questions</h2>
           {[
-            { q: 'Can I cancel anytime?', a: 'Yes. Cancel from your Lemon Squeezy dashboard at any time — no penalties or lock-in.' },
-            { q: "What payment methods are accepted?", a: "All major credit and debit cards via Lemon Squeezy's secure checkout." },
-            { q: 'Is there a free trial?', a: 'The free tier lets you browse the full signal database before you commit to Pro.' },
+            {
+              q: 'Can I cancel anytime?',
+              a: 'Yes. Cancel from your account settings at any time — no penalties or lock-in.',
+            },
+            {
+              q: 'What payment methods are accepted?',
+              a: "All major credit and debit cards via Stripe's secure checkout.",
+            },
+            {
+              q: 'Is there a free trial?',
+              a: 'The free tier lets you browse the full signal database before you commit to Pro.',
+            },
           ].map((item) => (
-            <div key={item.q} className="border border-gray-200 rounded-xl p-5">
-              <p className="text-sm font-semibold text-gray-800 mb-1">{item.q}</p>
-              <p className="text-sm text-gray-500">{item.a}</p>
+            <div key={item.q} className="border border-white/10 bg-[#0a0f1e] rounded-xl p-5">
+              <p className="text-sm font-semibold text-white mb-1">{item.q}</p>
+              <p className="text-sm text-gray-400">{item.a}</p>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   )

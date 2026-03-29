@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import PDFDocument from 'pdfkit'
 import { Resend } from 'resend'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend     = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAIL = 'axigamingclips@gmail.com'
 const FROM_EMAIL  = 'noreply@propertysignalhq.com'
+const SITE_URL    = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://propertysignalhq.com'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -25,196 +25,294 @@ interface MarketRow {
 }
 
 interface ReportData {
-  city:       string
-  date:       string
-  totalCount: number
-  avgScore:   number | null
-  properties: PropertyRow[]
-  market:     MarketRow | null
+  city:         string
+  date:         string
+  recipientEmail: string
+  totalCount:   number
+  avgScore:     number | null
+  properties:   PropertyRow[]
+  market:       MarketRow | null
 }
 
-// ── PDF builder ───────────────────────────────────────────────────────────────
+// ── HTML report builder ───────────────────────────────────────────────────────
 
-function buildPdf(data: ReportData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 0, size: 'LETTER' })
-    const chunks: Buffer[] = []
-    doc.on('data',  (c: Buffer) => chunks.push(c))
-    doc.on('end',   ()         => resolve(Buffer.concat(chunks)))
-    doc.on('error', reject)
+function buildHtmlReport(data: ReportData): string {
+  const { city, date, recipientEmail, totalCount, avgScore, properties, market } = data
 
-    const W      = 612   // letter width  (points)
-    const H      = 792   // letter height (points)
-    const M      = 48    // body margin
-    const NAVY   = '#0f172a'
-    const SLATE  = '#1e293b'
-    const LIGHT  = '#f1f5f9'
-    const MUTED  = '#94a3b8'
-    const BODY   = '#334155'
-    const WHITE  = '#ffffff'
-    const BLUE   = '#60a5fa'
-    const STRIPE = '#f8fafc'
+  const tempLabel = (t: number | null) => {
+    if (t == null) return '—'
+    if (t >= 70)   return 'Hot 🔥'
+    if (t >= 40)   return 'Warm 🌡'
+    return 'Cool ❄'
+  }
 
-    // ── Header band ──────────────────────────────────────────────────────────
-    doc.rect(0, 0, W, 88).fill(NAVY)
+  const fmtUSD = (n: number | null) =>
+    n != null ? `$${Math.round(n).toLocaleString()}` : '—'
 
-    doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(22)
-       .text('PropertySignal', M, 26, { continued: true })
-    doc.fillColor(BLUE).text('HQ')
+  const medianStr = market?.median_home_value != null
+    ? `$${Math.round(market.median_home_value / 1000)}K`
+    : '—'
+  const rentStr   = market?.typical_rent != null
+    ? `$${Math.round(market.typical_rent).toLocaleString()}/mo`
+    : '—'
+  const tempStr   = tempLabel(market?.market_temp_index ?? null)
 
-    doc.fillColor(MUTED).font('Helvetica').fontSize(10)
-       .text(
-         `${data.city} Market Report  ·  Generated ${data.date}`,
-         M, 54, { width: W - M * 2 },
-       )
+  const scoreClass = (s: number | null) => {
+    if (s == null) return ''
+    if (s >= 70)   return 'score-high'
+    if (s >= 40)   return 'score-med'
+    return 'score-low'
+  }
 
-    // ── Market Overview ───────────────────────────────────────────────────────
-    let y = 108
+  const tableRows = properties.length > 0
+    ? properties.map(p => {
+        const addr  = (p.address  ?? '—').replace(/</g, '&lt;')
+        const lt    = (p.lead_type ?? '—').replace(/_/g, ' ')
+        const sc    = p.opportunity_score ?? null
+        const val   = fmtUSD(p.estimated_value)
+        const dom   = p.days_on_market != null ? `${p.days_on_market}d` : '—'
+        return `<tr>
+          <td>${addr}</td>
+          <td>${lt}</td>
+          <td><span class="badge ${scoreClass(sc)}">${sc ?? '—'}</span></td>
+          <td>${val}</td>
+          <td>${dom}</td>
+        </tr>`
+      }).join('\n')
+    : `<tr><td colspan="5" class="empty">No scored properties found for this city yet.</td></tr>`
 
-    doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(13)
-       .text('Market Overview', M, y)
-    y += 22
+  const year = new Date().getFullYear()
 
-    const tempLabel = (t: number | null) => {
-      if (t == null) return '—'
-      if (t >= 70)   return 'Hot 🔥'
-      if (t >= 40)   return 'Warm'
-      return 'Cool'
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PropertySignalHQ — ${city} Market Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      padding: 32px 24px 80px;
+    }
+    .page { max-width: 860px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header {
+      background: #0f172a;
+      color: white;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .logo { font-size: 20px; font-weight: 800; }
+    .logo em { color: #60a5fa; font-style: normal; }
+    .logo-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+    .header-right { text-align: right; }
+    .header-right h2 { font-size: 17px; font-weight: 700; color: #f8fafc; }
+    .header-right p { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #64748b;
+      margin: 0 0 10px;
     }
 
-    const stats = [
-      {
-        label: 'Total Signals',
-        value: data.totalCount > 0 ? data.totalCount.toLocaleString() : '—',
-      },
-      {
-        label: 'Avg Score',
-        value: data.avgScore != null ? `${data.avgScore}/100` : '—',
-      },
-      {
-        label: 'Market Temp',
-        value: tempLabel(data.market?.market_temp_index ?? null),
-      },
-      {
-        label: 'Median Value',
-        value: data.market?.median_home_value != null
-          ? `$${Math.round(data.market.median_home_value / 1000)}K`
-          : '—',
-      },
-      {
-        label: 'Typical Rent',
-        value: data.market?.typical_rent != null
-          ? `$${data.market.typical_rent.toLocaleString()}/mo`
-          : '—',
-      },
-    ]
+    /* ── Stats grid ── */
+    .stats { margin-bottom: 20px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-label { font-size: 10px; color: #94a3b8; margin-bottom: 5px; }
+    .stat-value { font-size: 17px; font-weight: 800; color: #0f172a; }
 
-    const gap  = 8
-    const boxW = (W - M * 2 - gap * (stats.length - 1)) / stats.length
-    const boxH = 56
-
-    stats.forEach((stat, i) => {
-      const bx = M + i * (boxW + gap)
-      doc.roundedRect(bx, y, boxW, boxH, 4).fill(LIGHT)
-      doc.fillColor('#64748b').font('Helvetica').fontSize(7.5)
-         .text(stat.label, bx + 4, y + 9, { width: boxW - 8, align: 'center' })
-      doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(14)
-         .text(stat.value, bx + 4, y + 24, { width: boxW - 8, align: 'center' })
-    })
-
-    y += boxH + 24
-
-    // ── Top 10 table ─────────────────────────────────────────────────────────
-    doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(13)
-       .text('Top 10 Opportunities', M, y)
-    y += 18
-
-    // Disclaimer line
-    doc.fillColor('#94a3b8').font('Helvetica').fontSize(8)
-       .text('Owner contact info available on Pro plan — upgrade at propertysignalhq.com/pricing', M, y)
-    y += 14
-
-    const cols = [
-      { label: 'Address',     x: M,            w: 210 },
-      { label: 'Lead Type',   x: M + 214,      w: 90  },
-      { label: 'Score',       x: M + 308,      w: 46  },
-      { label: 'Est. Value',  x: M + 358,      w: 84  },
-      { label: 'Days on Mkt', x: M + 446,      w: 70  },
-    ]
-
-    // Header row
-    doc.rect(M, y, W - M * 2, 20).fill(SLATE)
-    cols.forEach(col => {
-      doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(8)
-         .text(col.label, col.x + 4, y + 6, { width: col.w - 8 })
-    })
-    y += 20
-
-    // Data rows
-    const rowH = 20
-    const rows = data.properties.length > 0 ? data.properties : []
-
-    rows.forEach((prop, i) => {
-      doc.rect(M, y, W - M * 2, rowH).fill(i % 2 === 0 ? STRIPE : LIGHT)
-
-      const addr = (prop.address ?? '—').length > 38
-        ? (prop.address ?? '').slice(0, 35) + '…'
-        : (prop.address ?? '—')
-      const lt   = (prop.lead_type ?? '—').replace(/_/g, ' ')
-      const sc   = prop.opportunity_score != null ? String(prop.opportunity_score) : '—'
-      const val  = prop.estimated_value   != null
-        ? `$${Number(prop.estimated_value).toLocaleString()}`
-        : '—'
-      const dom  = prop.days_on_market    != null ? `${prop.days_on_market}d` : '—'
-
-      const cells = [addr, lt, sc, val, dom]
-      cols.forEach((col, ci) => {
-        doc.fillColor(BODY).font('Helvetica').fontSize(8)
-           .text(cells[ci], col.x + 4, y + 6, { width: col.w - 8 })
-      })
-      y += rowH
-    })
-
-    if (rows.length === 0) {
-      doc.rect(M, y, W - M * 2, 40).fill(STRIPE)
-      doc.fillColor(MUTED).font('Helvetica').fontSize(10)
-         .text('No scored properties found for this city yet.', M, y + 14, {
-           width: W - M * 2, align: 'center',
-         })
-      y += 40
+    /* ── Table ── */
+    .table-section { margin-bottom: 20px; }
+    .disclaimer { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #1e293b; }
+    thead th {
+      padding: 9px 11px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #e2e8f0;
+      letter-spacing: .04em;
+    }
+    tbody tr:nth-child(odd)  { background: #fff; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td {
+      padding: 8px 11px;
+      font-size: 12px;
+      color: #334155;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    td.empty {
+      text-align: center;
+      color: #94a3b8;
+      padding: 24px;
     }
 
-    // ── Footer band ───────────────────────────────────────────────────────────
-    const footerY = H - 56
-    doc.rect(0, footerY, W, 56).fill(NAVY)
+    /* ── Score badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 2px 6px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .score-high { background: #dcfce7; color: #166534; }
+    .score-med  { background: #fef9c3; color: #854d0e; }
+    .score-low  { background: #fee2e2; color: #991b1b; }
 
-    doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(9)
-       .text(
-         'Upgrade to Pro for owner contact info and unlimited access',
-         M, footerY + 10,
-         { width: W - M * 2, align: 'center' },
-       )
-    doc.fillColor(BLUE).font('Helvetica').fontSize(9)
-       .text(
-         'propertysignalhq.com/pricing',
-         M, footerY + 24,
-         { width: W - M * 2, align: 'center' },
-       )
-    doc.fillColor('#475569').font('Helvetica').fontSize(7.5)
-       .text(
-         `© ${new Date().getFullYear()} PropertySignalHQ · Data updated daily`,
-         M, footerY + 40,
-         { width: W - M * 2, align: 'center' },
-       )
+    /* ── Footer ── */
+    .footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 18px 24px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .footer strong { color: #f1f5f9; }
+    .footer a { color: #60a5fa; text-decoration: none; }
+    .footer .fine { font-size: 10px; color: #475569; margin-top: 8px; }
 
-    doc.end()
-  })
+    /* ── Print toolbar (hidden on print) ── */
+    .toolbar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+    .btn {
+      padding: 11px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37,99,235,.35);
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #94a3b8;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .header, .footer { border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="logo">PropertySignal<em>HQ</em></div>
+      <div class="logo-sub">Market Intelligence Report</div>
+    </div>
+    <div class="header-right">
+      <h2>${city} Market Report</h2>
+      <p>Generated ${date}</p>
+      <p>propertysignalhq.com</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <p class="section-title">Market Overview</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Signals</div>
+        <div class="stat-value">${totalCount.toLocaleString()}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Score</div>
+        <div class="stat-value">${avgScore != null ? `${avgScore}/100` : '—'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Market Temp</div>
+        <div class="stat-value">${tempStr}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Median Value</div>
+        <div class="stat-value">${medianStr}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Typical Rent</div>
+        <div class="stat-value">${rentStr}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <p class="section-title">Top 10 Opportunities</p>
+    <p class="disclaimer">Owner contact info (phone, mailing address) available on Pro plan — upgrade at propertysignalhq.com/pricing</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Lead Type</th>
+          <th>Score</th>
+          <th>Est. Value</th>
+          <th>Days on Market</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p><strong>Upgrade to Pro for owner contact info and unlimited access</strong></p>
+    <p><a href="${SITE_URL}/pricing">${SITE_URL}/pricing</a> &nbsp;·&nbsp; Full access from $39/month</p>
+    <p class="fine">© ${year} PropertySignalHQ · Data updated daily · Generated for ${recipientEmail}</p>
+  </div>
+
+</div>
+<div class="toolbar">
+  <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
+  <button class="btn btn-primary" onclick="window.print()">🖨&nbsp; Save as PDF</button>
+</div>
+</body>
+</html>`
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // ── Parse + validate body ────────────────────────────────────────────────
+  // ── Parse + validate ─────────────────────────────────────────────────────
   let body: unknown
   try { body = await req.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
@@ -222,12 +320,8 @@ export async function POST(req: NextRequest) {
 
   const { email, city } = (body as Record<string, string>)
   if (!email?.trim() || !city?.trim()) {
-    return NextResponse.json(
-      { error: 'email and city are required' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: 'email and city are required' }, { status: 400 })
   }
-
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(email.trim())) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
@@ -237,159 +331,128 @@ export async function POST(req: NextRequest) {
   const cleanEmail = email.trim().toLowerCase()
 
   try {
+    // ── Save subscriber ────────────────────────────────────────────────────
+    const subResult = await supabaseAdmin
+      .from('email_subscribers')
+      .upsert({ email: cleanEmail }, { onConflict: 'email' })
+    if (subResult.error) {
+      console.error('[market-report] email_subscribers upsert error:', subResult.error)
+    }
 
-  // ── Save subscriber ──────────────────────────────────────────────────────
-  const subResult = await supabaseAdmin
-    .from('email_subscribers')
-    .upsert({ email: cleanEmail }, { onConflict: 'email' })
-  if (subResult.error) {
-    console.error('[market-report] email_subscribers upsert error:', subResult.error)
-  }
+    // ── Top 10 properties ─────────────────────────────────────────────────
+    const propResult = await supabaseAdmin
+      .from('properties')
+      .select('address, lead_type, opportunity_score, estimated_value, days_on_market')
+      .ilike('city', cleanCity)
+      .not('opportunity_score', 'is', null)
+      .order('opportunity_score', { ascending: false })
+      .limit(10)
+    if (propResult.error) {
+      console.error('[market-report] properties query error:', propResult.error)
+    }
 
-  // ── Fetch top 10 properties ──────────────────────────────────────────────
-  const propResult = await supabaseAdmin
-    .from('properties')
-    .select('address, lead_type, opportunity_score, estimated_value, days_on_market')
-    .ilike('city', cleanCity)
-    .not('opportunity_score', 'is', null)
-    .order('opportunity_score', { ascending: false })
-    .limit(10)
-  if (propResult.error) {
-    console.error('[market-report] properties query error:', propResult.error)
-  }
-  const properties = propResult.data
+    // ── City stats ────────────────────────────────────────────────────────
+    const statsResult = await supabaseAdmin
+      .from('properties')
+      .select('opportunity_score', { count: 'exact', head: false })
+      .ilike('city', cleanCity)
+      .not('opportunity_score', 'is', null)
+    if (statsResult.error) {
+      console.error('[market-report] stats query error:', statsResult.error)
+    }
 
-  // ── City-level stats ─────────────────────────────────────────────────────
-  const statsResult = await supabaseAdmin
-    .from('properties')
-    .select('opportunity_score', { count: 'exact', head: false })
-    .ilike('city', cleanCity)
-    .not('opportunity_score', 'is', null)
-  if (statsResult.error) {
-    console.error('[market-report] stats query error:', statsResult.error)
-  }
-  const totalCount = statsResult.count
-  const scoredRows = statsResult.data
-
-  const avgScore =
-    scoredRows && scoredRows.length > 0
+    const totalCount = statsResult.count ?? 0
+    const scoredRows = statsResult.data ?? []
+    const avgScore   = scoredRows.length > 0
       ? Math.round(
-          scoredRows.reduce((s, r) => s + (r.opportunity_score as number), 0) /
-          scoredRows.length,
+          scoredRows.reduce((s, r) => s + (r.opportunity_score as number), 0) / scoredRows.length,
         )
       : null
 
-  // ── Zillow market data ───────────────────────────────────────────────────
-  const marketResult = await supabaseAdmin
-    .from('zillow_market_data')
-    .select('metro_name, median_home_value, typical_rent, market_temp_index')
-    .ilike('metro_name', `%${cleanCity}%`)
-    .limit(1)
-  if (marketResult.error) {
-    console.error('[market-report] zillow_market_data query error:', marketResult.error)
-  }
-  const market = (marketResult.data as MarketRow[] | null)?.[0] ?? null
+    // ── Zillow market data ─────────────────────────────────────────────────
+    const marketResult = await supabaseAdmin
+      .from('zillow_market_data')
+      .select('metro_name, median_home_value, typical_rent, market_temp_index')
+      .ilike('metro_name', `%${cleanCity}%`)
+      .limit(1)
+    if (marketResult.error) {
+      console.error('[market-report] zillow_market_data query error:', marketResult.error)
+    }
 
-  // ── DEBUG: return JSON so we can verify all queries work ─────────────────
-  // TODO: remove this block once confirmed working, restore PDF response below
-  return NextResponse.json({
-    _debug:          true,
-    city:            cleanCity,
-    totalCount:      totalCount ?? 0,
-    avgScore,
-    propertiesCount: properties?.length ?? 0,
-    propertiesSample: (properties ?? []).slice(0, 2),
-    market,
-    subscriberError: subResult.error?.message ?? null,
-    propertiesError: propResult.error?.message ?? null,
-    statsError:      statsResult.error?.message ?? null,
-    marketError:     marketResult.error?.message ?? null,
-  })
+    const market = (marketResult.data as MarketRow[] | null)?.[0] ?? null
 
-  // ── Build PDF ────────────────────────────────────────────────────────────
-  const date = new Date().toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  })
+    // ── Build HTML report ──────────────────────────────────────────────────
+    const date = new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    })
 
-  const pdfBuffer = await buildPdf({
-    city:       cleanCity,
-    date,
-    totalCount: totalCount ?? 0,
-    avgScore,
-    properties: (properties as PropertyRow[] | null) ?? [],
-    market,
-  })
+    const html = buildHtmlReport({
+      city:           cleanCity,
+      date,
+      recipientEmail: cleanEmail,
+      totalCount,
+      avgScore,
+      properties:     (propResult.data as PropertyRow[] | null) ?? [],
+      market,
+    })
 
-  // ── Send emails (non-blocking — don't fail the response on email error) ──
-  const reportUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://propertysignalhq.com'}/market-report`
-
-  try {
-    await Promise.allSettled([
-      // Email to the requester
+    // ── Send emails (non-blocking) ────────────────────────────────────────
+    Promise.allSettled([
       resend.emails.send({
         from:    FROM_EMAIL,
         to:      cleanEmail,
         subject: `Your ${cleanCity} Market Report is Ready 🏠`,
         html: `
           <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#020617;color:#e2e8f0;padding:32px;border-radius:12px">
-            <h1 style="color:#ffffff;font-size:22px;margin-bottom:8px">
+            <h1 style="color:#fff;font-size:22px;margin-bottom:8px">
               Your <span style="color:#60a5fa">${cleanCity}</span> Market Report is Ready
             </h1>
-            <p style="color:#94a3b8;margin-bottom:24px">
-              Your PDF was downloaded to your browser. Here's a quick summary:
+            <p style="color:#94a3b8;margin-bottom:20px">
+              Your HTML report was opened in a new tab. Press <strong style="color:#e2e8f0">Ctrl+P → Save as PDF</strong>
+              to save a copy.
             </p>
             <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
               <tr style="background:#1e293b">
-                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Total signals</td>
-                <td style="padding:8px 12px;color:#ffffff;font-weight:600;text-align:right">${(totalCount ?? 0).toLocaleString()}</td>
+                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">City</td>
+                <td style="padding:8px 12px;color:#fff;font-weight:600;text-align:right">${cleanCity}</td>
               </tr>
               <tr style="background:#0f172a">
-                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Average score</td>
-                <td style="padding:8px 12px;color:#ffffff;font-weight:600;text-align:right">${avgScore != null ? `${avgScore}/100` : '—'}</td>
+                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Total signals</td>
+                <td style="padding:8px 12px;color:#fff;font-weight:600;text-align:right">${totalCount.toLocaleString()}</td>
               </tr>
-              ${market?.median_home_value != null ? `
               <tr style="background:#1e293b">
-                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Median home value</td>
-                <td style="padding:8px 12px;color:#ffffff;font-weight:600;text-align:right">$${Math.round((market?.median_home_value ?? 0) / 1000)}K</td>
-              </tr>` : ''}
+                <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Avg opportunity score</td>
+                <td style="padding:8px 12px;color:#fff;font-weight:600;text-align:right">${avgScore != null ? `${avgScore}/100` : '—'}</td>
+              </tr>
             </table>
-            <p style="color:#94a3b8;font-size:13px;margin-bottom:20px">
-              Want owner contact details, phone numbers, and mailing addresses?
+            <p style="color:#94a3b8;font-size:13px;margin-bottom:18px">
+              Upgrade to Pro to unlock owner phone numbers, mailing addresses, and unlimited signals.
             </p>
-            <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://propertysignalhq.com'}/pricing"
-               style="display:inline-block;background:#2563eb;color:#ffffff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+            <a href="${SITE_URL}/pricing"
+               style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
               Upgrade to Pro →
             </a>
             <p style="color:#475569;font-size:11px;margin-top:28px">
-              Need a fresh report? <a href="${reportUrl}" style="color:#60a5fa">Generate another here</a>.
+              Generate another report at <a href="${SITE_URL}/market-report" style="color:#60a5fa">${SITE_URL}/market-report</a>
             </p>
-          </div>
-        `,
+          </div>`,
       }),
-
-      // Admin notification
       resend.emails.send({
         from:    FROM_EMAIL,
         to:      ADMIN_EMAIL,
-        subject: `📄 Market Report Request — ${cleanCity}`,
-        text:    `Email: ${cleanEmail}\nCity: ${cleanCity}\nDate: ${date}\nTotal signals: ${totalCount ?? 0}`,
+        subject: `📄 Market Report — ${cleanCity}`,
+        text:    `Email: ${cleanEmail}\nCity: ${cleanCity}\nDate: ${date}\nSignals: ${totalCount}`,
       }),
-    ])
-  } catch {
-    // Email errors must not prevent PDF delivery
-  }
+    ]).catch(() => {/* non-critical */})
 
-  // ── Return PDF ───────────────────────────────────────────────────────────
-  const filename = `${cleanCity.replace(/\s+/g, '-').toLowerCase()}-market-report.pdf`
-
-  return new NextResponse(new Uint8Array(pdfBuffer), {
-    status:  200,
-    headers: {
-      'Content-Type':        'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Cache-Control':       'no-store',
-    },
-  })
+    // ── Return HTML ────────────────────────────────────────────────────────
+    return new NextResponse(html, {
+      status:  200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    })
 
   } catch (err) {
     const e = err as Error

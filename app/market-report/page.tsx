@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { useProStatus } from '@/lib/hooks/useProStatus'
 
 interface CityOption {
   city:  string
@@ -11,13 +13,15 @@ interface CityOption {
 
 function MarketReportInner() {
   const searchParams = useSearchParams()
+  const { user }     = useAuth()
+  const { isPro }    = useProStatus(user?.email)
 
-  const [cities,   setCities]   = useState<CityOption[]>([])
-  const [email,    setEmail]    = useState('')
-  const [city,     setCity]     = useState('')
-  const [loading,  setLoading]  = useState(false)
-  const [success,  setSuccess]  = useState(false)
-  const [error,    setError]    = useState<string | null>(null)
+  const [cities,  setCities]  = useState<CityOption[]>([])
+  const [email,   setEmail]   = useState('')
+  const [city,    setCity]    = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
 
   const autoFired = useRef(false)
 
@@ -34,7 +38,7 @@ function MarketReportInner() {
       .catch(() => {/* non-critical */})
   }, [])
 
-  // ── Pre-fill from URL params (e.g. from landing page) ────────────────────
+  // ── Pre-fill from URL params ──────────────────────────────────────────────
   useEffect(() => {
     const urlCity  = searchParams.get('city')
     const urlEmail = searchParams.get('email')
@@ -80,16 +84,13 @@ function MarketReportInner() {
         throw new Error((d as { error?: string }).error ?? 'Failed to generate report.')
       }
 
-      // Trigger download
-      const blob     = await res.blob()
-      const url      = URL.createObjectURL(blob)
-      const anchor   = document.createElement('a')
-      anchor.href    = url
-      anchor.download = `${cityVal.replace(/\s+/g, '-').toLowerCase()}-market-report.pdf`
-      document.body.appendChild(anchor)
-      anchor.click()
-      document.body.removeChild(anchor)
-      URL.revokeObjectURL(url)
+      // API now returns HTML — open in a new tab so user can Ctrl+P → Save as PDF
+      const html = await res.text()
+      const blob = new Blob([html], { type: 'text/html' })
+      const url  = URL.createObjectURL(blob)
+      const win  = window.open(url, '_blank')
+      // Keep the blob URL alive long enough for the new tab to load it
+      if (win) setTimeout(() => URL.revokeObjectURL(url), 30_000)
 
       setSuccess(true)
     } catch (err) {
@@ -104,7 +105,7 @@ function MarketReportInner() {
     handleGenerate()
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center px-4 py-20">
 
@@ -127,7 +128,7 @@ function MarketReportInner() {
             Get Your Free Market Report
           </h1>
           <p className="text-gray-400 text-sm leading-relaxed">
-            Enter your email and pick a city — we'll generate a live PDF with the
+            Enter your email and pick a city — we'll open a printable report with the
             top distressed property signals in that market.
           </p>
         </div>
@@ -138,10 +139,15 @@ function MarketReportInner() {
             <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 text-3xl">
               ✅
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">Report Generated!</h2>
-            <p className="text-gray-400 text-sm mb-6">
-              Your <span className="text-white font-medium">{city}</span> PDF was downloaded
-              to your browser. Check your email for a summary too.
+            <h2 className="text-xl font-bold text-white mb-2">Report Ready!</h2>
+            <p className="text-gray-400 text-sm mb-2">
+              Your <span className="text-white font-medium">{city}</span> report opened
+              in a new tab.
+            </p>
+            <p className="text-gray-500 text-xs mb-6">
+              Press <kbd className="bg-white/10 text-gray-300 px-1.5 py-0.5 rounded text-xs font-mono">Ctrl+P</kbd> in that tab
+              and choose <span className="text-gray-300">Save as PDF</span>.
+              We also emailed you a summary.
             </p>
             <div className="space-y-3">
               <button
@@ -150,12 +156,21 @@ function MarketReportInner() {
               >
                 Generate Another Report
               </button>
-              <Link
-                href="/pricing"
-                className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors shadow-lg shadow-blue-600/20"
-              >
-                Upgrade for Owner Contact Info →
-              </Link>
+              {isPro ? (
+                <Link
+                  href="/finder"
+                  className="block w-full text-center text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg transition-colors shadow-lg shadow-emerald-600/20"
+                >
+                  View Full Signals →
+                </Link>
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors shadow-lg shadow-blue-600/20"
+                >
+                  Upgrade for Owner Contact Info →
+                </Link>
+              )}
             </div>
           </div>
         ) : (
@@ -216,7 +231,7 @@ function MarketReportInner() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  Generating PDF…
+                  Generating Report…
                 </>
               ) : (
                 <>Generate My Free Report</>
@@ -224,7 +239,7 @@ function MarketReportInner() {
             </button>
 
             <p className="text-xs text-center text-gray-600">
-              No account needed · Instant download · We'll email you a copy too
+              No account needed · Opens in new tab · Save as PDF with Ctrl+P
             </p>
           </form>
         )}
@@ -233,14 +248,14 @@ function MarketReportInner() {
       {/* What's included */}
       <div className="w-full max-w-lg mt-8 grid grid-cols-2 gap-3">
         {[
-          { icon: '📊', title: 'Market Overview',   desc: 'Median value, typical rent, market temp' },
-          { icon: '🏠', title: 'Top 10 Signals',    desc: 'Highest scored distressed properties'    },
-          { icon: '📈', title: 'Opportunity Scores', desc: 'Pre-ranked by investment potential'      },
-          { icon: '🔒', title: 'Pro Upgrade CTA',    desc: 'Owner contacts available on Pro plan'   },
+          { icon: '📊', title: 'Market Overview',    desc: 'Median value, typical rent, market temp' },
+          { icon: '🏠', title: 'Top 10 Signals',     desc: 'Highest scored distressed properties'    },
+          { icon: '📈', title: 'Opportunity Scores',  desc: 'Pre-ranked by investment potential'      },
+          { icon: '🖨️', title: 'Printable PDF',       desc: 'Clean layout, save via Ctrl+P'           },
         ].map(item => (
           <div
             key={item.title}
-            className="bg-[#0a0f1e] border border-white/8 rounded-xl p-4"
+            className="bg-[#0a0f1e] border border-white/10 rounded-xl p-4"
           >
             <div className="text-xl mb-1.5">{item.icon}</div>
             <div className="text-sm font-semibold text-white mb-0.5">{item.title}</div>
