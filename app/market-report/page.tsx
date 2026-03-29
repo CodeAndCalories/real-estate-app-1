@@ -76,7 +76,7 @@ function MarketReportInner() {
       const res = await fetch('/api/market-report', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email: emailVal.trim(), city: cityVal }),
+        body:    JSON.stringify({ email: emailVal.trim(), city: cityVal, isPro: isPro ?? false }),
       })
 
       if (!res.ok) {
@@ -84,13 +84,17 @@ function MarketReportInner() {
         throw new Error((d as { error?: string }).error ?? 'Failed to generate report.')
       }
 
-      // API now returns HTML — open in a new tab so user can Ctrl+P → Save as PDF
-      const html = await res.text()
-      const blob = new Blob([html], { type: 'text/html' })
-      const url  = URL.createObjectURL(blob)
-      const win  = window.open(url, '_blank')
-      // Keep the blob URL alive long enough for the new tab to load it
-      if (win) setTimeout(() => URL.revokeObjectURL(url), 30_000)
+      // Trigger direct file download — user opens the .html file locally and prints to PDF
+      const html     = await res.text()
+      const blob     = new Blob([html], { type: 'text/html' })
+      const url      = URL.createObjectURL(blob)
+      const anchor   = document.createElement('a')
+      anchor.href    = url
+      anchor.download = `${cityVal.replace(/\s+/g, '-').toLowerCase()}-market-report.html`
+      document.body.appendChild(anchor)
+      anchor.click()
+      document.body.removeChild(anchor)
+      URL.revokeObjectURL(url)
 
       setSuccess(true)
     } catch (err) {
@@ -139,13 +143,14 @@ function MarketReportInner() {
             <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 text-3xl">
               ✅
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">Report Ready!</h2>
+            <h2 className="text-xl font-bold text-white mb-2">Report Downloaded!</h2>
             <p className="text-gray-400 text-sm mb-2">
-              Your <span className="text-white font-medium">{city}</span> report opened
-              in a new tab.
+              Your <span className="text-white font-medium">{city}</span> report was saved
+              as an HTML file.
             </p>
             <p className="text-gray-500 text-xs mb-6">
-              Press <kbd className="bg-white/10 text-gray-300 px-1.5 py-0.5 rounded text-xs font-mono">Ctrl+P</kbd> in that tab
+              Open the downloaded file in your browser, then press{' '}
+              <kbd className="bg-white/10 text-gray-300 px-1.5 py-0.5 rounded text-xs font-mono">Ctrl+P</kbd>{' '}
               and choose <span className="text-gray-300">Save as PDF</span>.
               We also emailed you a summary.
             </p>
@@ -239,7 +244,7 @@ function MarketReportInner() {
             </button>
 
             <p className="text-xs text-center text-gray-600">
-              No account needed · Opens in new tab · Save as PDF with Ctrl+P
+              No account needed · Downloads as HTML · Open &amp; print to PDF
             </p>
           </form>
         )}

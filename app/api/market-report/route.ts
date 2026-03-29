@@ -25,19 +25,20 @@ interface MarketRow {
 }
 
 interface ReportData {
-  city:         string
-  date:         string
+  city:           string
+  date:           string
   recipientEmail: string
-  totalCount:   number
-  avgScore:     number | null
-  properties:   PropertyRow[]
-  market:       MarketRow | null
+  totalCount:     number
+  avgScore:       number | null
+  properties:     PropertyRow[]
+  market:         MarketRow | null
+  isPro:          boolean
 }
 
 // ── HTML report builder ───────────────────────────────────────────────────────
 
 function buildHtmlReport(data: ReportData): string {
-  const { city, date, recipientEmail, totalCount, avgScore, properties, market } = data
+  const { city, date, recipientEmail, totalCount, avgScore, properties, market, isPro } = data
 
   const tempLabel = (t: number | null) => {
     if (t == null) return '—'
@@ -83,6 +84,18 @@ function buildHtmlReport(data: ReportData): string {
 
   const year = new Date().getFullYear()
 
+  const footerHtml = isPro
+    ? `<div class="footer">
+        <p><strong>Access your full dashboard</strong></p>
+        <p><a href="${SITE_URL}/finder">${SITE_URL}/finder</a></p>
+        <p class="fine">© ${year} PropertySignalHQ · Data updated daily · Generated for ${recipientEmail}</p>
+      </div>`
+    : `<div class="footer">
+        <p><strong>Upgrade to Pro for owner contact info and unlimited access</strong></p>
+        <p><a href="${SITE_URL}/pricing">${SITE_URL}/pricing</a> &nbsp;·&nbsp; Full access from $39/month</p>
+        <p class="fine">© ${year} PropertySignalHQ · Data updated daily · Generated for ${recipientEmail}</p>
+      </div>`
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,15 +107,18 @@ function buildHtmlReport(data: ReportData): string {
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
-      background: #f1f5f9;
-      color: #1e293b;
+      background: #020617;
+      color: #e2e8f0;
       padding: 32px 24px 80px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .page { max-width: 860px; margin: 0 auto; }
 
     /* ── Header ── */
     .header {
       background: #0f172a;
+      border: 1px solid #1e293b;
       color: white;
       padding: 24px 28px;
       border-radius: 12px;
@@ -111,12 +127,12 @@ function buildHtmlReport(data: ReportData): string {
       justify-content: space-between;
       align-items: flex-start;
     }
-    .logo { font-size: 20px; font-weight: 800; }
+    .logo { font-size: 20px; font-weight: 800; color: #f8fafc; }
     .logo em { color: #60a5fa; font-style: normal; }
-    .logo-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+    .logo-sub { font-size: 12px; color: #475569; margin-top: 3px; }
     .header-right { text-align: right; }
     .header-right h2 { font-size: 17px; font-weight: 700; color: #f8fafc; }
-    .header-right p { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+    .header-right p { font-size: 12px; color: #64748b; margin-top: 3px; }
 
     /* ── Section title ── */
     .section-title {
@@ -124,7 +140,7 @@ function buildHtmlReport(data: ReportData): string {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .07em;
-      color: #64748b;
+      color: #475569;
       margin: 0 0 10px;
     }
 
@@ -136,18 +152,18 @@ function buildHtmlReport(data: ReportData): string {
       gap: 8px;
     }
     .stat-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: #0f172a;
+      border: 1px solid #1e293b;
       border-radius: 8px;
       padding: 12px 8px;
       text-align: center;
     }
-    .stat-label { font-size: 10px; color: #94a3b8; margin-bottom: 5px; }
-    .stat-value { font-size: 17px; font-weight: 800; color: #0f172a; }
+    .stat-label { font-size: 10px; color: #64748b; margin-bottom: 5px; }
+    .stat-value { font-size: 17px; font-weight: 800; color: #f1f5f9; }
 
     /* ── Table ── */
     .table-section { margin-bottom: 20px; }
-    .disclaimer { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+    .disclaimer { font-size: 11px; color: #475569; margin-bottom: 8px; }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: #1e293b; }
     thead th {
@@ -155,20 +171,20 @@ function buildHtmlReport(data: ReportData): string {
       text-align: left;
       font-size: 11px;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #cbd5e1;
       letter-spacing: .04em;
     }
-    tbody tr:nth-child(odd)  { background: #fff; }
-    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:nth-child(odd)  { background: #0a0f1e; }
+    tbody tr:nth-child(even) { background: #0f172a; }
     tbody td {
       padding: 8px 11px;
       font-size: 12px;
-      color: #334155;
-      border-bottom: 1px solid #f1f5f9;
+      color: #94a3b8;
+      border-bottom: 1px solid #1e293b;
     }
     td.empty {
       text-align: center;
-      color: #94a3b8;
+      color: #475569;
       padding: 24px;
     }
 
@@ -179,26 +195,27 @@ function buildHtmlReport(data: ReportData): string {
       font-weight: 700;
       border-radius: 4px;
       padding: 2px 6px;
-      background: #e2e8f0;
-      color: #475569;
+      background: #1e293b;
+      color: #94a3b8;
     }
-    .score-high { background: #dcfce7; color: #166534; }
-    .score-med  { background: #fef9c3; color: #854d0e; }
-    .score-low  { background: #fee2e2; color: #991b1b; }
+    .score-high { background: #14532d; color: #86efac; }
+    .score-med  { background: #713f12; color: #fde68a; }
+    .score-low  { background: #7f1d1d; color: #fca5a5; }
 
     /* ── Footer ── */
     .footer {
       background: #0f172a;
-      color: #94a3b8;
+      border: 1px solid #1e293b;
+      color: #64748b;
       padding: 18px 24px;
       border-radius: 10px;
       text-align: center;
       font-size: 12px;
       line-height: 1.6;
     }
-    .footer strong { color: #f1f5f9; }
+    .footer strong { color: #e2e8f0; }
     .footer a { color: #60a5fa; text-decoration: none; }
-    .footer .fine { font-size: 10px; color: #475569; margin-top: 8px; }
+    .footer .fine { font-size: 10px; color: #334155; margin-top: 8px; }
 
     /* ── Print toolbar (hidden on print) ── */
     .toolbar {
@@ -228,9 +245,8 @@ function buildHtmlReport(data: ReportData): string {
     }
 
     @media print {
-      body { background: #fff; padding: 0; }
+      body { padding: 0; }
       .toolbar { display: none; }
-      .header, .footer { border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -294,16 +310,11 @@ function buildHtmlReport(data: ReportData): string {
     </table>
   </div>
 
-  <div class="footer">
-    <p><strong>Upgrade to Pro for owner contact info and unlimited access</strong></p>
-    <p><a href="${SITE_URL}/pricing">${SITE_URL}/pricing</a> &nbsp;·&nbsp; Full access from $39/month</p>
-    <p class="fine">© ${year} PropertySignalHQ · Data updated daily · Generated for ${recipientEmail}</p>
-  </div>
+  ${footerHtml}
 
 </div>
 <div class="toolbar">
-  <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
-  <button class="btn btn-primary" onclick="window.print()">🖨&nbsp; Save as PDF</button>
+  <button class="btn btn-primary" onclick="window.print()">🖨&nbsp; Print / Save as PDF</button>
 </div>
 </body>
 </html>`
@@ -318,8 +329,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { email, city } = (body as Record<string, string>)
-  if (!email?.trim() || !city?.trim()) {
+  const { email, city, isPro } = (body as Record<string, unknown>)
+  if (typeof email !== 'string' || !email.trim() ||
+      typeof city  !== 'string' || !city.trim()) {
     return NextResponse.json({ error: 'email and city are required' }, { status: 400 })
   }
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -329,6 +341,7 @@ export async function POST(req: NextRequest) {
 
   const cleanCity  = city.trim()
   const cleanEmail = email.trim().toLowerCase()
+  const proUser    = isPro === true
 
   try {
     // ── Save subscriber ────────────────────────────────────────────────────
@@ -394,6 +407,7 @@ export async function POST(req: NextRequest) {
       avgScore,
       properties:     (propResult.data as PropertyRow[] | null) ?? [],
       market,
+      isPro:          proUser,
     })
 
     // ── Send emails (non-blocking) ────────────────────────────────────────
