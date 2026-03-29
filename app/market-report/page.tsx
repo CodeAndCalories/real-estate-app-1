@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -9,7 +9,7 @@ interface CityOption {
   count: number
 }
 
-export default function MarketReportPage() {
+function MarketReportInner() {
   const searchParams = useSearchParams()
 
   const [cities,   setCities]   = useState<CityOption[]>([])
@@ -250,5 +250,13 @@ export default function MarketReportPage() {
       </div>
 
     </div>
+  )
+}
+
+export default function MarketReportPage() {
+  return (
+    <Suspense fallback={null}>
+      <MarketReportInner />
+    </Suspense>
   )
 }
