@@ -76,7 +76,7 @@ function MarketReportInner() {
       const res = await fetch('/api/market-report', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email: emailVal.trim(), city: cityVal, isPro: isPro ?? false }),
+        body:    JSON.stringify({ email: emailVal.trim(), city: cityVal.replace(/\s*\(.*$/, '').trim(), isPro: isPro ?? false }),
       })
 
       if (!res.ok) {
