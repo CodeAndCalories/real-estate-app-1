@@ -236,26 +236,40 @@ export async function POST(req: NextRequest) {
   const cleanCity  = city.trim()
   const cleanEmail = email.trim().toLowerCase()
 
+  try {
+
   // ── Save subscriber ──────────────────────────────────────────────────────
-  await supabaseAdmin
+  const subResult = await supabaseAdmin
     .from('email_subscribers')
     .upsert({ email: cleanEmail }, { onConflict: 'email' })
+  if (subResult.error) {
+    console.error('[market-report] email_subscribers upsert error:', subResult.error)
+  }
 
   // ── Fetch top 10 properties ──────────────────────────────────────────────
-  const { data: properties } = await supabaseAdmin
+  const propResult = await supabaseAdmin
     .from('properties')
     .select('address, lead_type, opportunity_score, estimated_value, days_on_market')
     .ilike('city', cleanCity)
     .not('opportunity_score', 'is', null)
     .order('opportunity_score', { ascending: false })
     .limit(10)
+  if (propResult.error) {
+    console.error('[market-report] properties query error:', propResult.error)
+  }
+  const properties = propResult.data
 
   // ── City-level stats ─────────────────────────────────────────────────────
-  const { count: totalCount, data: scoredRows } = await supabaseAdmin
+  const statsResult = await supabaseAdmin
     .from('properties')
     .select('opportunity_score', { count: 'exact', head: false })
     .ilike('city', cleanCity)
     .not('opportunity_score', 'is', null)
+  if (statsResult.error) {
+    console.error('[market-report] stats query error:', statsResult.error)
+  }
+  const totalCount = statsResult.count
+  const scoredRows = statsResult.data
 
   const avgScore =
     scoredRows && scoredRows.length > 0
@@ -266,13 +280,31 @@ export async function POST(req: NextRequest) {
       : null
 
   // ── Zillow market data ───────────────────────────────────────────────────
-  const { data: marketRows } = await supabaseAdmin
+  const marketResult = await supabaseAdmin
     .from('zillow_market_data')
     .select('metro_name, median_home_value, typical_rent, market_temp_index')
     .ilike('metro_name', `%${cleanCity}%`)
     .limit(1)
+  if (marketResult.error) {
+    console.error('[market-report] zillow_market_data query error:', marketResult.error)
+  }
+  const market = (marketResult.data as MarketRow[] | null)?.[0] ?? null
 
-  const market = (marketRows as MarketRow[] | null)?.[0] ?? null
+  // ── DEBUG: return JSON so we can verify all queries work ─────────────────
+  // TODO: remove this block once confirmed working, restore PDF response below
+  return NextResponse.json({
+    _debug:          true,
+    city:            cleanCity,
+    totalCount:      totalCount ?? 0,
+    avgScore,
+    propertiesCount: properties?.length ?? 0,
+    propertiesSample: (properties ?? []).slice(0, 2),
+    market,
+    subscriberError: subResult.error?.message ?? null,
+    propertiesError: propResult.error?.message ?? null,
+    statsError:      statsResult.error?.message ?? null,
+    marketError:     marketResult.error?.message ?? null,
+  })
 
   // ── Build PDF ────────────────────────────────────────────────────────────
   const date = new Date().toLocaleDateString('en-US', {
@@ -318,7 +350,7 @@ export async function POST(req: NextRequest) {
               ${market?.median_home_value != null ? `
               <tr style="background:#1e293b">
                 <td style="padding:8px 12px;color:#94a3b8;font-size:13px">Median home value</td>
-                <td style="padding:8px 12px;color:#ffffff;font-weight:600;text-align:right">$${Math.round(market.median_home_value / 1000)}K</td>
+                <td style="padding:8px 12px;color:#ffffff;font-weight:600;text-align:right">$${Math.round((market?.median_home_value ?? 0) / 1000)}K</td>
               </tr>` : ''}
             </table>
             <p style="color:#94a3b8;font-size:13px;margin-bottom:20px">
@@ -358,4 +390,13 @@ export async function POST(req: NextRequest) {
       'Cache-Control':       'no-store',
     },
   })
+
+  } catch (err) {
+    const e = err as Error
+    console.error('[market-report] Unhandled error:', e.message, e.stack)
+    return NextResponse.json(
+      { error: 'Failed to generate report.', detail: e.message },
+      { status: 500 },
+    )
+  }
 }
