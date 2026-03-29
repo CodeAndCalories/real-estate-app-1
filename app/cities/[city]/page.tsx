@@ -319,7 +319,7 @@ export default async function CityPage(
           </p>
           <p className="text-gray-400 leading-relaxed">
             Pro members unlock full owner contact information — phone numbers, mailing addresses, and
-            skip-trace data — for every signal in {cityName} and all 86 markets we cover.{' '}
+            skip-trace data — for every signal in {cityName} and all 108 markets we cover.{' '}
             <Link href="/finder" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">
               Search the full database
             </Link>{' '}
@@ -333,7 +333,7 @@ export default async function CityPage(
         {/* Back link */}
         <div className="mt-10 pt-6 border-t border-white/10">
           <Link href="/cities" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-            ← Browse all 86 markets
+            ← Browse all 108 markets
           </Link>
         </div>
       </div>

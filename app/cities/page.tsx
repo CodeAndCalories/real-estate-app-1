@@ -5,11 +5,11 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export const metadata: Metadata = {
   title: 'Real Estate Investment Markets | PropertySignalHQ',
   description:
-    'Browse 86 real estate investment markets across all 50 US states. Find distressed properties, motivated sellers, and high-equity opportunities in your city.',
+    'Browse 108 real estate investment markets across all 50 US states. Find distressed properties, motivated sellers, and high-equity opportunities in your city.',
   openGraph: {
     title: 'Real Estate Investment Markets | PropertySignalHQ',
     description:
-      'Browse 86 real estate investment markets across all 50 US states. Find distressed properties, motivated sellers, and high-equity opportunities in your city.',
+      'Browse 108 real estate investment markets across all 50 US states. Find distressed properties, motivated sellers, and high-equity opportunities in your city.',
     url: 'https://propertysignalhq.com/cities',
   },
 }

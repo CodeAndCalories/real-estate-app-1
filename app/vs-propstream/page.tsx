@@ -57,7 +57,7 @@ const TABLE_ROWS = [
   },
   {
     feature: 'Markets Covered',
-    pshq:    { text: '60+ cities, all 50 states', highlight: false },
+    pshq:    { text: '100+ cities, all 50 states', highlight: false },
     ps:      { text: 'National',                  highlight: false },
   },
   {
