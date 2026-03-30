@@ -57,6 +57,10 @@ export default function MarketsCovered({ isDark }: Props) {
 
   if (cities.length === 0) return null
 
+  const allCityCount = cities.length
+  const sorted = [...cities].sort((a, b) => b.count - a.count)
+  const top12 = sorted.slice(0, 12)
+
   return (
     <section className="py-20 px-6 bg-[#020617]">
       <div className="max-w-5xl mx-auto">
@@ -67,7 +71,7 @@ export default function MarketsCovered({ isDark }: Props) {
             Markets Covered
           </span>
           <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Active Leads Across {cities.length} Major US Markets
+            Active Leads Across {allCityCount} Major US Markets
           </h2>
           <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             Updated weekly with Zillow-powered market data across every major region.
@@ -80,12 +84,12 @@ export default function MarketsCovered({ isDark }: Props) {
             {total.toLocaleString()}+
           </span>
           <span className={`ml-2 text-base font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            active leads across {cities.length} major US markets
+            active leads across {allCityCount} major US markets
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          {cities.map(({ city, count }) => {
+          {top12.map(({ city, count }) => {
             const meta = CITY_META[city] ?? { emoji: '🏙️', state: '' }
             return (
               <div
@@ -112,13 +116,23 @@ export default function MarketsCovered({ isDark }: Props) {
           })}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="/finder"
+            href="/cities"
             className={`inline-block font-semibold text-sm px-6 py-2.5 rounded-lg border transition-colors ${
               isDark
                 ? 'border-blue-600 text-blue-400 hover:bg-blue-900/30'
                 : 'border-blue-300 text-blue-600 hover:bg-blue-50'
+            }`}
+          >
+            View all {allCityCount} markets →
+          </a>
+          <a
+            href="/finder"
+            className={`inline-block font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors ${
+              isDark
+                ? 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
             Browse All Leads →
