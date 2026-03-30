@@ -410,7 +410,11 @@ export default async function PropertyPage({
         </section>
 
         {/* Owner Contact Card */}
-        <OwnerContactCard ownerName={s.owner_name} />
+        <OwnerContactCard
+                  ownerName={s.owner_name}
+                  ownerPhone={s.owner_phone}
+                  ownerMailingAddress={s.owner_mailing_address}
+                />
 
         {/* Investor Quick Actions */}
         <InvestorQuickActions signal={s} priceHistory={priceHistory} />

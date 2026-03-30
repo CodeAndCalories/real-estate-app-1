@@ -7,7 +7,9 @@ import { useProStatus } from '@/lib/hooks/useProStatus'
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Props = {
-  ownerName: string | null
+  ownerName:           string | null
+  ownerPhone?:         string | null
+  ownerMailingAddress?: string | null
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -146,7 +148,7 @@ function UpgradeBanner() {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function OwnerContactCard({ ownerName }: Props) {
+export default function OwnerContactCard({ ownerName, ownerPhone, ownerMailingAddress }: Props) {
   const [email, setEmail] = useState<string | null | undefined>(undefined)
 
   // Resolve Supabase session email once on mount
@@ -196,17 +198,17 @@ export default function OwnerContactCard({ ownerName }: Props) {
             <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />
           </div>
         ) : isPro ? (
-          // ── Pro: show real (demo) contact data ──────────────────────────
+          // ── Pro: show real contact data from property record ────────────
           <div className="space-y-2.5">
             <UnlockedField
               icon={<PhoneIcon />}
               label="Owner Phone"
-              value="(555) 555-1234"
+              value={ownerPhone || '—'}
             />
             <UnlockedField
               icon={<MailIcon />}
               label="Mailing Address"
-              value="123 Oak St, Owner City, TX 78201"
+              value={ownerMailingAddress || '—'}
             />
             <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
               <p className="text-xs text-blue-700 leading-relaxed">
@@ -218,7 +220,7 @@ export default function OwnerContactCard({ ownerName }: Props) {
         ) : (
           // ── Free: masked phone preview + locked address + upgrade banner ──
           <div className="space-y-2">
-            <LockedPhoneField fullPhone="(555) 555-1234" />
+            <LockedPhoneField fullPhone={ownerPhone || '0000000000'} />
             <LockedField label="Mailing Address" />
             <UpgradeBanner />
           </div>
