@@ -32,34 +32,94 @@ export default function HeroSection({ isDark: _isDark }: Props) {
   }, [])
 
   return (
-    <section className="relative z-0 w-full overflow-hidden" style={{ minHeight: '600px' }}>
+    <section className="relative z-0 w-full overflow-hidden" style={{ minHeight: '620px' }}>
 
-      {/* Mobile background */}
-      <div
-        className="absolute inset-0 sm:hidden"
-        style={{
-          backgroundImage: "url('/city-mobile.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+      {/* ── Sharp programmatic background — no blurry photos ── */}
+      <div className="absolute inset-0" aria-hidden="true">
+        {/* Deep navy base */}
+        <div className="absolute inset-0 bg-[#020617]" />
 
-      {/* Desktop background */}
-      <div
-        className="absolute inset-0 hidden sm:block"
-        style={{
-          backgroundImage: "url('/city-night.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+        {/* Radial glow — top center */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.35) 0%, transparent 70%)',
+          }}
+        />
 
-      {/* Dark gradient overlay — heavier for text clarity */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-[#020617]" />
+        {/* Secondary accent glow — bottom right */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 50% 40% at 85% 90%, rgba(6,182,212,0.12) 0%, transparent 60%)',
+          }}
+        />
 
-      {/* Content — no frosted glass, text breathes on gradient */}
+        {/* Subtle dot grid */}
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, #60a5fa 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+
+        {/* City skyline SVG — crisp at any resolution */}
+        <svg
+          className="absolute bottom-0 left-0 right-0 w-full opacity-20"
+          viewBox="0 0 1440 220"
+          preserveAspectRatio="xMidYMax slice"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          {/* Background buildings */}
+          <rect x="0"    y="140" width="80"  height="80"  fill="#1e40af" opacity="0.6"/>
+          <rect x="90"   y="100" width="60"  height="120" fill="#1e3a8a" opacity="0.7"/>
+          <rect x="160"  y="120" width="50"  height="100" fill="#1e40af" opacity="0.5"/>
+          <rect x="220"  y="80"  width="70"  height="140" fill="#1d4ed8" opacity="0.7"/>
+          <rect x="300"  y="110" width="45"  height="110" fill="#1e3a8a" opacity="0.6"/>
+          <rect x="355"  y="60"  width="90"  height="160" fill="#1e40af" opacity="0.8"/>
+          <rect x="455"  y="90"  width="55"  height="130" fill="#1e3a8a" opacity="0.6"/>
+          <rect x="520"  y="130" width="40"  height="90"  fill="#1d4ed8" opacity="0.5"/>
+          <rect x="570"  y="70"  width="75"  height="150" fill="#1e40af" opacity="0.7"/>
+          <rect x="655"  y="100" width="60"  height="120" fill="#1e3a8a" opacity="0.6"/>
+          <rect x="725"  y="50"  width="95"  height="170" fill="#1d4ed8" opacity="0.8"/>
+          <rect x="830"  y="85"  width="65"  height="135" fill="#1e40af" opacity="0.6"/>
+          <rect x="905"  y="115" width="50"  height="105" fill="#1e3a8a" opacity="0.5"/>
+          <rect x="965"  y="65"  width="85"  height="155" fill="#1d4ed8" opacity="0.75"/>
+          <rect x="1060" y="95"  width="55"  height="125" fill="#1e40af" opacity="0.6"/>
+          <rect x="1125" y="120" width="45"  height="100" fill="#1e3a8a" opacity="0.5"/>
+          <rect x="1180" y="75"  width="80"  height="145" fill="#1d4ed8" opacity="0.7"/>
+          <rect x="1270" y="105" width="60"  height="115" fill="#1e40af" opacity="0.6"/>
+          <rect x="1340" y="85"  width="100" height="135" fill="#1e3a8a" opacity="0.65"/>
+          {/* Antenna/spire details */}
+          <rect x="392"  y="42"  width="3"   height="18"  fill="#3b82f6" opacity="0.8"/>
+          <rect x="758"  y="32"  width="4"   height="18"  fill="#3b82f6" opacity="0.8"/>
+          <rect x="1001" y="47"  width="3"   height="18"  fill="#3b82f6" opacity="0.8"/>
+          <rect x="1213" y="57"  width="3"   height="18"  fill="#3b82f6" opacity="0.8"/>
+          {/* Window glows */}
+          <rect x="365"  y="75"  width="6"   height="4"   fill="#93c5fd" opacity="0.6" rx="0.5"/>
+          <rect x="378"  y="75"  width="6"   height="4"   fill="#93c5fd" opacity="0.4" rx="0.5"/>
+          <rect x="365"  y="86"  width="6"   height="4"   fill="#93c5fd" opacity="0.5" rx="0.5"/>
+          <rect x="735"  y="65"  width="6"   height="4"   fill="#93c5fd" opacity="0.6" rx="0.5"/>
+          <rect x="748"  y="65"  width="6"   height="4"   fill="#93c5fd" opacity="0.4" rx="0.5"/>
+          <rect x="735"  y="76"  width="6"   height="4"   fill="#93c5fd" opacity="0.5" rx="0.5"/>
+          <rect x="975"  y="80"  width="6"   height="4"   fill="#93c5fd" opacity="0.6" rx="0.5"/>
+          <rect x="988"  y="80"  width="6"   height="4"   fill="#93c5fd" opacity="0.4" rx="0.5"/>
+          {/* Ground line */}
+          <rect x="0" y="218" width="1440" height="2" fill="#1e40af" opacity="0.4"/>
+        </svg>
+
+        {/* Gradient fade at bottom to blend into page */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#020617] to-transparent" />
+        {/* Gradient fade at top */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#020617]/60 to-transparent" />
+      </div>
+
+      {/* ── Content ── */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-24 md:py-36 text-center">
 
         {/* Pre-header eyebrow */}
@@ -85,7 +145,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
             href="/finder"
-            className="w-full sm:w-auto text-center font-semibold px-8 py-4 rounded-lg text-base transition-all duration-150 shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20"
+            className="w-full sm:w-auto text-center font-semibold px-8 py-4 rounded-lg text-base transition-all duration-150 shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30 ring-1 ring-blue-500/20"
           >
             Start Finding Deals →
           </a>
@@ -97,9 +157,9 @@ export default function HeroSection({ isDark: _isDark }: Props) {
           </a>
         </div>
 
-        {/* Below-CTA count line */}
-        <p className="text-gray-400 text-sm mt-4">
-          75,000+ properties analyzed across 100+ cities in all 50 states
+        {/* Trial callout */}
+        <p className="text-emerald-400/90 text-xs font-semibold mt-4 tracking-wide">
+          First month free · No charge until day 31
         </p>
 
         {/* Trust credibility bar */}
@@ -117,14 +177,9 @@ export default function HeroSection({ isDark: _isDark }: Props) {
           ))}
         </div>
 
-        {/* Proof line */}
-        <p className="text-xs text-gray-400 text-center mt-3">
-          Updated weekly with fresh Zillow-powered market data
-        </p>
-
         {/* FOMO live feed */}
-        <div className="mt-5 max-w-lg mx-auto">
-          <div className="bg-[#0f172a] border border-white/10 rounded-lg px-4 py-2 text-center">
+        <div className="mt-6 max-w-lg mx-auto">
+          <div className="bg-[#0f172a]/80 border border-white/10 rounded-lg px-4 py-2.5 text-center backdrop-blur-sm">
             <p
               className="text-xs text-gray-400 transition-opacity duration-300"
               style={{ opacity: fomoVisible ? 1 : 0 }}

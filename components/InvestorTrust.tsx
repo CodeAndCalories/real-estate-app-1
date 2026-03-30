@@ -115,19 +115,19 @@ export default function InvestorTrust({ isDark }: Props) {
         </div>
 
         {/* Stats row */}
-        <div className="rounded-xl border border-white/10 bg-[#0f172a] px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+        <div className="rounded-xl border border-blue-900/40 bg-gradient-to-br from-[#0f172a] to-[#0a1628] px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center shadow-lg shadow-blue-950/50">
           {[
-            { value: '75,000+', label: 'Property signals',     icon: '📊' },
-            { value: '100+',   label: 'Cities · all 50 states', icon: '🏙️' },
-            { value: 'Zillow', label: 'Powered market data',  icon: '🎯' },
-            { value: 'Weekly', label: 'Data updates',         icon: '🔄' },
+            { value: '75,000+', label: 'Property signals',      icon: '📊' },
+            { value: '100+',    label: 'Cities · all 50 states', icon: '🏙️' },
+            { value: 'Zillow',  label: 'Powered market data',   icon: '🎯' },
+            { value: 'Weekly',  label: 'Data updates',          icon: '🔄' },
           ].map((stat) => (
             <div key={stat.label}>
-              <div className="text-2xl mb-1 leading-none">{stat.icon}</div>
-              <div className="text-2xl font-black text-blue-400">
+              <div className="text-xl mb-2 leading-none">{stat.icon}</div>
+              <div className="text-2xl font-black bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
                 {stat.value}
               </div>
-              <div className={`text-xs mt-0.5 font-medium ${textMuted}`}>{stat.label}</div>
+              <div className={`text-xs mt-1 font-medium ${textMuted}`}>{stat.label}</div>
             </div>
           ))}
         </div>

@@ -38,10 +38,10 @@ export default function PricingSection({ isDark }: Props) {
             Pricing
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold mb-3 text-white">
-            One Plan. Everything Included.
+            One Plan. First Month Free.
           </h2>
           <p className="text-base max-w-xl mx-auto text-gray-400">
-            No tiers, no feature walls — every tool in one flat monthly price.
+            Try everything free for 30 days. Then $39/month — no tiers, no feature walls.
           </p>
         </div>
 
@@ -49,8 +49,8 @@ export default function PricingSection({ isDark }: Props) {
         <div className="flex justify-center">
           <div className="w-full max-w-sm bg-[#0f172a] border border-white/10 rounded-xl p-9 relative shadow-2xl shadow-black/50">
             {/* Badge */}
-            <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap bg-blue-600 text-white">
-              All Features Included
+            <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap bg-emerald-500 text-white">
+              First Month FREE
             </span>
 
             {/* Plan name */}
@@ -60,9 +60,12 @@ export default function PricingSection({ isDark }: Props) {
 
             {/* Price */}
             <div className="flex items-end gap-1.5 mb-1">
-              <span className="font-display text-5xl font-black text-white leading-none">$39</span>
-              <span className="text-sm mb-2 text-blue-300">/ month</span>
+              <span className="font-display text-5xl font-black text-white leading-none">$0</span>
+              <span className="text-sm mb-2 text-emerald-400 font-semibold">first month</span>
             </div>
+            <p className="text-sm text-gray-400 mb-1">
+              Then <span className="text-white font-semibold">$39/month</span> — cancel anytime before your trial ends
+            </p>
 
             {/* Comparison note */}
             <p className="text-sm text-gray-400 italic mb-3">
@@ -100,7 +103,7 @@ export default function PricingSection({ isDark }: Props) {
                   href="/upgrade"
                   className="block w-full text-center font-bold text-base py-3.5 rounded-lg transition-all shadow-md bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/25"
                 >
-                  Unlock Owner Contacts →
+                  Start Free — First Month on Us →
                 </a>
 
                 {/* Preview CSV download */}
@@ -117,7 +120,7 @@ export default function PricingSection({ isDark }: Props) {
             )}
 
             <p className="text-center text-xs mt-3 text-gray-500">
-              Cancel anytime.
+              30-day free trial · No charge until day 31 · Cancel anytime
             </p>
           </div>
         </div>
