@@ -45,7 +45,7 @@ export default function SiteFooter({ isDark: _isDark }: Props) {
               </span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-4">
-              Property intelligence for real estate investors. 75,000+ signals across 100+ cities.
+              Property intelligence for real estate investors. 88,000+ signals across 125+ cities.
             </p>
             <a
               href="mailto:support@propertysignalhq.com"
@@ -94,7 +94,7 @@ export default function SiteFooter({ isDark: _isDark }: Props) {
             {/* Trust signals */}
             <div className="space-y-2">
               {[
-                '75,000+ property signals',
+                '88,000+ property signals',
                 'Real Zillow market data',
                 'Weekly data updates',
               ].map((item) => (

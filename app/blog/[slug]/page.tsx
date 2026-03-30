@@ -154,7 +154,7 @@ export default async function BlogPostPage({ params }: Props) {
             Find deals like these in your market
           </h2>
           <p className="text-gray-400 text-sm mb-6 max-w-md mx-auto">
-            PropertySignalHQ gives you 75,000+ scored property signals across 100+ cities. First month free.
+            PropertySignalHQ gives you 88,000+ scored property signals across 125+ cities. First month free.
           </p>
           <a
             href="/upgrade"

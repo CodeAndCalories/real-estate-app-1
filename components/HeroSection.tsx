@@ -152,7 +152,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-status-pulse" />
           <p className="text-blue-300 text-xs font-semibold tracking-wide">
-            Search 100+ Cities · 75,000+ Signals
+            Search 125+ Cities · 88,000+ Signals
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300/85">
-          Access 75,000+ distressed property signals across 100+ cities in all 50 states, powered by real Zillow market data. Find motivated sellers before anyone else.
+          Access 88,000+ distressed property signals across 125+ cities in all 50 states, powered by real Zillow market data. Find motivated sellers before anyone else.
         </p>
 
         {/* CTA row */}
@@ -216,8 +216,8 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         {/* Trust credibility bar */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           {[
-            '75,000+ Properties',
-            '100+ Cities',
+            '88,000+ Properties',
+            '125+ Cities',
             'Real Zillow Data',
             'Weekly Updates',
           ].map((item) => (

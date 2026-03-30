@@ -29,7 +29,7 @@ This is where most flippers spend the wrong money. They pay $99–$149/month for
 
 The flippers who consistently find deals before others are using **property signal tools** — databases that flag distressed properties before they hit any MLS. We're talking pre-foreclosure filings, tax delinquency data, absentee owners, expired listings, code violations. These are properties where the owner has a reason to sell, fast, often below market.
 
-**PropertySignalHQ** pulls from 75,000+ of these signals across 100+ cities. It scores each property on a 0–100 opportunity scale based on multiple distress factors. A score of 85+ means the property has several overlapping signals — pre-foreclosure AND tax delinquent AND absentee owner, for example. That's your target.
+**PropertySignalHQ** pulls from 88,000+ of these signals across 125+ cities. It scores each property on a 0–100 opportunity scale based on multiple distress factors. A score of 85+ means the property has several overlapping signals — pre-foreclosure AND tax delinquent AND absentee owner, for example. That's your target.
 
 The difference between a $40/month tool like this and a $150/month "pro" platform? The cheaper tool is giving you raw motivated-seller signals. The expensive one is showing you what everyone else can see.
 
@@ -110,7 +110,7 @@ None of these are secrets. The secret is seeing them before the competition, at 
 
 Property signal platforms aggregate public records — court filings, tax records, deed transfers, code violations — and surface properties with multiple distress factors. Instead of manually pulling records from the county, you get a scored list.
 
-**PropertySignalHQ** covers 75,000+ properties across 100+ cities. The opportunity score (0–100) factors in how many signals a property has and how severe they are. A score of 90 means this property has several overlapping red flags. That's not always a deal, but it's always worth a look.
+**PropertySignalHQ** covers 88,000+ properties across 125+ cities. The opportunity score (0–100) factors in how many signals a property has and how severe they are. A score of 90 means this property has several overlapping red flags. That's not always a deal, but it's always worth a look.
 
 The advantage of working from a scored database: you can filter by score, property type, city, and signal type. Instead of calling 200 random leads, you're calling 20 properties that all have strong motivated-seller indicators.
 
@@ -193,7 +193,7 @@ The shift: start with pre-filtered, distressed property data. Not just "absentee
 
 ### Property Signal Databases
 
-Platforms like **PropertySignalHQ** aggregate public records — court filings, tax records, deed transfers, expired listings — and score each property based on the number and severity of distress factors. Their database covers 75,000+ properties across 100+ cities.
+Platforms like **PropertySignalHQ** aggregate public records — court filings, tax records, deed transfers, expired listings — and score each property based on the number and severity of distress factors. Their database covers 88,000+ properties across 125+ cities.
 
 A property with a signal score of 85–95 has multiple serious red flags. That doesn't guarantee they'll sell — nothing does — but it means when you reach them, you're not calling someone who's just casually curious. You're calling someone who has a real problem that selling might solve.
 
@@ -282,7 +282,7 @@ Signal stacking is why a scored database is more useful than a raw list. When yo
 
 ### Using PropertySignalHQ
 
-PropertySignalHQ's database covers 75,000+ properties across 100+ cities. Each property gets an opportunity score from 0–100 based on the type and severity of its distress signals.
+PropertySignalHQ's database covers 88,000+ properties across 125+ cities. Each property gets an opportunity score from 0–100 based on the type and severity of its distress signals.
 
 The workflow for a wholesaler:
 
@@ -359,7 +359,7 @@ There are a few different categories:
 
 ### How to Use Property Signal Data
 
-Platforms like **PropertySignalHQ** aggregate public records across 100+ cities and score properties by distress level. For agents, the workflow looks like this:
+Platforms like **PropertySignalHQ** aggregate public records across 125+ cities and score properties by distress level. For agents, the workflow looks like this:
 
 **For buyer clients with specific search criteria:** Filter the database by their target neighborhoods and signal types. If your client wants a 3/2 in a specific zip code at a specific price, you can identify distressed properties in that area and approach the owners directly. This only works in some situations — you'd need to reach out carefully, and some sellers will be represented — but it opens doors that MLS searches don't.
 
@@ -448,7 +448,7 @@ Property signal platforms score properties on a 0–100 scale based on how many 
 
 For investors, this scoring system does the filtering work automatically. Instead of manually reviewing hundreds of county records, you pull up a list of the top-scoring properties in your target market and work from there.
 
-**PropertySignalHQ** does exactly this — it pulls from 75,000+ properties across 100+ cities and gives you a real-time scored list you can filter by city, score range, and signal type.
+**PropertySignalHQ** does exactly this — it pulls from 88,000+ properties across 125+ cities and gives you a real-time scored list you can filter by city, score range, and signal type.
 
 ### How Investors Actually Use Them
 
@@ -481,7 +481,7 @@ If the numbers work, great. If not, move on quickly. The signal got you the conv
 You don't need a sophisticated setup to start using property signal data. The basics:
 
 1. Pick 1–2 markets where you want to invest
-2. Find a property signal database that covers those markets (PropertySignalHQ covers 100+ cities)
+2. Find a property signal database that covers those markets (PropertySignalHQ covers 125+ cities)
 3. Set a score threshold — start at 75+
 4. Export 20–30 addresses per week
 5. Send a direct mail piece explaining who you are and that you buy properties as-is for cash

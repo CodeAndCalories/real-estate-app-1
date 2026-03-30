@@ -178,7 +178,7 @@ export default async function BlogIndexPage({ searchParams }: Props) {
         <div className="mt-16 bg-[#0f172a] border border-white/10 rounded-2xl p-8 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">Ready to find deals?</p>
           <h2 className="text-2xl font-black text-white mb-3">
-            Search 75,000+ Property Signals Now
+            Search 88,000+ Property Signals Now
           </h2>
           <p className="text-gray-400 text-sm mb-6 max-w-md mx-auto">
             Filter by city, signal type, and opportunity score. First month free.

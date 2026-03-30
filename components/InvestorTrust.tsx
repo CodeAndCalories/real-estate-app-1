@@ -29,7 +29,7 @@ const INVESTOR_TYPES = [
     emoji: '🤝',
     title: 'Wholesalers',
     description:
-      'Surface distressed owners and expired listings across 100+ cities in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
+      'Surface distressed owners and expired listings across 125+ cities in seconds. Export leads to CSV and push them directly into your dialer or CRM.',
     highlights: ['Distressed owner signals', 'Expired listing filter', 'One-click CSV export'],
     dot: 'bg-emerald-400',
     textAccent: 'text-emerald-400',
@@ -128,7 +128,7 @@ export default function InvestorTrust({ isDark: _isDark }: Props) {
             style={{ gap: '1px', background: 'rgba(37,99,235,0.12)' }}
           >
             {[
-              { value: '75,000+', label: 'Property signals',       icon: '📊' },
+              { value: '88,000+', label: 'Property signals',       icon: '📊' },
               { value: '100+',    label: 'Cities · all 50 states', icon: '🏙️' },
               { value: 'Zillow',  label: 'Powered market data',    icon: '🎯' },
               { value: 'Weekly',  label: 'Data updates',           icon: '🔄' },

@@ -45,10 +45,10 @@ function getReply(input: string, isPro: boolean): string | null {
   const text = input.toLowerCase()
 
   if (text.includes('price') || text.includes('cost') || text.includes('$') || text.includes('39')) {
-    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to 100+ cities across all 50 states, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session. Cancel anytime. No contracts.'
+    return 'PropertySignalHQ is $39/month with no hidden fees. Full access to 125+ cities across all 50 states, unlimited searches, and complete property signal data. Most users start finding opportunities within their first session. Cancel anytime. No contracts.'
   }
   if (text.includes('market') || text.includes('city') || text.includes('where') || text.includes('cover')) {
-    return 'We cover 100+ cities across all 50 US states including Phoenix, Miami, Dallas, Atlanta, Chicago, Nashville, Denver, Seattle, Charlotte, Boston and many more. Data is enriched weekly with real Zillow market data.'
+    return 'We cover 125+ cities across all 50 US states including Phoenix, Miami, Dallas, Atlanta, Chicago, Nashville, Denver, Seattle, Charlotte, Boston and many more. Data is enriched weekly with real Zillow market data.'
   }
   if (text.includes('cancel') || text.includes('refund') || text.includes('stop')) {
     return 'You can cancel anytime — no contracts or commitments. Log in → click your email top right → Manage Subscription. You keep access until end of billing period.'
@@ -57,10 +57,10 @@ function getReply(input: string, isPro: boolean): string | null {
     return 'You can sign up at /signup, log in at /login, or reset your password using the Forgot Password link on the login page.'
   }
   if (text.includes('get') || text.includes('include') || text.includes('feature') || text.includes('pro')) {
-    return 'With Pro you get: off-market property signals scored 0–100, full owner contact info (phone + email), equity data, coverage across 100+ cities in all 50 states, and weekly updated leads.'
+    return 'With Pro you get: off-market property signals scored 0–100, full owner contact info (phone + email), equity data, coverage across 125+ cities in all 50 states, and weekly updated leads.'
   }
   if (text.includes('how') && (text.includes('work') || text.includes('signal'))) {
-    return 'We analyze 75,000+ property signals across 100+ cities in all 50 states and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
+    return 'We analyze 88,000+ property signals across 125+ cities in all 50 states and score each property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.'
   }
   if (text.includes('worth') || text.includes('should i') || text.includes('good') || text.includes('better')) {
     return isPro
@@ -123,7 +123,7 @@ function PricingScreen({ onBack, onClose, isPro }: { onBack: () => void; onClose
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
         PropertySignalHQ is <span className="font-bold text-white">$39/month</span> with no hidden
-        fees. You get full access to 100+ cities across all 50 states, unlimited searches, and complete property
+        fees. You get full access to 125+ cities across all 50 states, unlimited searches, and complete property
         signal data.
         <br /><br />
         Most users start finding opportunities within their first session. Cancel anytime. No contracts.
@@ -153,7 +153,7 @@ function WhatDoIGetScreen({ onBack, onClose, isPro }: { onBack: () => void; onCl
           'Off-market property signals scored 0–100',
           'Full owner contact info (phone + email)',
           'Equity data and deal indicators',
-          'Coverage across 100+ cities in all 50 states',
+          'Coverage across 125+ cities in all 50 states',
           'Daily updated leads',
         ].map((item) => (
           <li key={item} className="flex items-start gap-2">
@@ -179,8 +179,8 @@ function HowItWorksScreen({ onBack, onClose }: { onBack: () => void; onClose: ()
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
-        We analyze <span className="font-semibold text-white">75,000+</span> property signals across{' '}
-        <span className="font-semibold text-white">100+ cities in all 50 states</span> and score each
+        We analyze <span className="font-semibold text-white">88,000+</span> property signals across{' '}
+        <span className="font-semibold text-white">125+ cities in all 50 states</span> and score each
         property 0–100 based on signal strength. Higher score = higher likelihood of being an off-market opportunity.
         <br /><br />
         Pro users see full scores, owner contact info, and equity data. Free users see a preview
@@ -205,7 +205,7 @@ function MarketCoverageScreen({ onBack, onClose }: { onBack: () => void; onClose
   return (
     <div>
       <p className="text-sm leading-relaxed text-gray-300">
-        We cover <span className="font-semibold text-white">100+ cities across all 50 US states</span> including
+        We cover <span className="font-semibold text-white">125+ cities across all 50 US states</span> including
         Phoenix, Miami, Dallas, Atlanta, Chicago, Nashville, Denver, Seattle, Charlotte, Boston and many more.
         Data is enriched weekly with real Zillow market data.
       </p>
