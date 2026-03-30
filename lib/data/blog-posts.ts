@@ -13,7 +13,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'best-tools-for-house-flippers',
     title: 'The Best Tools for House Flippers in 2025',
     description: 'A no-nonsense breakdown of what tools actually help flippers find deals, run numbers, and close faster — and which ones are a waste of money.',
-    publishedAt: '2025-03-10',
+    publishedAt: '2026-03-10',
     readTime: '9 min read',
     category: 'House Flipping',
     content: `
@@ -84,7 +84,7 @@ If you're starting out or scaling up, the property signal database is where I'd 
     slug: 'finding-flip-deals-before-the-competition',
     title: 'How to Find Flip Deals Before Other Investors See Them',
     description: 'The strategies serious flippers use to get to motivated sellers first — before the deal hits any platform, before the mailers land, before the competition calls.',
-    publishedAt: '2025-03-14',
+    publishedAt: '2026-03-14',
     readTime: '8 min read',
     category: 'House Flipping',
     content: `
@@ -167,7 +167,7 @@ Start with the data. Build the habits around it.
     slug: 'wholesale-real-estate-lead-generation',
     title: 'Wholesale Real Estate Lead Generation: What Actually Works in 2025',
     description: 'A practical guide to generating wholesale leads that convert — from property signal data to outreach sequences to building a consistent pipeline.',
-    publishedAt: '2025-03-18',
+    publishedAt: '2026-03-18',
     readTime: '10 min read',
     category: 'Wholesaling',
     content: `
@@ -244,7 +244,7 @@ The deals come. But only if you show up consistently enough to catch them.
     slug: 'property-signals-for-wholesalers',
     title: 'How Wholesalers Use Property Signals to Find Deals Faster',
     description: 'What property signals are, why they matter for wholesalers, and how to use signal data to get to motivated sellers before your competition.',
-    publishedAt: '2025-03-22',
+    publishedAt: '2026-03-22',
     readTime: '8 min read',
     category: 'Wholesaling',
     content: `
@@ -323,7 +323,7 @@ It's not complicated. But it requires showing up consistently. The signals are a
     slug: 'off-market-property-leads-for-agents',
     title: 'Off-Market Property Leads for Real Estate Agents: A Practical Guide',
     description: 'How buyer\'s agents and listing agents can use off-market property signals to serve clients better, win more listings, and build a sustainable referral business.',
-    publishedAt: '2025-03-25',
+    publishedAt: '2026-03-25',
     readTime: '9 min read',
     category: 'Real Estate Agents',
     content: `
@@ -406,7 +406,7 @@ It takes a few months of consistent effort to see the results. But the agents do
     slug: 'real-estate-investment-signals',
     title: 'What Are Real Estate Investment Signals? A Beginner\'s Guide',
     description: 'A clear explanation of what property investment signals are, how they\'re scored, and how to use them to find motivated sellers in any market.',
-    publishedAt: '2025-03-28',
+    publishedAt: '2026-03-28',
     readTime: '7 min read',
     category: 'Investor Education',
     content: `
