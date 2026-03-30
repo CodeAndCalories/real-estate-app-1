@@ -12,6 +12,9 @@
  *   node scripts/download-county-data.js king
  *   node scripts/download-county-data.js mecklenburg
  *   node scripts/download-county-data.js travis
+ *   node scripts/download-county-data.js cuyahoga
+ *   node scripts/download-county-data.js kent
+ *   node scripts/download-county-data.js summit
  *   node scripts/download-county-data.js all
  *
  * Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -411,6 +414,159 @@ const COUNTIES = {
         estimated_value: Math.round(totalValue),
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Cuyahoga County, OH (Cleveland) ─────────────────────────────────────────
+  // ArcGIS MapServer — Fiscal Office Appraisal Parcels CAMA, ~550K parcels
+  // Endpoint: https://gis.cuyahogacounty.us/server/rest/services/CCFO/APPRAISAL_PARCELS_CAMA_WGS84/MapServer/0
+  cuyahoga: {
+    label:        'Cuyahoga County, OH',
+    arcgisUrl:    'https://gis.cuyahogacounty.us/server/rest/services/CCFO/APPRAISAL_PARCELS_CAMA_WGS84/MapServer/0/query',
+    arcgisFields: 'PARCELPIN,par_addr_all,parcel_city,parcel_zip,parcel_owner,tax_market_total,tax_assessed_total',
+    useArcGIS:    true,
+    state:        'OH',
+    mapRow(r) {
+      const address = safeStr(r['par_addr_all'])
+      const city    = safeStr(r['parcel_city']) ?? 'Cleveland'
+      const zip     = safeStr(r['parcel_zip'])
+      if (!address) return null
+
+      const marketVal   = safeNum(r['tax_market_total'])
+      const assessedVal = safeNum(r['tax_assessed_total'])
+      const estimatedValue = marketVal ?? assessedVal
+      // Keep records even without value — parcel/address data is still useful
+      const ownerName = safeStr(r['parcel_owner'])
+      const parcelPin = safeStr(r['PARCELPIN'])
+      const id = parcelPin
+        ? `cuyahoga-${parcelPin.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, OH`, city)
+
+      return {
+        id,
+        address, city,
+        zip: zip ?? '',
+        estimated_value: estimatedValue && estimatedValue > 0 ? Math.round(estimatedValue) : null,
+        price_per_sqft: null,
+        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Kent County, MI (Grand Rapids) ──────────────────────────────────────────
+  // ArcGIS FeatureServer — Parcels With Condos, ~270K parcels
+  // Endpoint: https://gis.kentcountymi.gov/agisprod/rest/services/ParcelsWithCondos/FeatureServer/0
+  kent: {
+    label:        'Kent County, MI',
+    arcgisUrl:    'https://gis.kentcountymi.gov/agisprod/rest/services/ParcelsWithCondos/FeatureServer/0/query',
+    arcgisFields: 'PNUM,PROPERTYADDRESS,PROPADDRESSCITY,PROPADDRESSSTATE_ZIPCODE,OWNERNAME1,OWNERNAME2,OWNERADDRESS,OWNERCITY,OWNERZIPCODE,SEVTRIBUNAL1,TAXABLETRIBUNAL1',
+    useArcGIS:    true,
+    state:        'MI',
+    mapRow(r) {
+      const address = safeStr(r['PROPERTYADDRESS'])
+      const city    = safeStr(r['PROPADDRESSCITY']) ?? 'Grand Rapids'
+      if (!address) return null
+
+      // PROPADDRESSSTATE_ZIPCODE is "MI 49504" — extract the zip
+      const stateZip = safeStr(r['PROPADDRESSSTATE_ZIPCODE']) ?? ''
+      const zipMatch = stateZip.match(/(\d{5})/)
+      const zip = zipMatch ? zipMatch[1] : ''
+
+      const sev         = safeNum(r['SEVTRIBUNAL1'])   // State Equalized Value (half of true cash value)
+      const taxable     = safeNum(r['TAXABLETRIBUNAL1'])
+      // SEV * 2 approximates True Cash Value (market value) per Michigan law
+      const estimatedValue = sev != null ? sev * 2 : (taxable != null ? taxable * 2 : null)
+
+      const owner1 = safeStr(r['OWNERNAME1'])
+      const owner2 = safeStr(r['OWNERNAME2'])
+      const ownerName = [owner1, owner2].filter(Boolean).join(' & ') || null
+
+      const ownerAddr  = safeStr(r['OWNERADDRESS'])
+      const ownerCity  = safeStr(r['OWNERCITY'])
+      const ownerZip   = safeStr(r['OWNERZIPCODE'])
+      const ownerMailingAddress = [ownerAddr, ownerCity].filter(Boolean).join(', ') || null
+
+      const pnum = safeStr(r['PNUM'])
+      const id = pnum
+        ? `kent-${pnum.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, MI`, city)
+
+      return {
+        id,
+        address, city,
+        zip,
+        estimated_value: estimatedValue && estimatedValue > 0 ? Math.round(estimatedValue) : null,
+        price_per_sqft: null,
+        owner_name: ownerName,
+        owner_mailing_address: ownerMailingAddress,
+        owner_state: 'MI',
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Summit County, OH (Akron) ────────────────────────────────────────────────
+  // ArcGIS FeatureServer — Tax Parcels, ~270K parcels
+  // Endpoint: https://scgis.summitoh.net/hosted/rest/services/parcels_web_GEODATA_Tax_Parcels/FeatureServer/0
+  summit: {
+    label:        'Summit County, OH',
+    arcgisUrl:    'https://scgis.summitoh.net/hosted/rest/services/parcels_web_GEODATA_Tax_Parcels/FeatureServer/0/query',
+    arcgisFields: 'parcelid,siteaddress,ownernme1,ownernme2,pstladdress,pstlcity,pstlstate,pstlzip5,cntmarval,cntassdval',
+    useArcGIS:    true,
+    state:        'OH',
+    mapRow(r) {
+      const address = safeStr(r['siteaddress'])
+      if (!address) return null
+
+      // Site address typically includes city suffix (e.g. "123 MAIN ST AKRON")
+      // Use postal city if available, otherwise default
+      const city = safeStr(r['pstlcity']) ?? 'Akron'
+      const zip  = safeStr(r['pstlzip5'])
+
+      const marketVal   = safeNum(r['cntmarval'])
+      const assessedVal = safeNum(r['cntassdval'])
+      const estimatedValue = marketVal ?? assessedVal
+
+      const owner1 = safeStr(r['ownernme1'])
+      const owner2 = safeStr(r['ownernme2'])
+      const ownerName = [owner1, owner2].filter(Boolean).join(' & ') || null
+
+      const ownerAddr  = safeStr(r['pstladdress'])
+      const ownerState = safeStr(r['pstlstate'])
+      const ownerMailingAddress = [ownerAddr, city].filter(Boolean).join(', ') || null
+
+      const parcelId = safeStr(r['parcelid'])
+      const id = parcelId
+        ? `summit-${parcelId.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, OH`, city)
+
+      return {
+        id,
+        address, city,
+        zip: zip ?? '',
+        estimated_value: estimatedValue && estimatedValue > 0 ? Math.round(estimatedValue) : null,
+        price_per_sqft: null,
+        owner_name: ownerName,
+        owner_mailing_address: ownerMailingAddress,
+        owner_state: ownerState,
         tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
         loan_balance_estimate: null, days_in_default: null, days_on_market: null,
