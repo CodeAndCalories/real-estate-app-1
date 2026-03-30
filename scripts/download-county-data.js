@@ -464,43 +464,40 @@ const COUNTIES = {
   },
 
   // ── Cuyahoga County, OH (Cleveland) ──────────────────────────────────────────
-  // ArcGIS MapServer — County parcel layer, ~570K parcels
-  // Service: https://gis.cuyahogacounty.us/server/rest/services/Parcels/MapServer/0
-  // Note: If layer 0 returns an error, try layers 1 or 2 via arcgisUrl override
+  // ArcGIS MapServer — CCGIS/Parcels_CAMA_Real_Property layer 3 (AppraisalParcelView)
+  // Service: https://gis.cuyahogacounty.us/server/rest/services/CCGIS/Parcels_CAMA_Real_Property/MapServer
   cuyahoga: {
     label:      'Cuyahoga County, OH',
-    arcgisUrl:  'https://gis.cuyahogacounty.us/server/rest/services/Parcels/MapServer/0/query',
+    arcgisUrl:  'https://gis.cuyahogacounty.us/server/rest/services/CCGIS/Parcels_CAMA_Real_Property/MapServer/3/query',
     useArcGIS:  true,
     state:      'OH',
     mapRow(r) {
-      // Ohio counties commonly use ADDR, ADDRESS, or SITUS_ADDRESS
-      const address = safeStr(r['ADDR'] ?? r['ADDRESS'] ?? r['SITUS_ADDRESS'] ?? r['PROP_ADDR'])
-      // City often stored as CITY or MUNI_NAME
-      const city    = safeStr(r['CITY'] ?? r['MUNI_NAME'] ?? r['SITUS_CITY']) ?? 'Cleveland'
-      const zip     = safeStr(r['ZIP'] ?? r['ZIPCODE'] ?? r['SITUS_ZIP'])
+      // par_addr_all = "12710  BENWOOD AVE, CLEVELAND, OH, 44105" — extract street portion
+      const addrAll = safeStr(r['par_addr_all'])
+      const address = addrAll ? addrAll.split(',')[0].trim() : null
+      const city    = safeStr(r['par_city']) ?? 'Cleveland'
+      const zip     = r['par_zip'] != null ? String(r['par_zip']) : null
       if (!address) return null
 
-      // Cuyahoga uses PPN (Permanent Parcel Number); fallback to common alternatives
-      const ppn = safeStr(r['PPN'] ?? r['PARCEL_ID'] ?? r['PARCEL'] ?? r['PIN'])
+      const ppn = safeStr(r['parcelpin'])
       const id  = ppn
         ? `cuyahoga-${ppn.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, OH`, city)
 
-      // Appraised value fields vary — try several common names
-      const appraisedValue =
-        safeNum(r['APPRAISED'])   ??
-        safeNum(r['APPR_VALUE'])  ??
-        safeNum(r['MARKET_VALUE']) ??
-        safeNum(r['TOTAL_VALUE']) ??
-        safeNum(r['LAND_VALUE'])
-      const ownerName = safeStr(r['OWNER1'] ?? r['OWNER'] ?? r['OWNER_NAME'])
+      // certified_tax_total is the appraised value; sales_amount is last sale price
+      const appraisedValue = safeNum(r['certified_tax_total']) ?? safeNum(r['gross_certified_total'])
+      const sqft = safeNum(r['total_res_liv_area'])
+      const ownerName = safeStr(r['parcel_owner'])
+
+      const estimatedValue = appraisedValue && appraisedValue > 0 ? Math.round(appraisedValue) : null
+      const pricePerSqft = estimatedValue && sqft && sqft > 0 ? Math.round(estimatedValue / sqft) : null
 
       return {
         id,
         address, city,
         zip: zip ?? '',
-        estimated_value: appraisedValue && appraisedValue > 0 ? Math.round(appraisedValue) : null,
-        price_per_sqft: null,
+        estimated_value: estimatedValue,
+        price_per_sqft: pricePerSqft,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
         tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
@@ -513,34 +510,31 @@ const COUNTIES = {
   },
 
   // ── Kent County, MI (Grand Rapids) ───────────────────────────────────────────
-  // ArcGIS MapServer — County parcel layer, ~270K parcels
-  // Service: https://gis.kentcountymi.gov/agisprod/rest/services/Parcels/MapServer/0
-  // Note: If layer 0 returns an error, try layers 1 or 2 via arcgisUrl override
+  // ArcGIS MapServer — ParcelsWithCondos layer 0, ~270K parcels
+  // Service: https://gis.kentcountymi.gov/agisprod/rest/services/ParcelsWithCondos/MapServer
   kent: {
     label:      'Kent County, MI',
-    arcgisUrl:  'https://gis.kentcountymi.gov/agisprod/rest/services/Parcels/MapServer/0/query',
+    arcgisUrl:  'https://gis.kentcountymi.gov/agisprod/rest/services/ParcelsWithCondos/MapServer/0/query',
     useArcGIS:  true,
     state:      'MI',
     mapRow(r) {
-      const address = safeStr(r['ADDRESS'] ?? r['PROP_ADDR'] ?? r['SITUS_ADDRESS'] ?? r['SITE_ADDR'])
-      const city    = safeStr(r['CITY'] ?? r['PROP_CITY'] ?? r['SITUS_CITY']) ?? 'Grand Rapids'
-      const zip     = safeStr(r['ZIP'] ?? r['ZIPCODE'] ?? r['PROP_ZIP'])
+      const address = safeStr(r['PROPERTYADDRESS'])
+      const city    = safeStr(r['PROPADDRESSCITY']) ?? 'Grand Rapids'
+      // PROPADDRESSSTATE_ZIPCODE format: "MI49330     " — skip 2-char state prefix
+      const zipRaw  = safeStr(r['PROPADDRESSSTATE_ZIPCODE'])
+      const zip     = zipRaw ? zipRaw.trim().slice(2).trim() : null
       if (!address) return null
 
-      // Michigan parcels use PIN; also try PARCEL_ID or similar
-      const pin = safeStr(r['PIN'] ?? r['PARCEL_ID'] ?? r['PARCEL'] ?? r['APN'])
+      // PNUM is formatted parcel number e.g. "41-01-05-200-045"
+      const pin = safeStr(r['PNUM'])
       const id  = pin
         ? `kent-${pin.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, MI`, city)
 
-      // Michigan GIS layers often expose SEV (State Equalized Value) or Taxable Value (TV)
-      const estimatedValue =
-        safeNum(r['SEV'])          ??
-        safeNum(r['ASSESSED_VALUE']) ??
-        safeNum(r['MARKET_VALUE']) ??
-        safeNum(r['TOTAL_VALUE'])  ??
-        safeNum(r['TV'])
-      const ownerName = safeStr(r['OWNER'] ?? r['OWNER_NAME'] ?? r['OWNER1'])
+      // SEVTRIBUNAL1 is State Equalized Value (50% of true cash value in MI) — multiply by 2
+      const sev = safeNum(r['SEVTRIBUNAL1'])
+      const estimatedValue = sev != null ? sev * 2 : null
+      const ownerName = safeStr(r['OWNERNAME1'])
 
       return {
         id,
@@ -560,38 +554,33 @@ const COUNTIES = {
   },
 
   // ── Summit County, OH (Akron) ─────────────────────────────────────────────────
-  // ArcGIS MapServer — County parcel layer, ~295K parcels
-  // Service: https://maps.summitcounty.org/arcgis/rest/services/Parcels/MapServer/0
-  // Note: If layer 0 returns an error, try layers 1 or 2 via arcgisUrl override
+  // ArcGIS MapServer — Maps/ParcelQuery layer 0 (Parcel Information), ~295K parcels
+  // Service: https://maps.summitcounty.org/arcgis/rest/services/Maps/ParcelQuery/MapServer
   summit: {
     label:      'Summit County, OH',
-    arcgisUrl:  'https://maps.summitcounty.org/arcgis/rest/services/Parcels/MapServer/0/query',
+    arcgisUrl:  'https://maps.summitcounty.org/arcgis/rest/services/Maps/ParcelQuery/MapServer/0/query',
     useArcGIS:  true,
     state:      'OH',
     mapRow(r) {
-      const address = safeStr(r['ADDRESS'] ?? r['ADDR'] ?? r['SITUS_ADDRESS'] ?? r['PROP_ADDR'])
-      const city    = safeStr(r['CITY'] ?? r['MUNI_NAME'] ?? r['SITUS_CITY']) ?? 'Akron'
-      const zip     = safeStr(r['ZIP'] ?? r['ZIPCODE'] ?? r['SITUS_ZIP'])
+      // OwnershipTable_SITUS is the property street address (no city in this service)
+      const address = safeStr(r['OwnershipTable_SITUS'])
+      const city    = 'Akron'
       if (!address) return null
 
-      // Summit County uses PPN like other Ohio counties
-      const ppn = safeStr(r['PPN'] ?? r['PARCEL_ID'] ?? r['PARCEL'] ?? r['PIN'])
-      const id  = ppn
-        ? `summit-${ppn.replace(/[^a-zA-Z0-9]/g, '')}`
+      // OwnershipTable_SERIAL is the parcel identifier e.g. "PE-2-214"
+      const serial = safeStr(r['OwnershipTable_SERIAL'])
+      const id     = serial
+        ? `summit-${serial.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, OH`, city)
 
-      const appraisedValue =
-        safeNum(r['APPRAISED'])    ??
-        safeNum(r['APPR_VALUE'])   ??
-        safeNum(r['MARKET_VALUE']) ??
-        safeNum(r['TOTAL_VALUE'])  ??
-        safeNum(r['LAND_VALUE'])
-      const ownerName = safeStr(r['OWNER1'] ?? r['OWNER'] ?? r['OWNER_NAME'])
+      // TAXVAL = MRKTVALLND + MRKTVALIMP (total market value = land + improvements)
+      const appraisedValue = safeNum(r['OwnershipTable_TAXVAL'])
+      const ownerName = safeStr(r['OwnershipTable_OWNER'])
 
       return {
         id,
         address, city,
-        zip: zip ?? '',
+        zip: '',
         estimated_value: appraisedValue && appraisedValue > 0 ? Math.round(appraisedValue) : null,
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
