@@ -71,41 +71,61 @@ export default function HomePage() {
 
       {/* 10. Final CTA */}
       <section className="border-t border-white/5 py-16 md:py-24 px-4 sm:px-6 text-center relative overflow-hidden bg-[#020617]">
-        {/* Glow backdrop */}
+        {/* Large pulsing orb */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute pointer-events-none"
           aria-hidden="true"
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(37,99,235,0.18) 0%, transparent 70%)',
+            width: '800px',
+            height: '800px',
+            background: 'radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 65%)',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            filter: 'blur(40px)',
+            animation: 'orbPulse 6s ease-in-out infinite',
           }}
         />
         <div className="relative max-w-2xl mx-auto">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 rounded-full bg-blue-900/50 text-blue-400">
-            First Month Free
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
-            Start Finding Property Leads Today
-          </h2>
-          <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
-            Access 75,000+ pre-scored property signals across 100+ cities. First month on us — no charge until day 31.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="/upgrade"
-              className="w-full sm:w-auto font-bold text-base px-10 py-4 rounded-lg transition-all duration-150 bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30 ring-1 ring-blue-500/20"
-            >
-              Start Free Trial →
-            </a>
-            <a
-              href="/finder"
-              className="w-full sm:w-auto font-semibold text-base px-10 py-4 rounded-lg transition-all duration-150 border border-white/10 text-gray-300 hover:border-white/20 hover:bg-white/5"
-            >
-              Browse Free First
-            </a>
+          {/* Shimmer-border card */}
+          <div
+            className="shimmer-border rounded-2xl p-10"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 0 40px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
+            }}
+          >
+            <span className="inline-block text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">
+              First Month Free
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
+              Start Finding Property Leads Today
+            </h2>
+            <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
+              Access 75,000+ pre-scored property signals across 100+ cities. First month on us — no charge until day 31.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href="/upgrade"
+                className="w-full sm:w-auto font-bold text-base px-10 py-4 rounded-lg text-white transition-all duration-200"
+                style={{
+                  background: '#2563eb',
+                  boxShadow: '0 0 32px rgba(37,99,235,0.35), 0 4px 16px rgba(0,0,0,0.4)',
+                }}
+              >
+                Start Free Trial →
+              </a>
+              <a
+                href="/finder"
+                className="w-full sm:w-auto font-semibold text-base px-10 py-4 rounded-lg transition-all duration-150 border border-white/10 text-gray-300 hover:border-white/20 hover:bg-white/5"
+              >
+                Browse Free First
+              </a>
+            </div>
+            <p className="text-xs mt-4 text-gray-600">
+              30-day free trial · No charge until day 31 · Cancel anytime
+            </p>
           </div>
-          <p className="text-xs mt-4 text-gray-600">
-            30-day free trial · No charge until day 31 · Cancel anytime
-          </p>
         </div>
       </section>
 

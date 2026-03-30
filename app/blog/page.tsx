@@ -14,10 +14,23 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Investor Education':   'text-blue-400 bg-blue-500/10 border-blue-500/20',
 }
 
-export default function BlogIndexPage() {
+const POSTS_PER_PAGE = 12
+
+type Props = {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function BlogIndexPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10))
+
   const sorted = [...BLOG_POSTS].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   )
+
+  const totalPages = Math.ceil(sorted.length / POSTS_PER_PAGE)
+  const safePage = Math.min(currentPage, totalPages)
+  const pagePosts = sorted.slice((safePage - 1) * POSTS_PER_PAGE, safePage * POSTS_PER_PAGE)
 
   return (
     <div className="min-h-screen bg-[#020617]">
@@ -61,7 +74,7 @@ export default function BlogIndexPage() {
 
         {/* Posts grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sorted.map((post) => {
+          {pagePosts.map((post) => {
             const colorClass = CATEGORY_COLORS[post.category] ?? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
             const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-US', {
               year: 'numeric',
@@ -103,6 +116,63 @@ export default function BlogIndexPage() {
             )
           })}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-2">
+            {/* Previous */}
+            {safePage > 1 ? (
+              <Link
+                href={safePage === 2 ? '/blog' : `/blog?page=${safePage - 1}`}
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-white/10 bg-[#0f172a] text-gray-300 hover:bg-white/10 hover:border-white/20 transition-colors"
+              >
+                ← Previous
+              </Link>
+            ) : (
+              <span className="px-4 py-2 rounded-lg text-sm font-medium border border-white/5 bg-white/5 text-gray-600 cursor-not-allowed">
+                ← Previous
+              </span>
+            )}
+
+            {/* Page numbers */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <Link
+                  key={p}
+                  href={p === 1 ? '/blog' : `/blog?page=${p}`}
+                  className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                    p === safePage
+                      ? 'bg-blue-600 text-white border border-blue-500/50 shadow-lg shadow-blue-600/25'
+                      : 'border border-white/10 bg-[#0f172a] text-gray-400 hover:bg-white/10 hover:text-white hover:border-white/20'
+                  }`}
+                >
+                  {p}
+                </Link>
+              ))}
+            </div>
+
+            {/* Next */}
+            {safePage < totalPages ? (
+              <Link
+                href={`/blog?page=${safePage + 1}`}
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-white/10 bg-[#0f172a] text-gray-300 hover:bg-white/10 hover:border-white/20 transition-colors"
+              >
+                Next →
+              </Link>
+            ) : (
+              <span className="px-4 py-2 rounded-lg text-sm font-medium border border-white/5 bg-white/5 text-gray-600 cursor-not-allowed">
+                Next →
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Page indicator (only when paginated) */}
+        {totalPages > 1 && (
+          <p className="text-center text-xs text-gray-600 mt-3">
+            Page {safePage} of {totalPages} · {sorted.length} articles
+          </p>
+        )}
 
         {/* Bottom CTA */}
         <div className="mt-16 bg-[#0f172a] border border-white/10 rounded-2xl p-8 text-center">

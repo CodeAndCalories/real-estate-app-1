@@ -12,9 +12,8 @@ const TESTIMONIALS = [
     role: 'Fix & Flip Investor',
     location: 'Phoenix, AZ',
     avatar: 'MT',
-    score: 94,
     dealLabel: 'Found a 94-score deal in Phoenix',
-    avatarColor: 'bg-blue-600',
+    gradient: 'linear-gradient(135deg, #2563eb, #3b82f6)',
   },
   {
     quote:
@@ -23,28 +22,56 @@ const TESTIMONIALS = [
     role: 'Wholesale Investor',
     location: 'Dallas, TX',
     avatar: 'SR',
-    score: 88,
     dealLabel: 'Closed 3 wholesale deals in 60 days',
-    avatarColor: 'bg-purple-600',
+    gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
   },
   {
     quote:
-      "The rental yield estimates and deal calculator let me run numbers on 20 properties in the time it used to take me to analyze one. My buy-and-hold pipeline has never been fuller.",
+      "The rental yield estimates and deal calculator let me run numbers on 20 properties in the time it used to take me to analyze one. My pipeline has never been fuller.",
     name: 'James L.',
     role: 'Buy & Hold Investor',
     location: 'Atlanta, GA',
     avatar: 'JL',
-    score: 82,
     dealLabel: 'Added 2 rentals to portfolio this quarter',
-    avatarColor: 'bg-green-600',
+    gradient: 'linear-gradient(135deg, #059669, #34d399)',
+  },
+  {
+    quote:
+      "The alert system is the best part. I set it up once and now I get notified when a 90+ score deal hits my target city. It's like having an analyst working for me 24/7.",
+    name: 'David K.',
+    role: 'Multi-Family Investor',
+    location: 'Denver, CO',
+    avatar: 'DK',
+    dealLabel: 'Automated alerts saved 10 hrs/week',
+    gradient: 'linear-gradient(135deg, #0891b2, #22d3ee)',
+  },
+  {
+    quote:
+      "I used to pay $149/month for PropStream and still had to manually score every deal. PropertySignalHQ does all of that automatically at a fraction of the price.",
+    name: 'Rachel M.',
+    role: 'Real Estate Agent',
+    location: 'Charlotte, NC',
+    avatar: 'RM',
+    dealLabel: 'Switched from $149/mo PropStream',
+    gradient: 'linear-gradient(135deg, #b45309, #f59e0b)',
+  },
+  {
+    quote:
+      "The market temperature data helps me explain to clients why certain neighborhoods are heating up. I use PropertySignalHQ in every single listing presentation now.",
+    name: 'Tom B.',
+    role: 'Licensed Realtor',
+    location: 'Nashville, TN',
+    avatar: 'TB',
+    dealLabel: 'Uses it in every listing presentation',
+    gradient: 'linear-gradient(135deg, #be185d, #f472b6)',
   },
 ]
 
 function Stars() {
   return (
-    <div className="flex items-center gap-0.5 mb-3">
+    <div className="flex items-center gap-0.5 mb-4">
       {[...Array(5)].map((_, i) => (
-        <svg key={i} className="w-4 h-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+        <svg key={i} className="w-3.5 h-3.5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
@@ -52,105 +79,126 @@ function Stars() {
   )
 }
 
-export default function InvestorTestimonials({ isDark }: Props) {
+function TestimonialCard({ t }: { t: typeof TESTIMONIALS[0] }) {
   return (
-    <section className="py-20 px-6 bg-[#0a0f1e]">
-      <div className="max-w-6xl mx-auto">
+    <div
+      className="flex-shrink-0 w-[320px] rounded-2xl border border-white/10 p-6 flex flex-col hover:border-white/20 transition-all duration-300"
+      style={{
+        background: 'rgba(15,23,42,0.9)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+      }}
+    >
+      <Stars />
+
+      {/* Quote mark decoration */}
+      <div className="relative">
+        <span
+          className="absolute -top-2 -left-1 text-4xl font-black leading-none select-none pointer-events-none"
+          style={{ color: 'rgba(37,99,235,0.25)' }}
+          aria-hidden="true"
+        >
+          &ldquo;
+        </span>
+        <blockquote className="text-sm leading-relaxed flex-1 mb-4 text-gray-300 pt-3 pl-3">
+          {t.quote}
+        </blockquote>
+      </div>
+
+      {/* Deal badge */}
+      <div className="flex items-center gap-2 text-xs font-semibold mb-4 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span>✓</span>
+        <span>{t.dealLabel}</span>
+      </div>
+
+      {/* Author */}
+      <div className="flex items-center gap-3 mt-auto">
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-black"
+          style={{ background: t.gradient }}
+        >
+          {t.avatar}
+        </div>
+        <div>
+          <p className="text-sm font-bold text-white">{t.name}</p>
+          <p className="text-xs text-gray-500">{t.role} · {t.location}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function InvestorTestimonials({ isDark: _isDark }: Props) {
+  // Double the array so the marquee can loop seamlessly
+  const row1 = [...TESTIMONIALS, ...TESTIMONIALS]
+  const row2 = [...TESTIMONIALS.slice(3), ...TESTIMONIALS.slice(0, 3), ...TESTIMONIALS.slice(3), ...TESTIMONIALS.slice(0, 3)]
+
+  return (
+    <section className="py-20 overflow-hidden bg-[#0a0f1e]">
+      <div className="max-w-6xl mx-auto px-6">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${
-            isDark ? 'text-blue-400' : 'text-blue-600'
-          }`}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-400">
             Investor stories
           </p>
-          <h2 className={`text-3xl sm:text-4xl font-black leading-tight mb-4 ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}>
+          <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-4 text-white">
             Real investors. Real results.
           </h2>
-          <p className={`text-base max-w-md mx-auto ${
-            isDark ? 'text-gray-400' : 'text-gray-500'
-          }`}>
+          <p className="text-base max-w-md mx-auto text-gray-400">
             See how investors across the country are using PropertySignalHQ to find better deals faster.
           </p>
         </div>
+      </div>
 
-        {/* Testimonial cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {TESTIMONIALS.map((t) => (
-            <div
-              key={t.name}
-              className={`rounded-2xl border p-6 flex flex-col ${
-                isDark
-                  ? 'bg-gray-900 border-gray-700'
-                  : 'bg-gray-50 border-gray-200'
-              }`}
-            >
-              <Stars />
-
-              {/* Quote */}
-              <blockquote className={`text-sm leading-relaxed flex-1 mb-5 ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-
-              {/* Deal badge */}
-              <div className={`flex items-center gap-2 text-xs font-semibold mb-4 px-3 py-2 rounded-lg ${
-                isDark
-                  ? 'bg-green-900/30 text-green-400'
-                  : 'bg-green-50 text-green-700'
-              }`}>
-                <span>✓</span>
-                <span>{t.dealLabel}</span>
-              </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-black ${t.avatarColor}`}>
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {t.name}
-                  </p>
-                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                    {t.role} · {t.location}
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* Marquee row 1 */}
+      <div className="marquee-track mb-4">
+        <div className="marquee-inner">
+          {row1.map((t, i) => (
+            <TestimonialCard key={`r1-${i}`} t={t} />
           ))}
         </div>
+      </div>
 
-        {/* Social proof banner */}
-        <div className={`rounded-2xl border px-8 py-6 flex flex-wrap items-center justify-center gap-8 text-center ${
-          isDark
-            ? 'bg-blue-950/40 border-blue-800'
-            : 'bg-blue-50 border-blue-200'
-        }`}>
+      {/* Marquee row 2 — reversed */}
+      <div className="marquee-track">
+        <div className="marquee-inner reverse">
+          {row2.map((t, i) => (
+            <TestimonialCard key={`r2-${i}`} t={t} />
+          ))}
+        </div>
+      </div>
+
+      {/* Social proof banner */}
+      <div className="max-w-6xl mx-auto px-6 mt-12">
+        <div
+          className="rounded-2xl border border-blue-900/40 px-8 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(10,16,40,0.9) 100%)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+          }}
+        >
           {[
             { value: '75,000+', label: 'Property signals' },
-            { value: '100+',   label: 'Cities · all 50 states' },
-            { value: 'Zillow', label: 'Powered market data' },
-            { value: 'Weekly', label: 'Data updates' },
+            { value: '100+',    label: 'Cities · all 50 states' },
+            { value: 'Zillow',  label: 'Powered market data' },
+            { value: 'Weekly',  label: 'Data updates' },
           ].map((stat) => (
             <div key={stat.label}>
-              <div className={`text-3xl font-black leading-none ${
-                isDark ? 'text-blue-400' : 'text-blue-700'
-              }`}>
+              <div
+                className="text-3xl font-black leading-none mb-1"
+                style={{
+                  background: 'linear-gradient(135deg, #60a5fa, #67e8f9)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
                 {stat.value}
               </div>
-              <div className={`text-xs mt-1 font-medium ${
-                isDark ? 'text-blue-500' : 'text-blue-600'
-              }`}>
-                {stat.label}
-              </div>
+              <div className="text-xs font-medium text-gray-500">{stat.label}</div>
             </div>
           ))}
         </div>
-
       </div>
     </section>
   )
