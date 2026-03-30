@@ -56,10 +56,10 @@ export default function PricingPage() {
             Pricing
           </span>
           <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
-            Find More Deals.<br className="hidden sm:block" /> Pay Less Than One Deal Is Worth.
+            First Month Free.<br className="hidden sm:block" /> Then $39/Month.
           </h1>
           <p className="text-lg text-gray-400 max-w-xl mx-auto">
-            One flat plan. Everything you need to find, analyze, and close off-market opportunities.
+            Try the full Pro plan free for 30 days. No charge until day 31. Cancel anytime.
           </p>
         </div>
 
@@ -95,19 +95,20 @@ export default function PricingPage() {
           {/* Pro card */}
           <div className="rounded-2xl border border-blue-500 bg-blue-600 p-8 flex flex-col relative shadow-2xl shadow-blue-500/20">
             {/* Badge */}
-            <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blue-600 text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
-              Most Popular
+            <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-400 text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
+              First Month FREE
             </span>
 
             <p className="text-xs font-bold uppercase tracking-widest text-blue-200 mb-3">
               PropertySignalHQ Pro
             </p>
-            <div className="flex items-end gap-1.5 mb-2">
-              <span className="text-4xl font-black text-white leading-none">$39</span>
-              <span className="text-sm text-blue-200 mb-1.5">/ month</span>
+            <div className="flex items-end gap-1.5 mb-1">
+              <span className="text-4xl font-black text-white leading-none">$0</span>
+              <span className="text-sm text-emerald-300 mb-1.5 font-semibold">first 30 days</span>
             </div>
+            <p className="text-sm text-blue-200 mb-1">Then $39/month — cancel before day 31 and pay nothing.</p>
             <p className="text-sm text-blue-100 mb-7">
-              Everything investors need to find and close off-market deals.
+              Full access from day one. Every tool, no restrictions.
             </p>
 
             <ul className="space-y-2.5 mb-8 flex-1">
@@ -126,11 +127,11 @@ export default function PricingPage() {
               onClick={() => { window.location.href = '/upgrade' }}
               className="w-full bg-white hover:bg-blue-50 text-blue-600 font-bold text-sm py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg"
             >
-              Upgrade to Pro →
+              Start Free Trial →
             </button>
 
             <p className="text-center text-xs text-blue-300 mt-3">
-              Cancel anytime
+              30-day free trial · No charge until day 31 · Cancel anytime
             </p>
           </div>
         </div>
@@ -163,8 +164,8 @@ export default function PricingPage() {
               a: "All major credit and debit cards via Stripe's secure checkout.",
             },
             {
-              q: 'Is there a free trial?',
-              a: 'The free tier lets you browse the full signal database before you commit to Pro.',
+              q: 'How does the free trial work?',
+              a: 'Your first 30 days are completely free. You get full Pro access from day one — no restricted features, no gotchas. If you cancel before day 31, you pay nothing. After the trial, billing starts at $39/month.',
             },
           ].map((item) => (
             <div key={item.q} className="border border-white/10 bg-[#0a0f1e] rounded-xl p-5">

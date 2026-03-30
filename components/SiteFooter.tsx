@@ -4,8 +4,9 @@ type Props = {
 
 const PRODUCT_LINKS = [
   { label: 'Find Leads', href: '/finder' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Pricing', href: '/#pricing' },
+  { label: 'FAQ', href: '/#faq' },
   { label: 'Contact', href: '/contact' },
 ]
 

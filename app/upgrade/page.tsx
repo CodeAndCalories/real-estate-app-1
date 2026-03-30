@@ -4,15 +4,14 @@
  * /upgrade — Auth-aware Stripe redirect.
  *
  * 1. If no Supabase session → redirect to /login
- * 2. If session exists → redirect to Stripe checkout with email pre-filled
+ * 2. If session exists → create a Stripe Checkout Session (with 30-day trial)
+ *    via /api/stripe/checkout, then redirect to the returned URL.
  *
  * All other CTAs in the app link to /upgrade (this page).
- * Only this file imports CHECKOUT_URL from lib/constants/checkout.
  */
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CHECKOUT_URL } from '@/lib/constants/checkout'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useProStatus } from '@/lib/hooks/useProStatus'
@@ -33,15 +32,30 @@ export default function UpgradePage() {
       return
     }
 
-    supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
+    supabaseBrowser.auth.getSession().then(async ({ data: { session } }) => {
       if (!session?.user?.email) {
         router.replace('/login')
         return
       }
 
-      const url = `${CHECKOUT_URL}?prefilled_email=${encodeURIComponent(session.user.email)}`
       posthog.capture('upgrade_clicked')
-      window.location.href = url
+
+      try {
+        const res = await fetch('/api/stripe/checkout', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email: session.user.email }),
+        })
+        const data = (await res.json()) as { url?: string; error?: string }
+        if (data.url) {
+          window.location.href = data.url
+        } else {
+          // Fallback: send to pricing page if checkout creation fails
+          router.replace('/pricing')
+        }
+      } catch {
+        router.replace('/pricing')
+      }
     })
   }, [router, loaded, proLoading, user, isPro])
 

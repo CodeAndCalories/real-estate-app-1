@@ -70,22 +70,41 @@ export default function HomePage() {
       </div>
 
       {/* 10. Final CTA */}
-      <section className="border-t border-white/5 py-12 md:py-20 px-4 sm:px-6 text-center bg-[#0a0f1e]">
-        <div className="max-w-2xl mx-auto">
+      <section className="border-t border-white/5 py-16 md:py-24 px-4 sm:px-6 text-center relative overflow-hidden bg-[#020617]">
+        {/* Glow backdrop */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(37,99,235,0.18) 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative max-w-2xl mx-auto">
+          <span className="inline-block text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 rounded-full bg-blue-900/50 text-blue-400">
+            First Month Free
+          </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tighter text-white">
             Start Finding Property Leads Today
           </h2>
           <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
-            Access 75,000+ pre-scored property signals across 100+ cities in all 50 states.
+            Access 75,000+ pre-scored property signals across 100+ cities. First month on us — no charge until day 31.
           </p>
-          <a
-            href="/finder"
-            className="inline-block w-full sm:w-auto font-semibold text-base px-10 py-4 rounded-lg transition-all duration-150 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/25"
-          >
-            Search Leads Now
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="/upgrade"
+              className="w-full sm:w-auto font-bold text-base px-10 py-4 rounded-lg transition-all duration-150 bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30 ring-1 ring-blue-500/20"
+            >
+              Start Free Trial →
+            </a>
+            <a
+              href="/finder"
+              className="w-full sm:w-auto font-semibold text-base px-10 py-4 rounded-lg transition-all duration-150 border border-white/10 text-gray-300 hover:border-white/20 hover:bg-white/5"
+            >
+              Browse Free First
+            </a>
+          </div>
           <p className="text-xs mt-4 text-gray-600">
-            Free to explore · No account needed
+            30-day free trial · No charge until day 31 · Cancel anytime
           </p>
         </div>
       </section>
