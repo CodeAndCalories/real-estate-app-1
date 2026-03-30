@@ -210,7 +210,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Trial callout */}
         <p className="text-emerald-400/90 text-xs font-semibold mt-4 tracking-wide">
-          First month free · No charge until day 31
+          Free to explore · No credit card required
         </p>
 
         {/* Trust credibility bar */}
