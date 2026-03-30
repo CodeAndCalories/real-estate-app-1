@@ -60,10 +60,14 @@ export default function UpgradePage() {
   }, [router, loaded, proLoading, user, isPro])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4">
-      <div className="text-center">
-        <div className="w-10 h-10 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mx-auto mb-4" />
-        <p className="text-sm font-medium text-gray-500">Taking you to checkout…</p>
+    <div className="min-h-screen bg-[#020617] flex items-center justify-center px-4">
+      <div className="text-center max-w-sm">
+        <div className="w-10 h-10 rounded-full border-4 border-blue-900 border-t-blue-500 animate-spin mx-auto mb-6" />
+        <h1 className="text-xl font-bold text-white mb-2">Start your free 30-day trial</h1>
+        <p className="text-sm text-gray-400 mb-1">
+          Start free — <span className="text-white font-semibold">$0 today</span>, then $39/mo after 30 days.
+        </p>
+        <p className="text-xs text-gray-600">No charge for 30 days. Cancel anytime.</p>
       </div>
     </div>
   )

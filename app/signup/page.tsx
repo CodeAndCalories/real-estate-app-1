@@ -104,7 +104,7 @@ export default function SignupPage() {
       return
     }
 
-    router.push('/finder')
+    router.push('/upgrade')
   }
 
   // Spinner while checking existing session

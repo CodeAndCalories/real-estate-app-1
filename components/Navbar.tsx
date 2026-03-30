@@ -121,8 +121,10 @@ export default function Navbar() {
                   {initials(user.email)}
                 </span>
                 <span className="text-sm text-gray-300 max-w-[120px] truncate">{user.email}</span>
-                {isPro && (
+                {isPro ? (
                   <span className="text-xs font-semibold text-emerald-400 whitespace-nowrap">● Pro</span>
+                ) : (
+                  <span className="text-xs font-semibold text-amber-400 whitespace-nowrap">● Free</span>
                 )}
                 <svg
                   className={`w-3.5 h-3.5 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
@@ -139,6 +141,16 @@ export default function Navbar() {
                     <p className="text-xs text-gray-500 font-medium">Signed in as</p>
                     <p className="text-xs text-gray-200 font-semibold truncate">{user.email}</p>
                   </div>
+                  {!isPro && (
+                    <Link
+                      href="/upgrade"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-400/10 transition-colors border-b border-amber-400/10"
+                    >
+                      <span className="flex items-center gap-2"><span>⚡</span> Upgrade to Pro</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-400 tracking-wide">FREE TRIAL</span>
+                    </Link>
+                  )}
                   <Link
                     href="/finder"
                     onClick={() => setUserMenuOpen(false)}
@@ -201,7 +213,7 @@ export default function Navbar() {
                 Login
               </Link>
               <a
-                href="/upgrade"
+                href="/signup"
                 className="text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors duration-150 shadow-lg shadow-blue-600/25"
               >
                 Get Started
@@ -261,6 +273,15 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
+                {!isPro && (
+                  <a
+                    href="/upgrade"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center text-sm font-semibold text-amber-400 border border-amber-400/30 hover:bg-amber-400/10 px-4 py-2.5 rounded-lg transition-colors"
+                  >
+                    ⚡ Upgrade to Pro →
+                  </a>
+                )}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-center text-sm font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/10 px-4 py-2.5 rounded-lg transition-colors"
@@ -279,7 +300,7 @@ export default function Navbar() {
                   Login
                 </Link>
                 <a
-                  href="/upgrade"
+                  href="/signup"
                   onClick={() => setMobileOpen(false)}
                   className="block w-full text-center text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors"
                 >
