@@ -7,13 +7,14 @@ type Props = {
 }
 
 const FOMO_MESSAGES = [
-  '🔥 Score 94 detected in Austin, TX — Pre-Foreclosure · 2 min ago',
-  '🔥 Score 91 detected in Nashville, TN — Tax Delinquent · 5 min ago',
-  '🔥 Score 88 detected in Phoenix, AZ — Absentee Owner · 8 min ago',
   '🔥 Score 96 detected in Dallas, TX — Pre-Foreclosure · 1 min ago',
-  '🔥 Score 89 detected in Miami, FL — Expired Listing · 3 min ago',
-  '🔥 Score 92 detected in Atlanta, GA — Inherited Property · 6 min ago',
-  '🔥 Score 87 detected in Charlotte, NC — Tax Delinquent · 4 min ago',
+  '🔥 Score 94 detected in Austin, TX — Tax Delinquent · 3 min ago',
+  '🔥 Score 92 detected in Atlanta, GA — Inherited Property · 2 min ago',
+  '🔥 Score 91 detected in Cleveland, OH — Pre-Foreclosure · 5 min ago',
+  '🔥 Score 89 detected in Miami, FL — Absentee Owner · 4 min ago',
+  '🔥 Score 88 detected in Phoenix, AZ — Expired Listing · 6 min ago',
+  '🔥 Score 93 detected in Detroit, MI — Tax Delinquent · 2 min ago',
+  '🔥 Score 90 detected in Charlotte, NC — Pre-Foreclosure · 7 min ago',
 ]
 
 export default function HeroSection({ isDark: _isDark }: Props) {
@@ -169,13 +170,18 @@ export default function HeroSection({ isDark: _isDark }: Props) {
               backgroundClip: 'text',
             }}
           >
-            Before They List
+            Before Anyone Else Does
           </span>
         </h1>
 
         {/* Subtext */}
-        <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300/85">
-          500,000+ distressed property signals across all 50 states — scored 0–100 so you know exactly where to call first.
+        <p className="text-base md:text-lg max-w-lg mx-auto mb-3 leading-relaxed text-gray-300/85">
+          500,000+ distressed property signals across all 50 states — scored 0–100 so you know exactly who to call first.
+        </p>
+
+        {/* Who it's for */}
+        <p className="text-sm text-gray-500 mb-8">
+          Built for wholesalers, flippers, and buy-and-hold investors
         </p>
 
         {/* CTA row */}
@@ -189,7 +195,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.background = '#3b82f6'
-              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 48px rgba(37,99,235,0.55), 0 0 20px rgba(37,99,235,0.4), 0 4px 20px rgba(0,0,0,0.4)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 64px rgba(37,99,235,0.7), 0 0 28px rgba(37,99,235,0.5), 0 4px 20px rgba(0,0,0,0.4)'
               ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px) scale(1.02)'
             }}
             onMouseLeave={(e) => {
@@ -198,7 +204,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
               ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0) scale(1)'
             }}
           >
-            Start Finding Deals →
+            Start Free — Find Deals Now →
           </a>
           <a
             href="#how-it-works"
@@ -208,10 +214,19 @@ export default function HeroSection({ isDark: _isDark }: Props) {
           </a>
         </div>
 
-        {/* Trial callout */}
-        <p className="text-emerald-400/90 text-xs font-semibold mt-4 tracking-wide">
-          Start free — first month on us
-        </p>
+        {/* Trial callout pill */}
+        <div className="mt-4 flex justify-center">
+          <span
+            className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-full"
+            style={{
+              background: 'rgba(16,185,129,0.15)',
+              border: '1px solid rgba(16,185,129,0.4)',
+              color: '#34d399',
+            }}
+          >
+            ✓ Start free — first month on us
+          </span>
+        </div>
 
         {/* Trust credibility bar */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
@@ -231,15 +246,20 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         {/* FOMO live feed */}
         <div className="mt-8 max-w-lg mx-auto">
           <div
-            className="border border-white/10 rounded-xl px-5 py-3 text-center backdrop-blur-sm"
+            className="border border-white/10 rounded-xl px-5 py-3 backdrop-blur-sm overflow-hidden"
             style={{
               background: 'rgba(15, 23, 42, 0.85)',
               boxShadow: '0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+              borderLeft: '3px solid rgba(16,185,129,0.5)',
             }}
           >
             <p
-              className="text-xs text-gray-300 transition-opacity duration-300"
-              style={{ opacity: fomoVisible ? 1 : 0 }}
+              className="text-sm font-medium text-gray-200"
+              style={{
+                opacity: fomoVisible ? 1 : 0,
+                transform: fomoVisible ? 'translateY(0)' : 'translateY(5px)',
+                transition: 'opacity 350ms ease, transform 350ms ease',
+              }}
             >
               {FOMO_MESSAGES[fomoIdx]}
             </p>
