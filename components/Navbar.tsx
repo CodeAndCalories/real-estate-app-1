@@ -18,9 +18,6 @@ const NAV_LINKS: { href: string; label: string; highlight?: boolean }[] = [
   { href: '/cities',         label: 'Markets'       },
   { href: '/analyze',        label: 'Analyze Deal'  },
   { href: '/market-report',  label: 'Free Report',  highlight: true },
-  { href: '/blog',           label: 'Blog'          },
-  { href: '/#faq',           label: 'FAQ'           },
-  { href: '/contact',        label: 'Contact'       },
 ]
 
 export default function Navbar() {
