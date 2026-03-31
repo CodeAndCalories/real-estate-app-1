@@ -24,7 +24,7 @@ function signalColor(type: string) {
 
 function scoreStyle(score: number) {
   if (score >= 90) return 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
-  if (score >= 80) return 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+  if (score >= 60) return 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20'
   return 'bg-white/5 text-gray-400 border border-white/10'
 }
 

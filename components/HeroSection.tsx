@@ -149,7 +149,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-24 md:py-40 text-center">
 
         {/* Pre-header badge with pulse */}
-        <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+        <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/5 border backdrop-blur-sm animate-badge-glow">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-status-pulse" />
           <p className="text-blue-300 text-xs font-semibold tracking-wide">
             Search 125+ Cities · 500,000+ Signals
@@ -158,7 +158,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Main heading */}
         <h1 className="font-display text-[2.75rem] sm:text-[4.5rem] md:text-[5.5rem] font-black leading-[1.03] tracking-tighter mb-6 text-white">
-          Find Property Signals
+          Find Motivated Sellers
           <br />
           <span
             className="inline-block"
@@ -169,13 +169,13 @@ export default function HeroSection({ isDark: _isDark }: Props) {
               backgroundClip: 'text',
             }}
           >
-            Before Other Investors
+            Before They List
           </span>
         </h1>
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300/85">
-          500,000+ distressed property signals across all 50 states. Find motivated sellers before anyone else.
+          500,000+ distressed property signals across all 50 states — scored 0–100 so you know exactly where to call first.
         </p>
 
         {/* CTA row */}
@@ -189,13 +189,13 @@ export default function HeroSection({ isDark: _isDark }: Props) {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.background = '#3b82f6'
-              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 48px rgba(37,99,235,0.55), 0 4px 20px rgba(0,0,0,0.4)'
-              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 48px rgba(37,99,235,0.55), 0 0 20px rgba(37,99,235,0.4), 0 4px 20px rgba(0,0,0,0.4)'
+              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px) scale(1.02)'
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.background = '#2563eb'
               ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 32px rgba(37,99,235,0.35), 0 4px 16px rgba(0,0,0,0.4)'
-              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0) scale(1)'
             }}
           >
             Start Finding Deals →

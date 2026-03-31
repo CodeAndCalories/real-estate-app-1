@@ -81,7 +81,8 @@ export default function InvestorTrust({ isDark: _isDark }: Props) {
           {VALUE_PROPS.map((vp) => (
             <div
               key={vp.title}
-              className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] transition-all duration-300"
+              className="bg-[#0f172a] border border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-[#111827] hover:-translate-y-1 cursor-pointer transition-all duration-200"
+              style={{ willChange: 'transform' }}
             >
               <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg border text-xl mb-4 ${vp.iconBg}`}>
                 {vp.icon}
@@ -97,7 +98,8 @@ export default function InvestorTrust({ isDark: _isDark }: Props) {
           {INVESTOR_TYPES.map((type) => (
             <div
               key={type.title}
-              className="rounded-xl border border-white/10 bg-[#0f172a] p-6 flex flex-col hover:border-white/20 transition-all duration-300"
+              className="rounded-xl border border-white/10 bg-[#0f172a] p-6 flex flex-col hover:border-white/20 hover:-translate-y-1 cursor-pointer transition-all duration-200"
+              style={{ willChange: 'transform' }}
             >
               <div className="flex items-center gap-2.5 mb-3">
                 <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border text-lg ${type.iconBg}`}>

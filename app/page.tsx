@@ -26,51 +26,58 @@ export default function HomePage() {
       <InvestorTrust isDark={isDark} />
 
       {/* 3. How It Works */}
-      <div className="border-t border-white/5">
+      <div className="section-divider">
         <HowItWorks isDark={isDark} />
       </div>
 
       {/* 4. Feature showcase — finder demo */}
-      <div className="border-t border-white/5 relative z-10 px-4 sm:px-6 lg:px-8 py-12 bg-[#0a0f1e]">
-        <div className="max-w-[1100px] mx-auto rounded-xl shadow-2xl border overflow-hidden bg-[#0a0f1e] border-white/10">
+      <div className="section-divider relative z-10 px-4 sm:px-6 lg:px-8 py-12 bg-[#0a0f1e]">
+        <div
+          className="max-w-[1100px] mx-auto rounded-xl border overflow-hidden bg-[#0a0f1e] border-white/10"
+          style={{
+            boxShadow: '0 0 0 1px rgba(37,99,235,0.12), 0 30px 80px rgba(0,0,0,0.6), 0 0 80px rgba(37,99,235,0.07)',
+          }}
+        >
           {/* Browser chrome */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b bg-[#0a0f1e] border-white/10">
+          <div className="flex items-center gap-2 px-4 py-3 border-b bg-[#0f172a] border-white/8">
             <span className="w-3 h-3 rounded-full bg-red-400/60" />
             <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
             <span className="w-3 h-3 rounded-full bg-green-400/60" />
-            <span className="ml-3 text-xs text-gray-600 font-mono">propertysignalhq.com/finder</span>
+            <div className="ml-3 flex-1 max-w-xs bg-[#020617] border border-white/8 rounded px-3 py-1">
+              <span className="text-xs text-gray-500 font-mono">propertysignalhq.com/finder</span>
+            </div>
           </div>
           <ProductPreview isDark={isDark} />
         </div>
       </div>
 
       {/* 5. Markets covered */}
-      <div className="border-t border-white/5">
+      <div className="section-divider">
         <MarketsCovered isDark={isDark} />
       </div>
 
       {/* 6. Testimonials */}
-      <div className="border-t border-white/5">
+      <div className="section-divider">
         <InvestorTestimonials isDark={isDark} />
       </div>
 
       {/* 7. Free Report CTA */}
-      <div className="border-t border-white/5">
+      <div className="section-divider">
         <FreeReportSection />
       </div>
 
       {/* 8. Pricing */}
-      <div className="border-t border-white/5" id="pricing">
+      <div className="section-divider" id="pricing">
         <PricingSection isDark={isDark} />
       </div>
 
       {/* 9. FAQ */}
-      <div className="border-t border-white/5">
+      <div className="section-divider">
         <FAQSection isDark={isDark} />
       </div>
 
       {/* 10. Final CTA */}
-      <section className="border-t border-white/5 py-16 md:py-24 px-4 sm:px-6 text-center relative overflow-hidden bg-[#020617]">
+      <section className="section-divider py-16 md:py-24 px-4 sm:px-6 text-center relative overflow-hidden bg-[#020617]">
         {/* Large pulsing orb */}
         <div
           className="absolute pointer-events-none"
