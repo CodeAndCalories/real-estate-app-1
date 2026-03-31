@@ -15,6 +15,9 @@
  *   node scripts/download-county-data.js cuyahoga
  *   node scripts/download-county-data.js kent
  *   node scripts/download-county-data.js summit
+ *   node scripts/download-county-data.js franklin
+ *   node scripts/download-county-data.js hamilton
+ *   node scripts/download-county-data.js tarrant
  *   node scripts/download-county-data.js all
  *
  * Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -164,40 +167,42 @@ const COUNTIES = {
   },
 
   // ── Dallas County, TX ────────────────────────────────────────────────────────
-  // Socrata JSON API — Dallas Open Data (v9bs-epjb). Data may be stale.
-  // Note: DCAD ZIP files at dcad.org/data have fresher assessed values but require
-  // manual download. This Socrata endpoint is the only non-ZIP public option.
-  // Previous endpoint y9i7-p37p is now superseded by v9bs-epjb.
+  // ArcGIS FeatureServer — City of Dallas GIS Open Data, Parcel layer
+  // ~260K parcel records; owner + address from city open data portal.
+  // Note: Full DCAD assessed values require the dcad.org ZIP download (not a REST API).
+  // Previous Socrata endpoint (dallasopendata.com/resource/v9bs-epjb.json) returned
+  // empty objects and has been replaced with this ArcGIS source.
   dallas: {
-    label:      'Dallas County, TX',
-    socrataUrl: 'https://www.dallasopendata.com/resource/v9bs-epjb.json',
-    useSocrata: true,
-    state:      'TX',
+    label:        'Dallas County, TX',
+    arcgisUrl:    'https://services.arcgis.com/0L95CJ0VTaxqcmED/arcgis/rest/services/DallasParcels/FeatureServer/0/query',
+    arcgisFields: 'ACCOUNT_NUM,SITUS_NUM,SITUS_STREET,SITUS_APT,SITUS_CITY,SITUS_STATE,SITUS_ZIP,OWNER_NAME,APPRAISED_VALUE,TOTAL_VALUE',
+    useArcGIS:    true,
+    state:        'TX',
     mapRow(r) {
-      // Build situs address from components
-      const parts = [
-        safeStr(r['st_num']),
-        safeStr(r['st_dir']),
-        safeStr(r['st_name']),
-        safeStr(r['st_type']),
-      ].filter(Boolean)
-      const address = parts.length > 0 ? parts.join(' ') : null
-      if (!address) return null
+      const streetNum  = safeStr(r['SITUS_NUM'])
+      const streetName = safeStr(r['SITUS_STREET'])
+      if (!streetNum || !streetName) return null
+      const apt     = safeStr(r['SITUS_APT'])
+      const address = apt
+        ? `${streetNum} ${streetName} ${apt}`.trim()
+        : `${streetNum} ${streetName}`.trim()
 
-      const city = safeStr(r['city']) ?? 'Dallas'
-      const zip  = safeStr(r['taxpazip'])
+      const city = safeStr(r['SITUS_CITY']) ?? 'Dallas'
+      const zip  = safeStr(r['SITUS_ZIP'])
 
-      const ownerName = safeStr(r['taxpaname1'])
-      const parcelId  = safeStr(r['acct'])
-      const id = parcelId
-        ? `dallas-${parcelId.replace(/[^a-zA-Z0-9]/g, '')}`
+      const ownerName   = safeStr(r['OWNER_NAME'])
+      const acctNum     = safeStr(r['ACCOUNT_NUM'])
+      const id = acctNum
+        ? `dallas-${acctNum.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, TX`, city)
+
+      const appraisedVal = safeNum(r['APPRAISED_VALUE']) ?? safeNum(r['TOTAL_VALUE'])
 
       return {
         id,
         address, city,
         zip: zip ?? '',
-        estimated_value: null,  // Not available in public API
+        estimated_value: appraisedVal && appraisedVal > 0 ? Math.round(appraisedVal) : null,
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
         tax_delinquent: null, lead_type: 'county_record',
@@ -211,39 +216,43 @@ const COUNTIES = {
   },
 
   // ── Maricopa County, AZ ──────────────────────────────────────────────────────
-  // ArcGIS FeatureServer — Secured Master dataset, ~1.75M parcels
-  // Hub: https://data-maricopa.opendata.arcgis.com/datasets/936bbba512bf4c368618cc6e79e64668
+  // ArcGIS MapServer — MC Assessor Parcels layer 0, ~1.75M parcels
+  // Service: https://gis.mcassessor.maricopa.gov/arcgis/rest/services/Parcels/MapServer
+  // Note: Previous FeatureServer URL (services1.arcgis.com/.../Secured_Master) returned
+  // HTTP 400 "Invalid URL" and has been replaced with the direct Assessor GIS endpoint.
   maricopa: {
     label:       'Maricopa County, AZ',
-    arcgisUrl:   'https://services1.arcgis.com/mpVYz37anSdrK4d8/arcgis/rest/services/Secured_Master/FeatureServer/0/query',
-    arcgisFields: 'PARCEL,OWNER_NAME,SITUS_ADDRESS,SITUS_CITY,SITUS_ZIP,FULL_CASH_VALUE,ASSESSED_VALUE,LIVING_AREA',
+    arcgisUrl:   'https://gis.mcassessor.maricopa.gov/arcgis/rest/services/Parcels/MapServer/0/query',
+    arcgisFields: 'APN,OWNER_NAME,PHYSICAL_ADDRESS,PHYSICAL_CITY,PHYSICAL_ZIP,FCV_CUR,LIVING_SPACE,MAIL_ADDRESS,MAIL_STATE',
     useArcGIS:   true,
     state:       'AZ',
     mapRow(r) {
-      const address = safeStr(r['SITUS_ADDRESS'])
-      const city    = safeStr(r['SITUS_CITY'])
-      const zip     = safeStr(r['SITUS_ZIP'])
+      const address = safeStr(r['PHYSICAL_ADDRESS'])
+      const city    = safeStr(r['PHYSICAL_CITY'])
+      const zip     = safeStr(r['PHYSICAL_ZIP'])
       if (!address || !city) return null
 
-      // Full Cash Value is the primary market value indicator
-      const fcv = safeNum(r['FULL_CASH_VALUE'])
-      const acv = safeNum(r['ASSESSED_VALUE'])
-      const estimatedValue = fcv ?? acv
-      if (!estimatedValue || estimatedValue <= 0) return null
+      // FCV_CUR = Full Cash Value (current year) — primary market value indicator
+      const fcv = safeNum(r['FCV_CUR'])
+      if (!fcv || fcv <= 0) return null
 
-      const ownerName = safeStr(r['OWNER_NAME'])
-      const parcel    = safeStr(r['PARCEL'])
-      const id = parcel
-        ? `maricopa-${parcel.replace(/[^a-zA-Z0-9]/g, '')}`
+      const ownerName    = safeStr(r['OWNER_NAME'])
+      const mailAddress  = safeStr(r['MAIL_ADDRESS'])
+      const mailState    = safeStr(r['MAIL_STATE'])
+      const apn          = safeStr(r['APN'])
+      const id = apn
+        ? `maricopa-${apn.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, AZ`, city)
 
       return {
         id,
         address, city,
         zip: zip ?? '',
-        estimated_value: Math.round(estimatedValue),
+        estimated_value: Math.round(fcv),
         price_per_sqft: null,
-        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        owner_name: ownerName,
+        owner_mailing_address: mailAddress ?? null,
+        owner_state: mailState ?? null,
         tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
         loan_balance_estimate: null, days_in_default: null, days_on_market: null,
@@ -582,6 +591,144 @@ const COUNTIES = {
         address, city,
         zip: '',
         estimated_value: appraisedValue && appraisedValue > 0 ? Math.round(appraisedValue) : null,
+        price_per_sqft: null,
+        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Franklin County, OH (Columbus) ───────────────────────────────────────────
+  // ArcGIS MapServer — ParcelFeatures/Parcel_Features_WebMercator layer 0, ~480K parcels
+  // Service: https://gis.franklincountyohio.gov/hosting/rest/services/ParcelFeatures/Parcel_Features_WebMercator/MapServer
+  franklin: {
+    label:      'Franklin County, OH',
+    arcgisUrl:  'https://gis.franklincountyohio.gov/hosting/rest/services/ParcelFeatures/Parcel_Features_WebMercator/MapServer/0/query',
+    arcgisFields: 'PARCELID,SITEADDRESS,ZIPCD,OWNERNME1,TOTVALUEBASE',
+    useArcGIS:  true,
+    state:      'OH',
+    mapRow(r) {
+      const address = safeStr(r['SITEADDRESS'])
+      if (!address) return null
+
+      const city = 'Columbus'
+      const zip  = r['ZIPCD'] != null ? String(r['ZIPCD']).padStart(5, '0') : null
+
+      const parcelId = safeStr(r['PARCELID'])
+      const id = parcelId
+        ? `franklin-${parcelId.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, OH`, city)
+
+      // TOTVALUEBASE = total assessed value base (land + improvements)
+      const totalValue = safeNum(r['TOTVALUEBASE'])
+      const ownerName  = safeStr(r['OWNERNME1'])
+
+      return {
+        id,
+        address, city,
+        zip: zip ?? '',
+        estimated_value: totalValue && totalValue > 0 ? Math.round(totalValue) : null,
+        price_per_sqft: null,
+        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: null, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Hamilton County, OH (Cincinnati) ─────────────────────────────────────────
+  // ArcGIS MapServer — HCE/Cadastral layer 0, ~420K parcels
+  // Service: https://cagisonline.hamilton-co.org/arcgis/rest/services/HCE/Cadastral/MapServer
+  // Note: No ZIP field in this service; city defaults to Cincinnati.
+  //       FORECL_FLAG and DELQ_TAXES fields available for distress signal detection.
+  hamilton: {
+    label:      'Hamilton County, OH',
+    arcgisUrl:  'https://cagisonline.hamilton-co.org/arcgis/rest/services/HCE/Cadastral/MapServer/0/query',
+    arcgisFields: 'PARCELID,ADDRNO,ADDRST,ADDRSF,OWNNM1,MKT_TOTAL_VAL,DELQ_TAXES,FORECL_FLAG',
+    useArcGIS:  true,
+    state:      'OH',
+    mapRow(r) {
+      const num    = safeStr(r['ADDRNO'])
+      const street = safeStr(r['ADDRST'])
+      const suffix = safeStr(r['ADDRSF'])
+      if (!num || !street) return null
+      const address = [num, street, suffix].filter(Boolean).join(' ').trim()
+
+      const city = 'Cincinnati'
+
+      const parcelId = safeStr(r['PARCELID'])
+      const id = parcelId
+        ? `hamilton-${parcelId.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, OH`, city)
+
+      // MKT_TOTAL_VAL = total market value (land + improvements)
+      const mktTotal   = safeNum(r['MKT_TOTAL_VAL'])
+      const ownerName  = safeStr(r['OWNNM1'])
+
+      // Map available distress fields
+      const delqTaxes  = safeNum(r['DELQ_TAXES'])
+      const taxDelinquent = delqTaxes != null && delqTaxes > 0 ? true : null
+      const forecl     = safeStr(r['FORECL_FLAG'])
+      // FORECL_FLAG is 'Y' when a foreclosure action is active
+      const inDefault  = forecl === 'Y' ? 1 : null
+
+      return {
+        id,
+        address, city,
+        zip: '',
+        estimated_value: mktTotal && mktTotal > 0 ? Math.round(mktTotal) : null,
+        price_per_sqft: null,
+        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        tax_delinquent: taxDelinquent, lead_type: 'county_record',
+        absentee_owner: null, vacancy_signal: null, inherited: null,
+        loan_balance_estimate: null, days_in_default: inDefault, days_on_market: null,
+        previous_listing_price: null, price_drop_percent: null,
+        market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
+        agent_name: null, owner_phone: null, years_owned: null,
+      }
+    },
+  },
+
+  // ── Tarrant County, TX (Fort Worth) ──────────────────────────────────────────
+  // ArcGIS MapServer — County-owned parcels only; full TAD parcel roll is
+  // available as a ZIP download from tad.org but has no public REST API.
+  // This endpoint provides county-owned/government parcels (~110 records) as a
+  // placeholder until a bulk REST source becomes available.
+  // Service: https://mapit.tarrantcounty.com/arcgis/rest/services/TCProperty/MapServer
+  tarrant: {
+    label:      'Tarrant County, TX',
+    arcgisUrl:  'https://mapit.tarrantcounty.com/arcgis/rest/services/TCProperty/MapServer/0/query',
+    arcgisFields: 'GEO_ID,SITUS_ADDRESS,OWNER,APPRAISED_VALUE,TAXABLE_VALUE',
+    useArcGIS:  true,
+    state:      'TX',
+    mapRow(r) {
+      const address = safeStr(r['SITUS_ADDRESS'])
+      if (!address) return null
+
+      const city = 'Fort Worth'
+
+      const geoId = safeStr(r['GEO_ID'])
+      const id = geoId
+        ? `tarrant-${geoId.replace(/[^a-zA-Z0-9]/g, '')}`
+        : computeId(`${address}, ${city}, TX`, city)
+
+      const appraisedVal = safeNum(r['APPRAISED_VALUE']) ?? safeNum(r['TAXABLE_VALUE'])
+      const ownerName    = safeStr(r['OWNER'])
+
+      return {
+        id,
+        address, city,
+        zip: '',
+        estimated_value: appraisedVal && appraisedVal > 0 ? Math.round(appraisedVal) : null,
         price_per_sqft: null,
         owner_name: ownerName, owner_mailing_address: null, owner_state: null,
         tax_delinquent: null, lead_type: 'county_record',
