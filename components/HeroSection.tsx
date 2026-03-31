@@ -175,13 +175,13 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed text-gray-300/85">
-          Access 500,000+ distressed property signals across 125+ cities in all 50 states, powered by real Zillow market data. Find motivated sellers before anyone else.
+          500,000+ distressed property signals across all 50 states. Find motivated sellers before anyone else.
         </p>
 
         {/* CTA row */}
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
-            href="/finder"
+            href="/signup"
             className="w-full sm:w-auto text-center font-bold px-9 py-4 rounded-lg text-base text-white transition-all duration-200"
             style={{
               background: '#2563eb',
@@ -210,7 +210,7 @@ export default function HeroSection({ isDark: _isDark }: Props) {
 
         {/* Trial callout */}
         <p className="text-emerald-400/90 text-xs font-semibold mt-4 tracking-wide">
-          Free to explore · No credit card required
+          Start free — first month on us
         </p>
 
         {/* Trust credibility bar */}

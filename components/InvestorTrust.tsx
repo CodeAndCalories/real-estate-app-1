@@ -129,7 +129,7 @@ export default function InvestorTrust({ isDark: _isDark }: Props) {
           >
             {[
               { value: '500,000+', label: 'Property signals',       icon: '📊' },
-              { value: '100+',    label: 'Cities · all 50 states', icon: '🏙️' },
+              { value: '125+',    label: 'Cities · all 50 states', icon: '🏙️' },
               { value: 'Zillow',  label: 'Powered market data',    icon: '🎯' },
               { value: 'Weekly',  label: 'Data updates',           icon: '🔄' },
             ].map((stat) => (

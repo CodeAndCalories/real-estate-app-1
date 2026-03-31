@@ -168,38 +168,6 @@ export default function InvestorTestimonials({ isDark: _isDark }: Props) {
         </div>
       </div>
 
-      {/* Social proof banner */}
-      <div className="max-w-6xl mx-auto px-6 mt-12">
-        <div
-          className="rounded-2xl border border-blue-900/40 px-8 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center"
-          style={{
-            background: 'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(10,16,40,0.9) 100%)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
-          }}
-        >
-          {[
-            { value: '500,000+', label: 'Property signals' },
-            { value: '100+',    label: 'Cities · all 50 states' },
-            { value: 'Zillow',  label: 'Powered market data' },
-            { value: 'Weekly',  label: 'Data updates' },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div
-                className="text-3xl font-black leading-none mb-1"
-                style={{
-                  background: 'linear-gradient(135deg, #60a5fa, #67e8f9)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                {stat.value}
-              </div>
-              <div className="text-xs font-medium text-gray-500">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
   )
 }

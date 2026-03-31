@@ -137,7 +137,7 @@ export default function PricingSection({ isDark }: Props) {
               ) : (
                 <>
                   <a
-                    href="/upgrade"
+                    href="/signup"
                     className="block w-full text-center font-bold text-base py-3.5 rounded-lg transition-all shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30 hover:shadow-blue-500/40"
                   >
                     Start Free — First Month on Us →

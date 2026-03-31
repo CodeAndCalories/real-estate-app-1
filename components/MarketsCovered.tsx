@@ -128,7 +128,7 @@ export default function MarketsCovered({ isDark }: Props) {
             View all {allCityCount} markets →
           </a>
           <a
-            href="/finder"
+            href="/signup"
             className={`inline-block font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors ${
               isDark
                 ? 'bg-blue-600 text-white hover:bg-blue-500'

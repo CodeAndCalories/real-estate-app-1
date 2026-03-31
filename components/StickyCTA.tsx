@@ -31,14 +31,14 @@ export default function StickyCTA({ isDark }: Props) {
           : 'bg-white border-gray-200'
       }`}>
         <a
-          href="/finder"
+          href="/signup"
           className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black text-base py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-600/30"
         >
           <span>🔍</span>
-          Find Investment Deals
+          Start Free — First Month on Us
         </a>
         <p className={`text-center text-[10px] mt-2 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-          Free to explore · No account needed
+          No charge for 30 days · Cancel anytime
         </p>
       </div>
     </div>
