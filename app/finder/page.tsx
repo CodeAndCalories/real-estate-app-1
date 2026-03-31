@@ -561,7 +561,7 @@ function FinderContent() {
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <div>
             <h1 className={`font-display text-2xl font-bold ${textPrimary}`}>Signal Finder</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Updated daily · 88,000+ signals across 125+ cities</p>
+            <p className="text-xs text-gray-500 mt-0.5">Updated daily · 500,000+ signals across 125+ cities</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {favorites.length > 0 && (
@@ -608,7 +608,7 @@ function FinderContent() {
         <div className={`${card} p-6 mb-6`}>
           <h2 className="text-xl font-bold text-white mb-1">Where are you investing?</h2>
           <p className="text-sm text-gray-500 mb-5">
-            Search 88,000+ distressed property signals across{' '}
+            Search 500,000+ distressed property signals across{' '}
             {cityOptions.length > 1 ? cityOptions.length - 1 : 108} cities.
           </p>
 

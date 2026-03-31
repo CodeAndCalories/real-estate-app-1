@@ -102,7 +102,7 @@ export default function HomePage() {
               Start Finding Property Leads Today
             </h2>
             <p className="text-base md:text-lg mb-8 text-gray-400 max-w-lg mx-auto">
-              Access 88,000+ pre-scored property signals across 125+ cities. First month on us — no charge until day 31.
+              Access 500,000+ pre-scored property signals across 125+ cities. First month on us — no charge until day 31.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <a

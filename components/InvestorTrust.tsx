@@ -128,7 +128,7 @@ export default function InvestorTrust({ isDark: _isDark }: Props) {
             style={{ gap: '1px', background: 'rgba(37,99,235,0.12)' }}
           >
             {[
-              { value: '88,000+', label: 'Property signals',       icon: '📊' },
+              { value: '500,000+', label: 'Property signals',       icon: '📊' },
               { value: '100+',    label: 'Cities · all 50 states', icon: '🏙️' },
               { value: 'Zillow',  label: 'Powered market data',    icon: '🎯' },
               { value: 'Weekly',  label: 'Data updates',           icon: '🔄' },
