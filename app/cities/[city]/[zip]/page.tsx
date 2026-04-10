@@ -114,6 +114,7 @@ export async function generateMetadata(
     .limit(500)
 
   const total = count ?? 0
+  console.log(`[zip-meta] zip=${zip} city=${slug} count=${count}`)
   const rows = (data ?? []) as Pick<PropertyRow, 'opportunity_score' | 'lead_type'>[]
 
   const scores = rows.map((r) => r.opportunity_score ?? 0).filter((s) => s > 0)
@@ -164,6 +165,8 @@ export default async function ZipPage(
     .limit(500)
 
   const total = count ?? 0
+
+  console.log(`[zip-page] zip=${zip} city=${slug} count=${count} data_len=${data?.length ?? 0}`)
 
   if (total === 0) notFound()
 
