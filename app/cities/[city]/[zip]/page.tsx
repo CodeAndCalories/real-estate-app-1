@@ -107,14 +107,14 @@ export async function generateMetadata(
   const { city: slug, zip } = await params
   const cityName = slugToCity(slug)
 
-  const { data, count } = await supabaseAdmin
+  const { data, count, error: metaError } = await supabaseAdmin
     .from('properties')
     .select('opportunity_score, lead_type', { count: 'exact' })
     .eq('zip', zip)
     .limit(500)
 
   const total = count ?? 0
-  console.log(`[zip-meta] zip=${zip} city=${slug} count=${count}`)
+  console.log(`[zip-meta] zip=${zip} city=${slug} count=${count} error=${metaError?.message ?? 'none'}`)
   const rows = (data ?? []) as Pick<PropertyRow, 'opportunity_score' | 'lead_type'>[]
 
   const scores = rows.map((r) => r.opportunity_score ?? 0).filter((s) => s > 0)
@@ -154,7 +154,7 @@ export default async function ZipPage(
   // Fetch properties for this zip (zip is the primary key — city slug is
   // for SEO-friendly URLs only; actual city stored in DB may differ, e.g.
   // /cities/cleveland/44107 has city="Lakewood" in the DB)
-  const { data, count } = await supabaseAdmin
+  const { data, count, error: pageError } = await supabaseAdmin
     .from('properties')
     .select(
       'id, address, city, state, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent',
@@ -166,7 +166,7 @@ export default async function ZipPage(
 
   const total = count ?? 0
 
-  console.log(`[zip-page] zip=${zip} city=${slug} count=${count} data_len=${data?.length ?? 0}`)
+  console.log(`[zip-page] zip=${zip} city=${slug} count=${count} data_len=${data?.length ?? 0} error=${pageError?.message ?? 'none'}`)
 
   if (total === 0) notFound()
 
