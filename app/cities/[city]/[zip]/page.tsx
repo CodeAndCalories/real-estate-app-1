@@ -110,7 +110,6 @@ export async function generateMetadata(
   const { data, count } = await supabaseAdmin
     .from('properties')
     .select('opportunity_score, lead_type', { count: 'exact' })
-    .ilike('city', cityName)
     .eq('zip', zip)
     .limit(500)
 
@@ -151,14 +150,15 @@ export default async function ZipPage(
   const { city: slug, zip } = await params
   const cityName = slugToCity(slug)
 
-  // Fetch properties for this city + zip, ordered by score
+  // Fetch properties for this zip (zip is the primary key — city slug is
+  // for SEO-friendly URLs only; actual city stored in DB may differ, e.g.
+  // /cities/cleveland/44107 has city="Lakewood" in the DB)
   const { data, count } = await supabaseAdmin
     .from('properties')
     .select(
       'id, address, city, state, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent',
       { count: 'exact' }
     )
-    .ilike('city', cityName)
     .eq('zip', zip)
     .order('opportunity_score', { ascending: false })
     .limit(500)
