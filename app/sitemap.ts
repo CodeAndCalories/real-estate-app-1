@@ -40,22 +40,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If Supabase is unreachable at build time, skip city pages
   }
 
-  // Dynamic zip pages — query per city to stay within Supabase row limits.
-  // A single cross-table query with limit(100000) exceeds PostgREST's max_rows
-  // cap and throws silently. Instead reuse the city list from get_city_counts
-  // and fetch zips city-by-city (same pattern that generateStaticParams uses).
+  // Dynamic zip pages — top 10 zips per city, capped at 500 total.
+  // Keeping per-city queries small avoids PostgREST row limits and build timeouts.
   let zipPages: MetadataRoute.Sitemap = []
   try {
     const { data: citiesData } = await supabaseAdmin.rpc('get_city_counts')
     const cities = ((citiesData as { city: string; count: number }[]) ?? []).filter((r) => r.city)
 
     for (const { city } of cities) {
+      if (zipPages.length >= 500) break
+
       const { data: zipData } = await supabaseAdmin
         .from('properties')
         .select('zip')
         .ilike('city', city)
         .not('zip', 'is', null)
-        .limit(5000)
+        .limit(500)
 
       if (!zipData?.length) continue
 
@@ -64,15 +64,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (row.zip) zipCounts[row.zip] = (zipCounts[row.zip] ?? 0) + 1
       }
 
-      for (const [zip, cnt] of Object.entries(zipCounts)) {
-        if (cnt >= 10) {
-          zipPages.push({
-            url: `${BASE}/cities/${cityToSlug(city)}/${zip}`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.6,
-          })
-        }
+      const topZips = Object.entries(zipCounts)
+        .filter(([, cnt]) => cnt >= 10)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+
+      for (const [zip] of topZips) {
+        if (zipPages.length >= 500) break
+        zipPages.push({
+          url: `${BASE}/cities/${cityToSlug(city)}/${zip}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        })
       }
     }
   } catch {
