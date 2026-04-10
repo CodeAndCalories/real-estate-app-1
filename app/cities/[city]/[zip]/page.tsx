@@ -65,7 +65,6 @@ interface PropertyRow {
   id: string
   address: string
   city: string
-  state: string
   zip: string
   lead_type: string
   opportunity_score: number | null
@@ -107,14 +106,13 @@ export async function generateMetadata(
   const { city: slug, zip } = await params
   const cityName = slugToCity(slug)
 
-  const { data, count, error: metaError } = await supabaseAdmin
+  const { data, count } = await supabaseAdmin
     .from('properties')
     .select('opportunity_score, lead_type', { count: 'exact' })
     .eq('zip', zip)
     .limit(500)
 
   const total = count ?? 0
-  console.log(`[zip-meta] zip=${zip} city=${slug} count=${count} error=${metaError?.message ?? 'none'}`)
   const rows = (data ?? []) as Pick<PropertyRow, 'opportunity_score' | 'lead_type'>[]
 
   const scores = rows.map((r) => r.opportunity_score ?? 0).filter((s) => s > 0)
@@ -154,10 +152,10 @@ export default async function ZipPage(
   // Fetch properties for this zip (zip is the primary key — city slug is
   // for SEO-friendly URLs only; actual city stored in DB may differ, e.g.
   // /cities/cleveland/44107 has city="Lakewood" in the DB)
-  const { data, count, error: pageError } = await supabaseAdmin
+  const { data, count } = await supabaseAdmin
     .from('properties')
     .select(
-      'id, address, city, state, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent',
+      'id, address, city, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent',
       { count: 'exact' }
     )
     .eq('zip', zip)
@@ -166,13 +164,11 @@ export default async function ZipPage(
 
   const total = count ?? 0
 
-  console.log(`[zip-page] zip=${zip} city=${slug} count=${count} data_len=${data?.length ?? 0} error=${pageError?.message ?? 'none'}`)
 
   if (total === 0) notFound()
 
   const rows = (data ?? []) as PropertyRow[]
   const top5 = rows.slice(0, 5)
-  const stateCode = rows[0]?.state ?? ''
 
   // Derive stats
   const validScores = rows.map((r) => r.opportunity_score ?? 0).filter((s) => s > 0)
@@ -210,7 +206,7 @@ export default async function ZipPage(
         {/* Hero */}
         <div className="mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 leading-tight">
-            Distressed Properties in {zip}{stateCode ? ` — ${cityName}, ${stateCode}` : ` — ${cityName}`}
+            Distressed Properties in {zip} — {cityName}
           </h1>
           <p className="text-lg text-gray-400 max-w-2xl">
             {total.toLocaleString()} distressed property signals in ZIP {zip} with an average
