@@ -116,6 +116,22 @@ export default async function CityPage(
   if (total === 0) notFound()
 
   const rows = (data ?? []) as PropertyRow[]
+
+  // Fetch zip distribution for "Browse by ZIP" section
+  const { data: zipData } = await supabaseAdmin
+    .from('properties')
+    .select('zip')
+    .ilike('city', cityName)
+    .not('zip', 'is', null)
+    .limit(5000)
+
+  const zipCounts: Record<string, number> = {}
+  for (const r of (zipData ?? []) as { zip: string }[]) {
+    if (r.zip) zipCounts[r.zip] = (zipCounts[r.zip] ?? 0) + 1
+  }
+  const topZips = Object.entries(zipCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
   const top5 = rows.slice(0, 5)
 
   // Derive stats
@@ -329,6 +345,32 @@ export default async function CityPage(
             </Link>.
           </p>
         </div>
+
+        {/* Browse by ZIP Code */}
+        {topZips.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-white/10">
+            <h2 className="text-base font-bold text-white mb-1">Browse by ZIP Code</h2>
+            <p className="text-xs text-gray-500 mb-5">
+              Top ZIP codes in {cityName} by signal volume
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {topZips.map(([zip, cnt]) => (
+                <Link
+                  key={zip}
+                  href={`/cities/${slug}/${zip}`}
+                  className="rounded-lg border border-white/10 bg-[#0f172a] p-3 text-center hover:border-blue-500/30 hover:bg-[#0f172a]/80 transition-colors group"
+                >
+                  <div className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {zip}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {cnt} signal{cnt !== 1 ? 's' : ''}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Back link */}
         <div className="mt-10 pt-6 border-t border-white/10">

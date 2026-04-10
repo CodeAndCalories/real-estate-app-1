@@ -40,5 +40,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If Supabase is unreachable at build time, skip city pages
   }
 
-  return [...staticPages, ...cityPages]
+  // Dynamic zip pages — only zips with 10+ properties to avoid thin content
+  let zipPages: MetadataRoute.Sitemap = []
+  try {
+    const { data: zipData } = await supabaseAdmin
+      .from('properties')
+      .select('city, zip')
+      .not('zip', 'is', null)
+      .not('city', 'is', null)
+      .limit(100000)
+
+    if (zipData) {
+      const zipCounts: Record<string, number> = {}
+      for (const row of zipData as { city: string; zip: string }[]) {
+        const key = `${row.city}|||${row.zip}`
+        zipCounts[key] = (zipCounts[key] ?? 0) + 1
+      }
+
+      zipPages = Object.entries(zipCounts)
+        .filter(([, cnt]) => cnt >= 10)
+        .map(([key]) => {
+          const [city, zip] = key.split('|||')
+          return {
+            url: `${BASE}/cities/${cityToSlug(city)}/${zip}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.6,
+          }
+        })
+    }
+  } catch {
+    // If Supabase is unreachable at build time, skip zip pages
+  }
+
+  return [...staticPages, ...cityPages, ...zipPages]
 }
