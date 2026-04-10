@@ -40,34 +40,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If Supabase is unreachable at build time, skip city pages
   }
 
-  // Dynamic zip pages — only zips with 10+ properties to avoid thin content
+  // Dynamic zip pages — query per city to stay within Supabase row limits.
+  // A single cross-table query with limit(100000) exceeds PostgREST's max_rows
+  // cap and throws silently. Instead reuse the city list from get_city_counts
+  // and fetch zips city-by-city (same pattern that generateStaticParams uses).
   let zipPages: MetadataRoute.Sitemap = []
   try {
-    const { data: zipData } = await supabaseAdmin
-      .from('properties')
-      .select('city, zip')
-      .not('zip', 'is', null)
-      .not('city', 'is', null)
-      .limit(100000)
+    const { data: citiesData } = await supabaseAdmin.rpc('get_city_counts')
+    const cities = ((citiesData as { city: string; count: number }[]) ?? []).filter((r) => r.city)
 
-    if (zipData) {
+    for (const { city } of cities) {
+      const { data: zipData } = await supabaseAdmin
+        .from('properties')
+        .select('zip')
+        .ilike('city', city)
+        .not('zip', 'is', null)
+        .limit(5000)
+
+      if (!zipData?.length) continue
+
       const zipCounts: Record<string, number> = {}
-      for (const row of zipData as { city: string; zip: string }[]) {
-        const key = `${row.city}|||${row.zip}`
-        zipCounts[key] = (zipCounts[key] ?? 0) + 1
+      for (const row of zipData as { zip: string }[]) {
+        if (row.zip) zipCounts[row.zip] = (zipCounts[row.zip] ?? 0) + 1
       }
 
-      zipPages = Object.entries(zipCounts)
-        .filter(([, cnt]) => cnt >= 10)
-        .map(([key]) => {
-          const [city, zip] = key.split('|||')
-          return {
+      for (const [zip, cnt] of Object.entries(zipCounts)) {
+        if (cnt >= 10) {
+          zipPages.push({
             url: `${BASE}/cities/${cityToSlug(city)}/${zip}`,
             lastModified: new Date(),
             changeFrequency: 'weekly' as const,
             priority: 0.6,
-          }
-        })
+          })
+        }
+      }
     }
   } catch {
     // If Supabase is unreachable at build time, skip zip pages
