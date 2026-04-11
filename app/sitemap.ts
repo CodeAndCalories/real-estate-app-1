@@ -1,8 +1,34 @@
 import { MetadataRoute } from 'next'
+import { createClient } from '@supabase/supabase-js'
 
 const BASE = 'https://propertysignalhq.com'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const CITIES = [
+  'phoenix', 'miami', 'dallas', 'atlanta', 'chicago',
+  'cleveland', 'los-angeles', 'new-york', 'tampa', 'nashville',
+  'denver', 'charlotte', 'seattle', 'houston', 'austin',
+  'columbus', 'indianapolis', 'memphis', 'baltimore', 'pittsburgh',
+]
+
+const BLOG_POSTS = [
+  'what-are-real-estate-investment-signals',
+  'off-market-property-leads-real-estate-agents',
+  'how-wholesalers-use-property-signals',
+  'wholesale-real-estate-lead-generation-2025',
+  'find-flip-deals-before-other-investors',
+  'best-tools-house-flippers-2025',
+  'best-distressed-property-markets-ohio-2026',
+  'find-pre-foreclosure-properties-cleveland',
+  'michigan-wholesale-real-estate-guide',
+  'propstream-free-alternatives-2026',
+]
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE,                       lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
     { url: `${BASE}/finder`,           lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
@@ -21,35 +47,50 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/privacy`,          lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.3 },
   ]
 
-  const cityPages: MetadataRoute.Sitemap = [
-    'phoenix', 'miami', 'dallas', 'atlanta', 'chicago',
-    'cleveland', 'los-angeles', 'new-york', 'tampa', 'nashville',
-    'denver', 'charlotte', 'seattle', 'houston', 'austin',
-    'columbus', 'indianapolis', 'memphis', 'baltimore', 'pittsburgh',
-  ].map((slug) => ({
+  const cityPages: MetadataRoute.Sitemap = CITIES.map((slug) => ({
     url: `${BASE}/cities/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.7,
   }))
 
-  const blogPosts: MetadataRoute.Sitemap = [
-    'what-are-real-estate-investment-signals',
-    'off-market-property-leads-real-estate-agents',
-    'how-wholesalers-use-property-signals',
-    'wholesale-real-estate-lead-generation-2025',
-    'find-flip-deals-before-other-investors',
-    'best-tools-house-flippers-2025',
-    'best-distressed-property-markets-ohio-2026',
-    'find-pre-foreclosure-properties-cleveland',
-    'michigan-wholesale-real-estate-guide',
-    'propstream-free-alternatives-2026',
-  ].map((slug) => ({
+  const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map((slug) => ({
     url: `${BASE}/blog/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.6,
   }))
 
-  return [...staticPages, ...cityPages, ...blogPosts]
+  // Fetch distinct city+zip combos from Supabase
+  let zipPages: MetadataRoute.Sitemap = []
+  try {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('city, zip')
+      .not('city', 'is', null)
+      .not('zip', 'is', null)
+      .limit(10000)
+
+    if (!error && data) {
+      // Deduplicate by city+zip
+      const seen = new Set<string>()
+      zipPages = data
+        .filter(({ city, zip }) => {
+          const key = `${city}-${zip}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+        .map(({ city, zip }) => ({
+          url: `${BASE}/cities/${city.toLowerCase().replace(/\s+/g, '-')}/${zip}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.5,
+        }))
+    }
+  } catch (e) {
+    console.error('Sitemap ZIP fetch failed:', e)
+  }
+
+  return [...staticPages, ...cityPages, ...blogPages, ...zipPages]
 }
