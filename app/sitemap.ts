@@ -63,33 +63,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  // Fetch distinct city+zip combos from Supabase
+  // Fetch distinct city+zip combos from Supabase via paginated batches
   let zipPages: MetadataRoute.Sitemap = []
   try {
-    const { data, error } = await supabase
-      .from('properties')
-      .select('city, zip')
-      .not('city', 'is', null)
-      .not('zip', 'is', null)
-      .limit(10000)
-
-    if (!error && data) {
-      // Deduplicate by city+zip
-      const seen = new Set<string>()
-      zipPages = data
-        .filter(({ city, zip }) => {
-          const key = `${city}-${zip}`
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
-        .map(({ city, zip }) => ({
-          url: `${BASE}/cities/${city.toLowerCase().replace(/\s+/g, '-')}/${zip}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly' as const,
-          priority: 0.5,
-        }))
+    let allRows: { city: string; zip: string }[] = []
+    let from = 0
+    const batchSize = 1000
+    let iterations = 0
+    while (iterations < 50) {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('city, zip')
+        .not('city', 'is', null)
+        .not('zip', 'is', null)
+        .range(from, from + batchSize - 1)
+      if (error || !data || data.length === 0) break
+      allRows = [...allRows, ...data]
+      if (data.length < batchSize) break
+      from += batchSize
+      iterations++
     }
+
+    // Filter out blank zips, then deduplicate by city+zip
+    const seen = new Set<string>()
+    zipPages = allRows
+      .filter(({ zip }) => zip && zip.trim().length > 0)
+      .filter(({ city, zip }) => {
+        const key = `${city}-${zip}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .map(({ city, zip }) => ({
+        url: `${BASE}/cities/${city.toLowerCase().replace(/\s+/g, '-')}/${zip}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.5,
+      }))
   } catch (e) {
     console.error('Sitemap ZIP fetch failed:', e)
   }
