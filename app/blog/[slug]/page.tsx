@@ -165,6 +165,33 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-xs text-gray-600 mt-3">30 days free · No charge until day 31 · Cancel anytime</p>
         </div>
 
+        {/* Explore Properties by City */}
+        <div className="mt-14">
+          <h2 className="text-lg font-bold text-white mb-1">Explore Properties by City</h2>
+          <p className="text-xs text-gray-500 mb-5">Browse distressed property signals in top investment markets</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              { slug: 'cleveland',  name: 'Cleveland' },
+              { slug: 'chicago',    name: 'Chicago' },
+              { slug: 'phoenix',    name: 'Phoenix' },
+              { slug: 'dallas',     name: 'Dallas' },
+              { slug: 'columbus',   name: 'Columbus' },
+              { slug: 'atlanta',    name: 'Atlanta' },
+            ].map((city) => (
+              <Link
+                key={city.slug}
+                href={`/cities/${city.slug}`}
+                className="rounded-xl border border-white/10 bg-[#0f172a] p-4 hover:border-blue-500/30 hover:bg-blue-900/10 transition-colors group"
+              >
+                <div className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                  {city.name}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">View Signals →</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Back to blog */}
         <div className="mt-10 text-center">
           <Link href="/blog" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">

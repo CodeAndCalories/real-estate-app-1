@@ -71,6 +71,7 @@ interface PropertyRow {
   estimated_value: number | null
   loan_balance_estimate: number | null
   tax_delinquent: boolean | null
+  absentee_owner: boolean | null
 }
 
 function scoreColor(score: number): string {
@@ -155,7 +156,7 @@ export default async function ZipPage(
   const { data, count } = await supabaseAdmin
     .from('properties')
     .select(
-      'id, address, city, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent',
+      'id, address, city, zip, lead_type, opportunity_score, estimated_value, loan_balance_estimate, tax_delinquent, absentee_owner',
       { count: 'exact' }
     )
     .eq('zip', zip)
@@ -168,7 +169,7 @@ export default async function ZipPage(
   if (total === 0) notFound()
 
   const rows = (data ?? []) as PropertyRow[]
-  const top5 = rows.slice(0, 5)
+  const top5 = rows.slice(0, 3)
 
   // Derive stats
   const validScores = rows.map((r) => r.opportunity_score ?? 0).filter((s) => s > 0)
@@ -183,7 +184,10 @@ export default async function ZipPage(
   const topLeadType = Object.entries(leadCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'Mixed'
 
   const preFCCount = leadCounts['Pre-Foreclosure'] ?? 0
+  const expiredCount = leadCounts['Expired Listing'] ?? 0
+  const investorCount = leadCounts['Investor Opportunity'] ?? 0
   const taxDelCount = rows.filter((r) => r.tax_delinquent === true).length
+  const absenteeCount = rows.filter((r) => r.absentee_owner === true).length
   const highEquityCount = rows.filter((r) => (r.opportunity_score ?? 0) >= 80).length
 
   const leadContext = LEAD_TYPE_CONTEXT[topLeadType] ?? 'diverse real estate investment opportunities'
@@ -222,13 +226,25 @@ export default async function ZipPage(
           </div>
         </div>
 
-        {/* Stats grid — 4 cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
           {[
-            { label: 'Total Signals',    value: total.toLocaleString(),           color: 'text-blue-400' },
-            { label: 'Average Score',    value: `${avgScore}/100`,                color: 'text-white' },
-            { label: 'Pre-Foreclosure',  value: preFCCount.toLocaleString(),      color: 'text-red-400' },
-            { label: 'High Equity Deals',value: highEquityCount.toLocaleString(), color: 'text-emerald-400' },
+            { label: 'Total Properties',   value: total.toLocaleString(),          color: 'text-blue-400' },
+            { label: 'Average Score',       value: `${avgScore}/100`,               color: 'text-white' },
+            { label: 'Pre-Foreclosure',     value: preFCCount.toLocaleString(),     color: 'text-red-400' },
+            { label: 'Expired Listing',     value: expiredCount.toLocaleString(),   color: 'text-yellow-400' },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-white/10 bg-[#0f172a] p-4 text-center">
+              <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+              <div className="text-xs text-gray-500 mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-4 mb-10">
+          {[
+            { label: 'Investor Opportunity', value: investorCount.toLocaleString(),  color: 'text-emerald-400' },
+            { label: 'Tax Delinquent',        value: taxDelCount.toLocaleString(),    color: 'text-orange-400' },
+            { label: 'Absentee Owner',         value: absenteeCount.toLocaleString(), color: 'text-purple-400' },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-white/10 bg-[#0f172a] p-4 text-center">
               <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>

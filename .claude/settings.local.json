@@ -10,7 +10,14 @@
       "Bash(node -e \":*)",
       "Bash(npx tsc:*)",
       "Bash(xargs grep:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "WebFetch(domain:gis3.hamilton-co.org)",
+      "WebFetch(domain:mcassessor.maricopa.gov)",
+      "WebFetch(domain:opendata.arcgis.com)",
+      "WebFetch(domain:gisservices.dallascityhall.com)",
+      "WebFetch(domain:www.dallasopendata.com)",
+      "WebFetch(domain:gis.tarrantcountytx.gov)",
+      "WebFetch(domain:services2.arcgis.com)"
     ]
   }
 }

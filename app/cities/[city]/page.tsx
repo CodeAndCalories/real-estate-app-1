@@ -125,13 +125,11 @@ export default async function CityPage(
     .not('zip', 'is', null)
     .limit(5000)
 
-  const zipCounts: Record<string, number> = {}
+  const zipSet = new Set<string>()
   for (const r of (zipData ?? []) as { zip: string }[]) {
-    if (r.zip) zipCounts[r.zip] = (zipCounts[r.zip] ?? 0) + 1
+    if (r.zip) zipSet.add(r.zip)
   }
-  const topZips = Object.entries(zipCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+  const allZips = Array.from(zipSet).sort()
   const top5 = rows.slice(0, 5)
 
   // Derive stats
@@ -347,24 +345,21 @@ export default async function CityPage(
         </div>
 
         {/* Browse by ZIP Code */}
-        {topZips.length > 0 && (
+        {allZips.length > 0 && (
           <div className="mt-10 pt-8 border-t border-white/10">
             <h2 className="text-base font-bold text-white mb-1">Browse by ZIP Code</h2>
             <p className="text-xs text-gray-500 mb-5">
-              Top ZIP codes in {cityName} by signal volume
+              All ZIP codes in {cityName} — {allZips.length} areas with investment signals
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              {topZips.map(([zip, cnt]) => (
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {allZips.map((zip) => (
                 <Link
                   key={zip}
                   href={`/cities/${slug}/${zip}`}
-                  className="rounded-lg border border-white/10 bg-[#0f172a] p-3 text-center hover:border-blue-500/30 hover:bg-[#0f172a]/80 transition-colors group"
+                  className="rounded-lg border border-white/10 bg-[#0f172a] p-3 text-center hover:border-blue-500/30 hover:bg-blue-900/20 transition-colors group"
                 >
                   <div className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
                     {zip}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {cnt} signal{cnt !== 1 ? 's' : ''}
                   </div>
                 </Link>
               ))}
