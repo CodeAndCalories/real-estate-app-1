@@ -28,6 +28,9 @@ const BLOG_POSTS = [
   'find-pre-foreclosure-properties-cleveland',
   'michigan-wholesale-real-estate-guide',
   'propstream-free-alternatives-2026',
+  'tax-delinquent-property-list-by-county',
+  'how-to-find-absentee-owner-properties',
+  'cheapest-way-to-find-motivated-sellers-2026',
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

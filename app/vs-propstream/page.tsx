@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Looking for a PropStream Alternative? Try PropertySignalHQ',
+  title: 'PropStream vs PropertySignalHQ — Same Data, $60 Cheaper Per Month',
   description:
-    'PropertySignalHQ is a PropStream alternative for real estate investors. Get opportunity scoring, market data, and owner contacts starting at $39/mo. Free to explore.',
+    'PropStream charges $99/mo for raw data. We charge $39/mo and pre-score every lead 0-100 so you know which ones to call first. Compare features side by side.',
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────

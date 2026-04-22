@@ -14,24 +14,24 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
-  description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
+  title: 'PropertySignalHQ — Distressed Property Leads Scored 0-100 | $39/mo',
+  description: 'Find pre-foreclosure, tax delinquent & absentee owner leads across 700,000+ properties. Every lead scored 0-100. CSV export. 30-day free trial. No credit card.',
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     other: [{ rel: 'icon', url: '/favicon.svg', type: 'image/svg+xml' }],
   },
   openGraph: {
-    title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
-    description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
+    title: 'PropertySignalHQ — Distressed Property Leads Scored 0-100 | $39/mo',
+    description: 'Find pre-foreclosure, tax delinquent & absentee owner leads across 700,000+ properties. Every lead scored 0-100. CSV export. 30-day free trial. No credit card.',
     url: 'https://propertysignalhq.com',
     siteName: 'PropertySignalHQ',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PropertySignalHQ — Find Real Estate Deals Before Other Investors',
-    description: 'Discover distressed owners, price drops, and high-equity property opportunities before other investors and agents.',
+    title: 'PropertySignalHQ — Distressed Property Leads Scored 0-100 | $39/mo',
+    description: 'Find pre-foreclosure, tax delinquent & absentee owner leads across 700,000+ properties. Every lead scored 0-100. CSV export. 30-day free trial. No credit card.',
   },
 }
 

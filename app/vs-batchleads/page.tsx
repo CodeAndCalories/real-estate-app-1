@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Looking for a BatchLeads Alternative? Try PropertySignalHQ',
+  title: 'BatchLeads Alternative — Pre-Scored Distressed Leads for $39/mo',
   description:
-    'PropertySignalHQ is a BatchLeads alternative for real estate investors. Flat $39/mo, no per-record fees, opportunity scoring, and Zillow market data. Free to explore.',
+    'BatchLeads runs $77-197/mo. Get pre-foreclosure, tax delinquent & expired listing leads pre-scored 0-100 at PropertySignalHQ for $39/mo. 30-day free trial.',
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────

@@ -692,8 +692,8 @@ The deals are there. Work the signals.
   },
   {
     slug: 'propstream-free-alternatives-2026',
-    title: '5 PropStream Alternatives for Real Estate Investors in 2026 (Including Free Options)',
-    description: 'PropStream costs $99+/month. Here are the best alternatives — including tools that offer free trials and cover more markets for less money.',
+    title: 'PropStream Alternative at $39/mo — 700,000 Distressed Property Leads',
+    description: 'Skip the $99 PropStream bill. PropertySignalHQ gives you pre-scored pre-foreclosure, tax delinquent & absentee owner leads across 125+ cities. 30-day free trial.',
     publishedAt: '2026-04-11',
     readTime: '6 min read',
     category: 'Investor Education',
@@ -779,6 +779,283 @@ If you drive for dollars as part of your strategy, DealMachine remains the best 
 If you're running high-volume outreach campaigns, BatchLeads is the professional-grade option.
 
 The best tool is the one you'll actually use consistently. Start with the free trial options, verify coverage for your target markets, and scale from there.
+    `.trim(),
+  },
+  {
+    slug: 'tax-delinquent-property-list-by-county',
+    title: 'How to Get a Tax Delinquent Property List by County (Free Methods)',
+    description: 'Find tax delinquent properties in your county using free public records, then learn how PropertySignalHQ delivers pre-built, scored lists across 125+ cities.',
+    publishedAt: '2026-04-21',
+    readTime: '6 min read',
+    category: 'Investor Education',
+    content: `
+## How to Get a Tax Delinquent Property List by County (Free Methods)
+
+Tax delinquent properties are one of the most reliable sources of motivated seller leads in real estate investing. Owners who haven't paid property taxes are often in financial distress — and that distress frequently translates into willingness to sell below market value.
+
+Here's how to find them, starting with free county-level methods, and when it makes sense to use a platform instead.
+
+### What "Tax Delinquent" Actually Means
+
+A property becomes tax delinquent when the owner fails to pay their annual property tax bill by the county's deadline. Most counties give owners a grace period — anywhere from 6 months to 2+ years — before initiating a tax lien sale or tax deed foreclosure.
+
+During that window, the property owner is legally delinquent but still owns the home. They're often motivated to sell because unpaid taxes compound with penalties and interest, and the clock is ticking toward a forced sale.
+
+From an investor's perspective, these owners have a concrete financial problem you can solve.
+
+### Why Tax Delinquent Owners Are Motivated Sellers
+
+Three factors make tax delinquent owners disproportionately likely to sell at a discount:
+
+**Financial pressure.** Unpaid taxes accrue penalties and interest — often 12–18% annually. Every month they don't resolve it, the balance grows.
+
+**Equity cushion.** Many long-term owners with tax delinquency have significant equity. They've owned the property for years but hit a rough patch. They can afford to take a discount and still walk away with cash.
+
+**Fear of losing everything.** Once a county initiates a tax deed or tax lien auction, the owner can lose the property entirely for a fraction of its value. That deadline creates urgency.
+
+### How to Get a Tax Delinquent List From Your County
+
+Most U.S. counties make some version of this data publicly available. The process varies by state.
+
+**Step 1: Find your county's tax assessor or treasurer website.** Search "[county name] property tax delinquent list" or "[county name] tax collector." Most counties have a dedicated page for delinquent taxes, tax lien sales, or tax deed sales.
+
+**Step 2: Look for a delinquent tax roll.** Some counties publish a full delinquent tax roll as a downloadable PDF or spreadsheet. Others only post it in the local newspaper (a legal requirement in many states) or on a public notice board.
+
+**Step 3: Cross-reference with property records.** Once you have a list of delinquent parcels, you'll need to match parcel IDs to owner names and mailing addresses using your county's property appraiser or GIS portal.
+
+**Step 4: Repeat regularly.** New delinquencies are added as tax bills go unpaid. The list you pull today is different from next quarter's list.
+
+### Limitations of Free County Methods
+
+County records work, but they come with real constraints:
+
+**Time.** Downloading, cleaning, cross-referencing, and de-duplicating county data across multiple jurisdictions is hours of work per pull.
+
+**Coverage.** You're limited to one county at a time. Investors working multiple markets have to repeat the process for each county.
+
+**No scoring.** A raw delinquent list doesn't tell you which leads are most urgent. An owner 2 years delinquent with a lien sale scheduled next month is very different from an owner 60 days late on a $400 bill.
+
+**No stacking.** The real signal isn't just tax delinquency — it's tax delinquency combined with absentee ownership, or pre-foreclosure, or an expired listing. County records don't surface stacked signals.
+
+### How PropertySignalHQ Handles Tax Delinquent Lists
+
+[PropertySignalHQ](/finder) aggregates tax delinquent data across 700,000+ properties in 125+ cities and applies a 0–100 opportunity score to every lead. The score reflects the severity of distress signals stacking on a single property — so a tax delinquent property that's also absentee-owned with a recent price drop scores much higher than a property that's only marginally late on taxes.
+
+Instead of pulling a county list and manually scoring it, you filter by city, signal type, or minimum score — and export a CSV of the leads most likely to convert.
+
+Pricing starts at [$39/mo](/pricing), and the first month is free with no credit card required.
+
+**What you get that county records don't provide:**
+
+- Pre-built lists across 125+ cities — no manual data collection
+- 0–100 opportunity scoring based on stacked distress signals
+- Absentee owner filtering layered on top of tax delinquency
+- CSV export ready for your CRM or dialer
+- Pre-foreclosure and expired listings in the same search
+
+### Which Approach Is Right for You?
+
+If you're working one local market and have time to pull and clean county data, the free method is a reasonable starting point. County records are a legitimate primary source and cost nothing.
+
+If you're working multiple markets, want pre-scored leads, or want to layer signal types — tax delinquency combined with absentee ownership or pre-foreclosure — a platform built for this workflow will save you significant time and surface better leads faster.
+
+The math at [$39/mo](/pricing) is straightforward: if one closed deal per year traces back to a lead you wouldn't have found or prioritized manually, the platform pays for itself many times over.
+
+[Start your free 30-day trial at PropertySignalHQ](/signup) — no credit card required, full access to tax delinquent leads across 125+ cities.
+    `.trim(),
+  },
+  {
+    slug: 'how-to-find-absentee-owner-properties',
+    title: 'How to Find Absentee Owner Properties in Any City (2026 Guide)',
+    description: 'Absentee owners are among the most motivated sellers in real estate. Here are 3 free methods to find them — and how PropertySignalHQ filters 700k+ properties by absentee status with opportunity scores.',
+    publishedAt: '2026-04-21',
+    readTime: '6 min read',
+    category: 'Investor Education',
+    content: `
+## How to Find Absentee Owner Properties in Any City (2026 Guide)
+
+Absentee owner properties are a cornerstone lead type for wholesalers, flippers, and buy-and-hold investors alike. Owners who don't live in their property are more likely to sell at a discount — and the reasons why make them one of the most consistently motivated seller segments in real estate.
+
+Here's what absentee ownership means, why these owners sell cheap, three free methods for finding them, and when a paid platform makes the workflow faster.
+
+### What Is an Absentee Owner?
+
+An absentee owner is a property owner whose mailing address doesn't match the property address. They own the home but live somewhere else.
+
+This category includes:
+
+- **Landlords** who own rental properties in one city while living in another
+- **Inherited property owners** who received a home they don't want to manage
+- **Relocated owners** who moved but kept the property (often because selling felt complicated)
+- **Vacation or second-home owners** who've stopped using the property
+- **Estate properties** where the heir lives out of state
+
+The mailing address mismatch is the simplest signal, and most county tax records track it.
+
+### Why Absentee Owners Sell at a Discount
+
+Absentee ownership creates three conditions that favor discounted sales:
+
+**Distance.** Managing a property from another city or state is expensive and stressful. Maintenance issues, tenant problems, and vacancy all hit harder when you're not local.
+
+**Emotional detachment.** Unlike an owner-occupant who raised their kids in a home, absentee owners — especially heirs — often have limited emotional attachment to the property. Price negotiations start from a different place.
+
+**Carrying costs without benefit.** An absentee owner who isn't renting the property is paying taxes, insurance, and maintenance on an asset that generates nothing. Every month they hold it is a cost.
+
+These factors combine to create sellers who are more open to fast, flexible transactions — including below-market cash offers.
+
+### 3 Free Methods to Find Absentee Owner Properties
+
+**Method 1: County Tax Records**
+
+Every county tracks the owner's mailing address for tax billing purposes. When that address differs from the property address, you've found an absentee owner.
+
+Most county assessor or property appraiser websites let you search or export property data. Look for a "mailing address" or "owner address" field. Properties where owner address ≠ property address are your targets.
+
+The data is public, free, and updated regularly. The limitation: it requires manual downloading and filtering, and you're limited to one county at a time.
+
+**Method 2: Driving for Dollars**
+
+Physically driving neighborhoods and noting distressed properties — overgrown lawns, deferred maintenance, boarded windows, accumulated mail — is a classic method for finding properties where the owner is clearly not present.
+
+Once you've identified a property, use your county's tax records to pull the owner's mailing address and reach out directly.
+
+Apps like DealMachine streamline this process by letting you flag properties from your car and instantly pull contact info. The limitation: it's time-intensive and limited to neighborhoods you physically drive.
+
+**Method 3: Online Property Searches**
+
+Zillow, Redfin, and other portals don't explicitly flag absentee owners, but you can infer it. Properties listed as "investment properties," homes with long days-on-market in neighborhoods with low vacancy, or rentals that keep re-listing may indicate absentee owners.
+
+Cross-referencing with county records confirms absentee status. This method is slower and less reliable than direct tax record searches.
+
+### Limitations of Free Methods
+
+Free methods work in a single market with significant manual effort. The core limitations:
+
+- **No cross-city scale.** Finding absentee owners in multiple cities requires repeating the process for each county.
+- **No signal stacking.** Absentee ownership alone is a signal. Absentee ownership combined with tax delinquency or pre-foreclosure is a much stronger signal — free methods don't surface stacked conditions easily.
+- **No scoring.** A raw list of absentee properties doesn't rank them by urgency or opportunity.
+- **Data lag.** County records update on varying schedules. Some are current; others lag by months.
+
+### How PropertySignalHQ Filters by Absentee Owner Status
+
+[PropertySignalHQ](/finder) tracks absentee ownership across 700,000+ properties in 125+ cities. Every property in the database is scored 0–100 based on the distress signals stacking on it — so an absentee-owned property that's also tax delinquent with a recent price drop scores far higher than a property that's simply absentee-owned.
+
+The workflow:
+
+1. Select your target city
+2. Filter by "absentee owner" signal type
+3. Set a minimum opportunity score to surface the most urgent leads
+4. Export a CSV for your CRM or dialer
+
+You get pre-scored leads across multiple markets without manual county data collection. [Pricing starts at $39/mo](/pricing), with a free 30-day trial and no credit card required.
+
+**Internal links worth knowing:**
+
+- Use the [property finder](/finder) to filter by absentee owner status in your target city
+- See [pricing details](/pricing) — $39/mo flat with no per-record fees
+- Browse high-absentee markets like [Atlanta, GA](/city/atlanta-ga) where investor activity is strong
+
+### Free Methods vs. Paid Platform
+
+Free county records are a real starting point — the data is accurate and costs nothing. The right choice depends on your volume and geography.
+
+If you're working one market and have time to manually pull and filter data, start with county records. If you're working multiple markets, want to stack signals, or need to act quickly on scored leads, a platform saves time and surfaces better opportunities.
+
+The signal that moves deals isn't just absentee ownership — it's absentee ownership combined with tax delinquency, pre-foreclosure, or significant equity. That stacking is what PropertySignalHQ scores for.
+
+[Start your free trial at PropertySignalHQ](/signup) — full absentee owner filtering across 125+ cities, no credit card required.
+    `.trim(),
+  },
+  {
+    slug: 'cheapest-way-to-find-motivated-sellers-2026',
+    title: 'The Cheapest Way to Find Motivated Sellers in 2026 (Under $50/mo)',
+    description: 'Compare free methods vs paid tools for finding motivated sellers. PropertySignalHQ at $39/mo delivers 700k pre-scored distressed leads vs PropStream ($99), BatchLeads ($77-197), and DealMachine ($49+).',
+    publishedAt: '2026-04-21',
+    readTime: '7 min read',
+    category: 'Investor Education',
+    content: `
+## The Cheapest Way to Find Motivated Sellers in 2026 (Under $50/mo)
+
+Finding motivated sellers is the core of every real estate investing strategy — but the tools for doing it range from free to $200+/month. If you're building a lean operation or you're earlier in your investing career, the difference between a $39/mo tool and a $197/mo tool is real money.
+
+Here's a honest comparison of free methods, budget paid tools, and premium platforms — and where the best value actually sits in 2026.
+
+### Free Methods First
+
+Before spending anything, it's worth understanding what's available at zero cost.
+
+**County public records** are the primary source for pre-foreclosure filings, tax delinquency, and property ownership data. In most counties, this data is publicly available online through the county assessor, recorder, or circuit court website. Motivated seller signals that paid platforms charge for — lis pendens filings, tax lien notices, delinquent rolls — come from these same public sources.
+
+The limitation isn't the data quality. It's the time required to pull, clean, and organize data from multiple counties, and the absence of any scoring or stacking logic.
+
+**Driving for dollars** costs nothing but fuel and time. Physically identifying distressed properties in your target neighborhood — deferred maintenance, vacant lots, neglected landscaping — is one of the oldest acquisition methods in the business. It works. It's just not scalable beyond a small geographic area.
+
+**Craigslist and Facebook Marketplace** occasionally surface motivated sellers who've posted FSBOs out of financial necessity. They're looking for a fast sale and haven't called an agent. This requires consistent monitoring and a lot of noise filtering.
+
+If you have more time than money, free methods are a legitimate starting point. The ceiling on what you can build with them is low, but the floor is real.
+
+### Paid Tools: What They Cost and What You Get
+
+Once you decide to pay for leads, the market breaks into a few clear tiers.
+
+**DealMachine — $49–$99/mo**
+
+DealMachine's core strength is the driving-for-dollars workflow. The mobile app lets you flag a distressed property from your car, pull the owner's contact information, and send a postcard or text in under a minute. It's the best tool for that specific use case.
+
+For pre-built lists and desktop lead research, DealMachine is less competitive. The platform has added data features, but they're secondary to the field-first experience. If driving for dollars is part of your strategy, $49/mo is defensible. If you want bulk pre-scored lists, it's not the right tool.
+
+**PropertySignalHQ — $39/mo**
+
+[PropertySignalHQ](/finder) is specifically built for bulk distressed lead research. The database covers 700,000+ properties across 125+ cities — pre-foreclosure, tax delinquent, absentee owners, expired listings, and inherited properties. Every property is scored 0–100 based on the severity and combination of distress signals stacking on it.
+
+At [$39/mo](/pricing), it's the lowest-cost option with a pre-built, pre-scored dataset. The free 30-day trial (no credit card) lets you verify coverage in your target markets before committing. CSV export is included.
+
+**BatchLeads — $77–197/mo**
+
+BatchLeads is a high-volume outreach platform. The data quality is competitive, and the built-in SMS campaign management is strong. If you're running 500+ contacts per week with multi-touch drip sequences, BatchLeads is purpose-built for that.
+
+The price reflects the outreach infrastructure, not just the data. For investors who want leads without a built-in dialer or SMS platform, you're paying for features you won't use.
+
+**PropStream — $99/mo**
+
+PropStream is the most established name in the space. It offers the broadest parcel data coverage, comps, skip tracing, and list-building tools. The $99/mo base rate doesn't include skip tracing (billed per record).
+
+PropStream makes sense for experienced investors who need maximum data flexibility and are willing to do their own scoring and prioritization. For investors who want the highest-priority leads surfaced automatically, the raw data model requires more work on your end.
+
+### Side-by-Side Price Comparison
+
+| Tool | Starting Price | Pre-Scored Leads | Free Trial |
+|------|---------------|-----------------|------------|
+| County Records | Free | No | N/A |
+| PropertySignalHQ | $39/mo | Yes (0–100) | 30 days, no CC |
+| DealMachine | $49/mo | No | Limited |
+| BatchLeads | $77/mo | No | Limited |
+| PropStream | $99/mo | No | 7 days |
+
+### Why Pre-Scoring Changes the Math
+
+The hidden cost of raw data platforms isn't the subscription — it's the time you spend filtering and prioritizing leads. With a 700,000-property database and no scoring, you're either building complex filter logic yourself or calling leads in arbitrary order.
+
+Pre-scored leads change the workflow: sort by opportunity score, start with the 85+ scores, work down. The highest-urgency leads — multiple distress signals stacking on the same property — rise to the top automatically.
+
+For a solo investor or small team, that time savings is meaningful. For a larger operation, it multiplies across every person doing outreach.
+
+### The Best Value Under $50/mo in 2026
+
+At $39/mo with a 30-day free trial, PropertySignalHQ is the strongest value in the sub-$50 tier. The combination of:
+
+- 700,000+ properties across 125+ cities
+- Pre-built lists across all major distress signal types
+- 0–100 opportunity scoring per property
+- CSV export for any CRM or dialer
+- No per-record fees
+
+...at a flat monthly rate positions it well against tools that charge 2–5x more for data that requires your own scoring work.
+
+If your budget is the main constraint, start with the free trial and verify coverage for your target markets. If [your city](/finder) is in the database, $39/mo is a straightforward decision. If you need markets that aren't covered, free county records remain the fallback while coverage expands.
+
+[Start your free 30-day trial — no credit card required](/signup). Full access to pre-scored distressed leads in 125+ cities, CSV export included.
     `.trim(),
   },
 ]

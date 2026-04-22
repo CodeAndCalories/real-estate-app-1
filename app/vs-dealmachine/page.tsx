@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Looking for a DealMachine Alternative? Try PropertySignalHQ',
+  title: 'DealMachine Alternative — Distressed Leads + Owner Contacts at $39/mo',
   description:
-    'PropertySignalHQ is a DealMachine alternative for real estate investors. Get opportunity scoring, Zillow market data, and owner contacts at $39/mo. Free to explore.',
+    'DealMachine starts at $49/mo just for driving for dollars. PropertySignalHQ gives you 700k pre-scored distressed leads, CSV export & owner contacts. Free trial.',
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
