@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getBlogPost, BLOG_POSTS } from '@/lib/data/blog-posts'
 import type { Metadata } from 'next'
+import StickyCtaBar from '@/app/components/StickyCtaBar'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -224,6 +225,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       </div>
     </div>
+      <StickyCtaBar />
     </>
   )
 }
