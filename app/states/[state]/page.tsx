@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+export const dynamic = 'force-dynamic'
+
 // ── State slug → display name ─────────────────────────────────────────────────
 
 const US_STATES: { slug: string; name: string }[] = [
@@ -64,12 +66,6 @@ const SLUG_TO_STATE: Record<string, string> = Object.fromEntries(
 
 function cityToSlug(city: string): string {
   return city.toLowerCase().replace(/\s+/g, '-')
-}
-
-// ── Static params ─────────────────────────────────────────────────────────────
-
-export async function generateStaticParams(): Promise<{ state: string }[]> {
-  return US_STATES.map(({ slug }) => ({ state: slug }))
 }
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
