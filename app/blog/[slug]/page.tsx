@@ -93,8 +93,31 @@ export default async function BlogPostPage({ params }: Props) {
     day: 'numeric',
   })
 
+  const faqSchema =
+    post.faq && post.faq.length > 0
+      ? JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: post.faq.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.answer,
+            },
+          })),
+        })
+      : null
+
   return (
-    <div className="min-h-screen bg-[#020617]">
+    <>
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: faqSchema }}
+        />
+      )}
+      <div className="min-h-screen bg-[#020617]">
 
       {/* Top nav */}
       <div className="border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl sticky top-0 z-20">
@@ -201,5 +224,6 @@ export default async function BlogPostPage({ params }: Props) {
 
       </div>
     </div>
+    </>
   )
 }

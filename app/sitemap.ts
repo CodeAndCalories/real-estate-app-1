@@ -10,6 +10,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const STATE_SLUGS = [
+  'alabama', 'alaska', 'arizona', 'arkansas', 'california',
+  'colorado', 'connecticut', 'delaware', 'florida', 'georgia',
+  'hawaii', 'idaho', 'illinois', 'indiana', 'iowa',
+  'kansas', 'kentucky', 'louisiana', 'maine', 'maryland',
+  'massachusetts', 'michigan', 'minnesota', 'mississippi', 'missouri',
+  'montana', 'nebraska', 'nevada', 'new-hampshire', 'new-jersey',
+  'new-mexico', 'new-york', 'north-carolina', 'north-dakota', 'ohio',
+  'oklahoma', 'oregon', 'pennsylvania', 'rhode-island', 'south-carolina',
+  'south-dakota', 'tennessee', 'texas', 'utah', 'vermont',
+  'virginia', 'washington', 'west-virginia', 'wisconsin', 'wyoming',
+]
+
 const CITIES = [
   'phoenix', 'miami', 'dallas', 'atlanta', 'chicago',
   'cleveland', 'los-angeles', 'new-york', 'tampa', 'nashville',
@@ -107,5 +120,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Sitemap ZIP fetch failed:', e)
   }
 
-  return [...staticPages, ...cityPages, ...blogPages, ...zipPages]
+  const stateIndexPage: MetadataRoute.Sitemap = [
+    { url: `${BASE}/states`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+  ]
+
+  const statePages: MetadataRoute.Sitemap = STATE_SLUGS.map((slug) => ({
+    url: `${BASE}/states/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  const leadPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/leads/pre-foreclosure`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/leads/tax-delinquent`,  lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/leads/absentee-owner`,  lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+  ]
+
+  return [...staticPages, ...cityPages, ...blogPages, ...zipPages, ...stateIndexPage, ...statePages, ...leadPages]
 }

@@ -6,6 +6,7 @@ export type BlogPost = {
   readTime: string
   category: string
   content: string
+  faq?: { question: string; answer: string }[]
 }
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -863,6 +864,28 @@ The math at [$39/mo](/pricing) is straightforward: if one closed deal per year t
 
 [Start your free 30-day trial at PropertySignalHQ](/signup) — no credit card required, full access to tax delinquent leads across 125+ cities.
     `.trim(),
+    faq: [
+      {
+        question: "What is a tax delinquent property list?",
+        answer: "A tax delinquent property list is a public record of properties whose owners have failed to pay their property taxes by the county deadline. These lists are published by county tax collectors and treasurers, and are a primary source of motivated seller leads for real estate investors.",
+      },
+      {
+        question: "How do I get a tax delinquent list for free?",
+        answer: "Most counties publish delinquent tax rolls on their assessor, treasurer, or tax collector websites. Search for '[county name] delinquent tax list' and look for a downloadable PDF or spreadsheet. Some counties post delinquency notices in local newspapers as required by law.",
+      },
+      {
+        question: "How many years behind on taxes before a property is a strong lead?",
+        answer: "Properties 1–2+ years delinquent are typically the most motivated. At that point, penalties and interest have compounded significantly, and the county may be approaching a tax lien sale or tax deed foreclosure. That deadline creates real urgency for the owner.",
+      },
+      {
+        question: "What's the difference between a tax lien and a tax deed?",
+        answer: "A tax lien is a legal claim placed on a property for unpaid taxes — a government or third-party investor can purchase the lien and collect interest. A tax deed sale transfers ownership of the property itself after the redemption period expires. Investors can profit from either approach depending on their state's laws.",
+      },
+      {
+        question: "Can an owner still sell a tax delinquent property before auction?",
+        answer: "Yes — in most cases, the owner retains the right to sell right up until the tax sale date. A cash offer that allows the seller to pay off their delinquent taxes at closing and walk away with remaining equity is often an attractive option for motivated sellers facing an impending tax auction.",
+      },
+    ],
   },
   {
     slug: 'how-to-find-absentee-owner-properties',
@@ -966,6 +989,28 @@ The signal that moves deals isn't just absentee ownership — it's absentee owne
 
 [Start your free trial at PropertySignalHQ](/signup) — full absentee owner filtering across 125+ cities, no credit card required.
     `.trim(),
+    faq: [
+      {
+        question: "What is an absentee owner property?",
+        answer: "An absentee owner property is one where the owner's mailing address doesn't match the property address — they own the home but don't live there. This includes landlords with out-of-state rentals, heirs who inherited a property, relocated owners who kept their old home, and investors managing properties remotely.",
+      },
+      {
+        question: "Why do absentee owners sell at a discount?",
+        answer: "Absentee owners face carrying costs — taxes, insurance, maintenance — on an asset they don't use. Managing a property from another city or state is expensive and stressful. Heirs often have limited emotional attachment to inherited homes. These factors create sellers who prioritize a fast, certain transaction over maximizing sale price.",
+      },
+      {
+        question: "How can I find absentee owner properties for free?",
+        answer: "County tax assessor websites track owner mailing addresses separately from property addresses. You can filter property records for parcels where the owner address differs from the property address. The process is manual and limited to one county at a time, but the data is publicly available at no cost.",
+      },
+      {
+        question: "What's the best way to contact absentee owners?",
+        answer: "Direct mail to the owner's mailing address is the most reliable first contact. Skip tracing services can surface phone numbers for follow-up calls. A personalized letter that acknowledges their specific situation — distance, cost of ownership, difficulty managing the property — significantly outperforms generic templates. Follow up 4–5 times over 90 days.",
+      },
+      {
+        question: "Does absentee ownership alone make someone a motivated seller?",
+        answer: "Not always — but it is a meaningful signal. The strongest absentee owner leads combine multiple distress factors: absentee ownership plus tax delinquency, or absentee ownership plus pre-foreclosure. PropertySignalHQ scores properties 0–100 based on stacked signals, making it easy to target the highest-motivation absentee owners first.",
+      },
+    ],
   },
   {
     slug: 'cheapest-way-to-find-motivated-sellers-2026',
@@ -1057,6 +1102,28 @@ If your budget is the main constraint, start with the free trial and verify cove
 
 [Start your free 30-day trial — no credit card required](/signup). Full access to pre-scored distressed leads in 125+ cities, CSV export included.
     `.trim(),
+    faq: [
+      {
+        question: "What is the cheapest way to find motivated sellers in real estate?",
+        answer: "Free county public records — tax rolls, foreclosure filings, and property ownership data — are the lowest-cost starting point. The trade-off is time: pulling, cleaning, and organizing county data is labor-intensive. Paid tools like PropertySignalHQ ($39/mo) deliver pre-scored, multi-market lists that save significant research time for investors working more than one county.",
+      },
+      {
+        question: "What makes a seller 'motivated'?",
+        answer: "A motivated seller has a concrete reason to sell quickly and often at a discount — financial pressure (pre-foreclosure, tax delinquency), physical distance (absentee ownership), or circumstances where a fast close is more valuable than maximum price (divorce, inheritance, medical emergency). Multiple overlapping factors signal the highest motivation.",
+      },
+      {
+        question: "How do I find pre-foreclosure leads without paying?",
+        answer: "County courthouse websites post lis pendens and notice of default filings as public records — usually the same day they're filed. You can check these weekly for free in your target county. The limitation is that this only covers one county at a time and requires ongoing manual effort.",
+      },
+      {
+        question: "Is PropStream worth $99/mo?",
+        answer: "PropStream is a capable platform for investors who need maximum data flexibility and are doing high volume. For investors focused on distressed leads specifically, lower-cost alternatives like PropertySignalHQ ($39/mo) offer pre-scored motivated seller data across 700,000+ properties at less than half the price — with a 30-day free trial and no credit card required.",
+      },
+      {
+        question: "How many leads does it take to close one wholesale deal?",
+        answer: "Industry experience suggests reviewing 50–200 leads to convert one deal, depending on your market and outreach effectiveness. Pre-scored leads from a signal platform significantly improve that conversion ratio — instead of calling 200 cold leads, you're contacting 30–40 properties already flagged for high motivation with multiple stacked distress signals.",
+      },
+    ],
   },
 ]
 
