@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import LeadCounter from '@/app/components/LeadCounter'
 
 type Props = {
   isDark: boolean
@@ -177,6 +178,11 @@ export default function HeroSection({ isDark: _isDark }: Props) {
         {/* Subtext */}
         <p className="text-base md:text-lg max-w-lg mx-auto mb-3 leading-relaxed text-gray-300/85">
           500,000+ distressed property signals across all 50 states — scored 0–100 so you know exactly who to call first.
+        </p>
+
+        {/* Live lead counter */}
+        <p className="text-sm text-gray-400 mb-5">
+          🏚{' '}<LeadCounter />{' '}distressed properties updated this week
         </p>
 
         {/* Who it's for */}
