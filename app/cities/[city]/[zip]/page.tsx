@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+export const dynamic = 'force-dynamic'
+
 // ── Slug → City name (mirrors parent city page) ──────────────────────────────
 
 const SLUG_TO_CITY: Record<string, string> = {
@@ -16,47 +18,6 @@ function slugToCity(slug: string): string {
     .split('-')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
-}
-
-// ── generateStaticParams: pre-render top 5 zips per top 20 cities ─────────────
-
-const TOP_CITIES = [
-  'phoenix', 'miami', 'dallas', 'atlanta', 'chicago',
-  'cleveland', 'nashville', 'denver', 'charlotte', 'austin',
-  'houston', 'tampa', 'seattle', 'raleigh', 'columbus',
-  'indianapolis', 'las-vegas', 'memphis', 'baltimore', 'pittsburgh',
-]
-
-export async function generateStaticParams(): Promise<{ city: string; zip: string }[]> {
-  const params: { city: string; zip: string }[] = []
-
-  for (const citySlug of TOP_CITIES) {
-    try {
-      const cityName = slugToCity(citySlug)
-      const { data } = await supabaseAdmin
-        .from('properties')
-        .select('zip')
-        .ilike('city', cityName)
-        .not('zip', 'is', null)
-        .limit(2000)
-
-      if (!data?.length) continue
-
-      const zipCounts: Record<string, number> = {}
-      for (const row of data) {
-        if (row.zip) zipCounts[row.zip] = (zipCounts[row.zip] ?? 0) + 1
-      }
-
-      Object.entries(zipCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .forEach(([zip]) => params.push({ city: citySlug, zip }))
-    } catch {
-      // skip city on error
-    }
-  }
-
-  return params
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────

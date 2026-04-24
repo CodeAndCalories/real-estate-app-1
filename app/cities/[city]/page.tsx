@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+export const dynamic = 'force-dynamic'
+
 // ── Slug → City name ──────────────────────────────────────────────────────────
 
 // Overrides for city names that don't follow simple title-case
@@ -21,17 +23,6 @@ function slugToCity(slug: string): string {
 
 function cityToSlug(city: string): string {
   return city.toLowerCase().replace(/\s+/g, '-')
-}
-
-// ── Static params for top 20 cities ─────────────────────────────────────────
-
-export async function generateStaticParams() {
-  return [
-    'phoenix', 'miami', 'dallas', 'atlanta', 'chicago',
-    'cleveland', 'nashville', 'denver', 'charlotte', 'austin',
-    'houston', 'tampa', 'seattle', 'raleigh', 'columbus',
-    'indianapolis', 'las-vegas', 'memphis', 'baltimore', 'pittsburgh',
-  ].map((city) => ({ city }))
 }
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
