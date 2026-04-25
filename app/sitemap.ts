@@ -137,5 +137,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/leads/absentee-owner`,  lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
   ]
 
-  return [...staticPages, ...cityPages, ...blogPages, ...zipPages, ...stateIndexPage, ...statePages, ...leadPages]
+  const comparePages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/compare`,                                          lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/compare/propertysignalhq-vs-propstream`,           lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+  ]
+
+  return [...staticPages, ...cityPages, ...blogPages, ...zipPages, ...stateIndexPage, ...statePages, ...leadPages, ...comparePages]
 }
