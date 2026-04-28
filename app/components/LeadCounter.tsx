@@ -16,7 +16,7 @@ export default function LeadCounter() {
 
   return (
     <span className="font-black text-blue-400 tabular-nums">
-      {count !== null ? count.toLocaleString() : '700,000+'}
+      {count !== null ? count.toLocaleString() : '1,000,000+'}
     </span>
   )
 }

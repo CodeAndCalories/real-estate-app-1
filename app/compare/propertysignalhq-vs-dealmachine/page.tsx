@@ -4,50 +4,50 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'PropertySignalHQ vs PropStream 2026 — Which Is Better for Investors?',
+  title: 'PropertySignalHQ vs DealMachine 2026 — Which Is Better for Investors?',
   description:
-    'PropStream costs $99+/mo. PropertySignalHQ is $39.99 with a 30-day free trial and 1,000,000+ distressed property leads. See the full comparison.',
+    'DealMachine starts at $49/mo and focuses on driving for dollars. PropertySignalHQ gives you 1,000,000+ distressed leads nationwide for $39.99/mo. See the full comparison.',
   openGraph: {
-    title: 'PropertySignalHQ vs PropStream 2026 — Which Is Better for Investors?',
+    title: 'PropertySignalHQ vs DealMachine 2026 — Which Is Better for Investors?',
     description:
-      'PropStream costs $99+/mo. PropertySignalHQ is $39.99 with a 30-day free trial and 1,000,000+ distressed property leads.',
-    url: 'https://propertysignalhq.com/compare/propertysignalhq-vs-propstream',
+      'DealMachine starts at $49/mo and focuses on driving for dollars. PropertySignalHQ gives you 1,000,000+ distressed leads nationwide for $39.99/mo.',
+    url: 'https://propertysignalhq.com/compare/propertysignalhq-vs-dealmachine',
   },
 }
 
 const ROWS = [
-  { feature: 'Price',                      pshq: '$39.99/mo',                   ps: '$99+/mo' },
-  { feature: 'Free trial',                 pshq: '30 days free, no credit card', ps: '7 days only' },
-  { feature: 'Number of listings',         pshq: '1,000,000+ properties',          ps: 'Large but expensive' },
-  { feature: 'Pre-foreclosure leads',      pshq: true,  ps: true  },
-  { feature: 'Tax delinquent leads',       pshq: true,  ps: true  },
-  { feature: 'Absentee owner leads',       pshq: true,  ps: true  },
-  { feature: 'Skip tracing',              pshq: 'Coming soon', ps: 'Paid add-on' },
-  { feature: 'Data export (CSV)',          pshq: true,  ps: true  },
-  { feature: 'Built for wholesalers/flippers', pshq: true, ps: true },
-  { feature: 'Contract required',          pshq: false, ps: false },
+  { feature: 'Price',                       pshq: '$39.99/mo',                    dm: '$49–$299/mo' },
+  { feature: 'Free trial',                  pshq: '30 days free, no credit card',  dm: '7 days only' },
+  { feature: 'Number of listings',          pshq: '1,000,000+ properties',         dm: 'Driving-focused, limited DB' },
+  { feature: 'Pre-foreclosure leads',       pshq: true,                            dm: 'Limited' },
+  { feature: 'Tax delinquent leads',        pshq: true,                            dm: false },
+  { feature: 'Absentee owner leads',        pshq: true,                            dm: true },
+  { feature: 'Skip tracing',               pshq: 'Coming soon',                   dm: 'Paid add-on' },
+  { feature: 'Data export (CSV)',           pshq: true,                            dm: 'Limited' },
+  { feature: 'Built for wholesalers/flippers', pshq: true,                        dm: 'Beginners only' },
+  { feature: 'Contract required',           pshq: false,                           dm: false },
 ]
 
 const FAQ = [
   {
-    q: 'Is PropertySignalHQ cheaper than PropStream?',
-    a: 'Yes. PropertySignalHQ starts at $39.99/mo with a full 30-day free trial and no credit card required. PropStream starts at $99/mo with a 7-day trial only. For investors focused on distressed leads rather than broad parcel data, PropertySignalHQ delivers comparable — and often more targeted — signal data at less than half the cost.',
+    q: 'Is DealMachine worth it in 2026?',
+    a: 'DealMachine is best for beginners who want to drive for dollars. Investors who want nationwide distressed property data without driving need a database-first platform.',
   },
   {
-    q: 'Does PropStream offer a 30-day free trial?',
-    a: 'No. PropStream offers a 7-day trial. PropertySignalHQ offers a full 30-day free trial with no credit card required, giving you enough time to run real outreach campaigns and verify coverage in your target markets before committing.',
+    q: 'What is cheaper than DealMachine?',
+    a: 'PropertySignalHQ at $39.99/mo is cheaper than DealMachine\'s mid and upper tiers and includes 1,000,000+ nationwide leads without any driving required.',
   },
   {
-    q: 'Which tool has more distressed property leads?',
-    a: 'PropertySignalHQ tracks 1,000,000+ distressed properties across 125+ cities — pre-foreclosure, tax delinquent, absentee owner, expired listings, and inherited properties — all scored 0–100 for opportunity. PropStream has broader parcel data but requires more manual filtering to surface distressed leads.',
+    q: 'Does DealMachine have pre-foreclosure data?',
+    a: 'DealMachine has limited pre-foreclosure data. It primarily focuses on properties found through driving for dollars rather than courthouse filings or tax records.',
   },
   {
-    q: 'Does PropertySignalHQ include skip tracing?',
-    a: 'Skip tracing is coming soon to PropertySignalHQ. In the meantime, Pro members get owner mailing addresses and phone numbers where available in the existing database. PropStream offers skip tracing as a paid add-on on top of the base subscription price.',
+    q: 'Can DealMachine replace PropStream?',
+    a: 'No — DealMachine and PropStream serve different use cases. DealMachine is a route-tracking app while PropStream is a data platform. PropertySignalHQ competes more directly with PropStream.',
   },
   {
-    q: 'Can I cancel PropertySignalHQ anytime?',
-    a: 'Yes. PropertySignalHQ requires no contract — monthly billing, cancel anytime. PropStream also has no long-term contract, but at $99+/mo the savings from switching are significant for investors who primarily need distressed lead data rather than full MLS comps or skip tracing infrastructure.',
+    q: 'Who is DealMachine best for?',
+    a: 'DealMachine is best for new wholesalers just starting out with driving for dollars. Experienced investors typically outgrow it quickly and need broader data access.',
   },
 ]
 
@@ -85,7 +85,7 @@ export default function ComparisonPage() {
             <span>/</span>
             <Link href="/compare" className="hover:text-gray-300 transition-colors">Compare</Link>
             <span>/</span>
-            <span className="text-gray-400">vs PropStream</span>
+            <span className="text-gray-400">vs DealMachine</span>
           </nav>
 
           {/* Hero */}
@@ -94,13 +94,12 @@ export default function ComparisonPage() {
               2026 Comparison
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
-              PropertySignalHQ vs PropStream (2026) — Honest Comparison
+              PropertySignalHQ vs DealMachine (2026) — Honest Comparison
             </h1>
             <p className="text-base text-gray-400 leading-relaxed max-w-2xl">
-              Both tools surface distressed property leads for real estate investors — but at very
-              different price points and with different workflows. This comparison is for
-              wholesalers, flippers, and buy-and-hold investors deciding where to spend their
-              lead-generation budget in 2026.
+              DealMachine is a driving-for-dollars mobile app. PropertySignalHQ is a nationwide
+              distressed property database. This comparison is for wholesalers and flippers deciding
+              which tool — or combination — fits their lead generation workflow in 2026.
             </p>
           </div>
 
@@ -113,7 +112,6 @@ export default function ComparisonPage() {
                     <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-4 w-1/3">
                       Feature
                     </th>
-                    {/* PropertySignalHQ column header — highlighted */}
                     <th className="text-center px-5 py-4 w-1/3 bg-blue-950/40 border-x border-blue-500/20">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
@@ -125,7 +123,7 @@ export default function ComparisonPage() {
                       </div>
                     </th>
                     <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-4 w-1/3">
-                      PropStream
+                      DealMachine
                     </th>
                   </tr>
                 </thead>
@@ -138,12 +136,11 @@ export default function ComparisonPage() {
                       <td className="px-5 py-3.5 text-sm font-medium text-gray-300">
                         {row.feature}
                       </td>
-                      {/* PropertySignalHQ value — highlighted column */}
                       <td className="px-5 py-3.5 text-center bg-blue-950/20 border-x border-blue-500/10">
                         <CellValue val={row.pshq} />
                       </td>
                       <td className="px-5 py-3.5 text-center">
-                        <CellValue val={row.ps} />
+                        <CellValue val={row.dm} />
                       </td>
                     </tr>
                   ))}
@@ -160,16 +157,16 @@ export default function ComparisonPage() {
             <ul className="space-y-3">
               {[
                 {
-                  title: 'Pre-scored leads, not raw data',
-                  body: 'Every property is scored 0–100 based on stacked distress signals. Instead of building your own filters in a data sandbox, you start with a ranked list of the highest-urgency motivated sellers — sorted by opportunity score.',
+                  title: 'No driving required — 1,000,000+ leads nationwide',
+                  body: 'PropertySignalHQ pulls pre-foreclosure filings, tax delinquency records, and absentee ownership data from county sources across 125+ cities. Every lead is scored 0–100 so you start your day with the highest-urgency properties already ranked.',
                 },
                 {
-                  title: '60% lower cost with a real free trial',
-                  body: 'At $39.99/mo vs $99+/mo, PropertySignalHQ costs less than half of PropStream for investors focused on distressed leads. The 30-day free trial (no credit card) lets you verify your market coverage and run a real outreach campaign before paying anything.',
+                  title: 'Lower entry price with a real free trial',
+                  body: 'At $39.99/mo, PropertySignalHQ costs less than DealMachine\'s starter plan — and the 30-day free trial (no credit card) gives you time to verify coverage in your target market and run a real outreach campaign before paying anything.',
                 },
                 {
-                  title: 'Built specifically for distressed-property investors',
-                  body: 'PropStream is a broad parcel data platform. PropertySignalHQ is purpose-built for wholesalers and flippers who need pre-foreclosure, tax delinquent, and absentee owner leads — with signal stacking logic that surfaces properties with multiple urgent factors at once.',
+                  title: 'Built for data-driven investors, not just drivers',
+                  body: 'DealMachine is purpose-built for finding properties by driving neighborhoods. PropertySignalHQ is built for investors who want courthouse-filing data, tax records, and stacked distress signals surfaced automatically — without leaving their desk.',
                 },
               ].map((item) => (
                 <li key={item.title} className="flex gap-3">

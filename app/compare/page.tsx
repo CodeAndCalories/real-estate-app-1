@@ -21,6 +21,13 @@ const COMPARISONS = [
     pshqPrice: '$39.99/mo',
     highlight: 'Save 60% vs PropStream with a 30-day free trial',
   },
+  {
+    slug: 'propertysignalhq-vs-dealmachine',
+    opponent: 'DealMachine',
+    opponentPrice: '$49–$299/mo',
+    pshqPrice: '$39.99/mo',
+    highlight: '1,000,000+ nationwide leads vs driving-for-dollars only',
+  },
 ]
 
 export default function ComparePage() {
@@ -86,7 +93,7 @@ export default function ComparePage() {
             Try PropertySignalHQ Free for 30 Days
           </h2>
           <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto">
-            700,000+ pre-scored distressed leads. No credit card required.
+            1,000,000+ pre-scored distressed leads. No credit card required.
           </p>
           <Link
             href="/signup"

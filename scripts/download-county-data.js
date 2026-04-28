@@ -118,22 +118,21 @@ async function fetchWithTimeout(url, timeoutMs = FETCH_TIMEOUT_MS) {
 const COUNTIES = {
 
   // ── Cook County, IL ─────────────────────────────────────────────────────────
-  // Socrata JSON API — Assessor Parcel Sales (5pge-nu6u)
+  // Socrata JSON API — Assessor Parcel Sales (5pge-nu6u), ~500K records
   cook: {
-    label:       'Cook County, IL',
-    url:         'https://datacatalog.cookcountyil.gov/api/views/5pge-nu6u/rows.csv?accessType=DOWNLOAD',
-    socrataUrl:  'https://datacatalog.cookcountyil.gov/resource/5pge-nu6u.json',
-    useSocrata:  true,
-    state:       'IL',
+    label:      'Cook County, IL',
+    socrataUrl: 'https://datacatalog.cookcountyil.gov/resource/5pge-nu6u.json',
+    useSocrata: true,
+    state:      'IL',
     mapRow(r) {
       const address = safeStr(r['addr'] ?? r['address'] ?? r['Address'])
       if (!address) return null
 
-      const city = 'Chicago'
+      const city = 'Chicago'  // no city field in this dataset; Cook County is predominantly Chicago
 
-      const rawPin = safeStr(r['pin'] ?? r['pin14'] ?? r['PIN'] ?? r['PIN14'])
-      const id = rawPin
-        ? `cook-${rawPin.replace(/[^a-zA-Z0-9]/g, '')}`
+      const pin = safeStr(r['pin'] ?? r['pin14'] ?? r['PIN'] ?? r['PIN14'])
+      const id  = pin
+        ? `cook-${pin.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, IL`, city)
 
       const salePrice = safeNum(r['sale_price'])
@@ -141,70 +140,74 @@ const COUNTIES = {
       const estBldg   = safeNum(r['est_bldg'])
       const assessedValue = (estLand != null && estBldg != null) ? estLand + estBldg : null
       const estimatedValue = salePrice ?? assessedValue
-      if (!estimatedValue || estimatedValue <= 0) return null
 
       const sqft = safeNum(r['hd_sf'])
-      const pricePerSqft = sqft && sqft > 0
+      const pricePerSqft = estimatedValue && estimatedValue > 0 && sqft && sqft > 0
         ? Math.round(estimatedValue / sqft) : null
 
       return {
         id,
         address, city,
-        zip: '',
-        estimated_value: Math.round(estimatedValue),
+        zip: '',  // no zip field in this dataset
+        estimated_value: estimatedValue && estimatedValue > 0 ? Math.round(estimatedValue) : null,
         price_per_sqft: pricePerSqft,
         owner_name: null,
-        tax_delinquent: null,
-        lead_type: 'county_record',
+        owner_mailing_address: null, owner_state: null,
+        tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
         loan_balance_estimate: null, days_in_default: null, days_on_market: null,
         previous_listing_price: null, price_drop_percent: null,
         market_avg_price_per_sqft: null, rent_estimate: null, opportunity_score: null,
-        agent_name: null, owner_phone: null, owner_mailing_address: null,
-        owner_state: null, years_owned: null,
+        agent_name: null, owner_phone: null, years_owned: null,
       }
     },
   },
 
   // ── Dallas County, TX ────────────────────────────────────────────────────────
-  // ArcGIS FeatureServer — City of Dallas GIS Open Data, Parcel layer
-  // ~260K parcel records; owner + address from city open data portal.
-  // Note: Full DCAD assessed values require the dcad.org ZIP download (not a REST API).
-  // Previous Socrata endpoint (dallasopendata.com/resource/v9bs-epjb.json) returned
-  // empty objects and has been replaced with this ArcGIS source.
+  // ArcGIS FeatureServer — DCAD_PARCELS (Dallas County GIS, org zqe2kwz79KUqUvxC)
+  // Owner name + address available; no assessed value field in this public layer
+  // (DCAD assessed values are only available as ZIP download from dcad.org).
   dallas: {
     label:        'Dallas County, TX',
-    arcgisUrl:    'https://services.arcgis.com/0L95CJ0VTaxqcmED/arcgis/rest/services/DallasParcels/FeatureServer/0/query',
-    arcgisFields: 'ACCOUNT_NUM,SITUS_NUM,SITUS_STREET,SITUS_APT,SITUS_CITY,SITUS_STATE,SITUS_ZIP,OWNER_NAME,APPRAISED_VALUE,TOTAL_VALUE',
+    arcgisUrl:    'https://services3.arcgis.com/zqe2kwz79KUqUvxC/arcgis/rest/services/DCAD_PARCELS/FeatureServer/0/query',
+    arcgisFields: 'ACCOUNT_NUM,GIS_PARCEL_ID,SiteAddress,STREET_NUM,FULL_STREET_NAME,UNIT_ID,PROPERTY_CITY,PROPERTY_ZIPCODE,OWNER_NAME1,OWNER_NAME2,OWNER_ADDRESS_LINE1,OWNER_STATE',
     useArcGIS:    true,
     state:        'TX',
     mapRow(r) {
-      const streetNum  = safeStr(r['SITUS_NUM'])
-      const streetName = safeStr(r['SITUS_STREET'])
-      if (!streetNum || !streetName) return null
-      const apt     = safeStr(r['SITUS_APT'])
-      const address = apt
-        ? `${streetNum} ${streetName} ${apt}`.trim()
-        : `${streetNum} ${streetName}`.trim()
+      // SiteAddress is a pre-combined field; fall back to assembling from components
+      const siteAddr   = safeStr(r['SiteAddress'])
+      const streetNum  = safeStr(r['STREET_NUM'])
+      const streetName = safeStr(r['FULL_STREET_NAME'])
+      const unit       = safeStr(r['UNIT_ID'])
+      const assembled  = streetNum && streetName
+        ? [streetNum, streetName, unit].filter(Boolean).join(' ').trim()
+        : null
+      const address = siteAddr ?? assembled
+      if (!address) return null
 
-      const city = safeStr(r['SITUS_CITY']) ?? 'Dallas'
-      const zip  = safeStr(r['SITUS_ZIP'])
+      const rawCity = safeStr(r['PROPERTY_CITY'])
+      const city = (!rawCity || rawCity === 'NO TOWN') ? 'Dallas' : rawCity
+      const zip  = r['PROPERTY_ZIPCODE'] != null
+        ? String(r['PROPERTY_ZIPCODE']).padStart(5, '0') : ''
 
-      const ownerName   = safeStr(r['OWNER_NAME'])
-      const acctNum     = safeStr(r['ACCOUNT_NUM'])
+      const ownerName   = safeStr(r['OWNER_NAME1'])
+      const mailAddress = safeStr(r['OWNER_ADDRESS_LINE1'])
+      const mailState   = safeStr(r['OWNER_STATE'])
+
+      const acctNum = safeStr(r['ACCOUNT_NUM']) ?? safeStr(r['GIS_PARCEL_ID'])
       const id = acctNum
         ? `dallas-${acctNum.replace(/[^a-zA-Z0-9]/g, '')}`
         : computeId(`${address}, ${city}, TX`, city)
 
-      const appraisedVal = safeNum(r['APPRAISED_VALUE']) ?? safeNum(r['TOTAL_VALUE'])
-
       return {
         id,
         address, city,
-        zip: zip ?? '',
-        estimated_value: appraisedVal && appraisedVal > 0 ? Math.round(appraisedVal) : null,
+        zip,
+        estimated_value: null,  // not available in this public GIS layer
         price_per_sqft: null,
-        owner_name: ownerName, owner_mailing_address: null, owner_state: null,
+        owner_name: ownerName,
+        owner_mailing_address: mailAddress ?? null,
+        owner_state: mailState ?? null,
         tax_delinquent: null, lead_type: 'county_record',
         absentee_owner: null, vacancy_signal: null, inherited: null,
         loan_balance_estimate: null, days_in_default: null, days_on_market: null,

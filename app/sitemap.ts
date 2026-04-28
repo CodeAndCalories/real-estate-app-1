@@ -44,6 +44,17 @@ const BLOG_POSTS = [
   'tax-delinquent-property-list-by-county',
   'how-to-find-absentee-owner-properties',
   'cheapest-way-to-find-motivated-sellers-2026',
+  'how-to-build-a-wholesale-buyers-list-2026',
+  'pre-foreclosure-leads-ohio-2026',
+  'propstream-vs-batchleads-vs-dealmachine-2026',
+  'how-to-find-pre-foreclosure-properties-before-auction',
+  'best-distressed-property-markets-midwest-2026',
+  'free-skip-tracing-alternatives-real-estate-2026',
+  'how-to-find-inherited-property-leads-2026',
+  'how-to-find-motivated-sellers-2026',
+  'wholesale-real-estate-texas-2026',
+  'distressed-properties-florida-2026',
+  'propertysignalhq-vs-batchleads-2026',
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -140,6 +151,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const comparePages: MetadataRoute.Sitemap = [
     { url: `${BASE}/compare`,                                          lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/compare/propertysignalhq-vs-propstream`,           lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/compare/propertysignalhq-vs-dealmachine`,          lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
   ]
 
   return [...staticPages, ...cityPages, ...blogPages, ...zipPages, ...stateIndexPage, ...statePages, ...leadPages, ...comparePages]

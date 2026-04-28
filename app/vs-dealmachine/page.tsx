@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'DealMachine Alternative — Distressed Leads + Owner Contacts at $39/mo',
   description:
-    'DealMachine starts at $49/mo just for driving for dollars. PropertySignalHQ gives you 700k pre-scored distressed leads, CSV export & owner contacts. Free trial.',
+    'DealMachine starts at $49/mo just for driving for dollars. PropertySignalHQ gives you 1,000,000+ pre-scored distressed leads, CSV export & owner contacts. Free trial.',
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
